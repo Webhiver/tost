@@ -253,6 +253,9 @@ function renderSatellite() {
                 <p class="footer__text">IP: ${AppState.status?.config?.host_ip || 'Unknown'}</p>
             </footer>
         </div>
+        
+        <button class="settings-toggle" onclick="toggleSettings()">⚙</button>
+        ${renderSettings()}
     `;
 }
 
