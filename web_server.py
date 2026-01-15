@@ -1,6 +1,13 @@
+import asyncio
+import machine
 from lib.microdot import Microdot, Response, redirect
 
 app = Microdot()
+
+
+async def delayed_reset():
+    await asyncio.sleep(1)
+    machine.reset()
 
 
 def create_server(state_manager, pairing_manager, config_module, secrets_module):
@@ -87,6 +94,8 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
                 return {"error": "SSID required"}, 400
             
             secrets_module.save(ssid, password)
+            
+            asyncio.create_task(delayed_reset())
             
             return {"status": "ok", "message": "Credentials saved. Device will restart."}
         except Exception as e:
