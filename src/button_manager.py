@@ -9,7 +9,7 @@ import secrets_manager
 
 class ButtonManager:
     
-    LONG_PRESS_MS = 3000
+    LONG_PRESS_MS = 2000
     
     def __init__(self):
         self._button = Button(hardware_config.PIN_BUTTON, pull_up=True)
