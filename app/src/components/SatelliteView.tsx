@@ -37,10 +37,6 @@ export function SatelliteView({ status, onOpenSettings }: SatelliteViewProps) {
         </p>
       </div>
 
-      {/* Footer */}
-      <footer className="py-6 text-center border-t border-border-subtle mt-auto">
-        <p className="text-xs text-text-muted">IP: {status.config?.host_ip || 'Unknown'}</p>
-      </footer>
 
       {/* Settings Toggle */}
       <button 

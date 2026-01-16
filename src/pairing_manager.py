@@ -1,15 +1,16 @@
 import network
 import machine
 import secrets_manager
+import network_config
 import binascii
 
 
 class PairingManager:
     
-    AP_IP = "192.168.4.1"
-    AP_SUBNET = "255.255.255.0"
-    AP_GATEWAY = "192.168.4.1"
-    AP_DNS = "192.168.4.1"
+    AP_IP = network_config.AP_IP
+    AP_SUBNET = network_config.AP_SUBNET
+    AP_GATEWAY = network_config.AP_IP
+    AP_DNS = network_config.AP_IP
     
     def __init__(self):
         self._ap = None

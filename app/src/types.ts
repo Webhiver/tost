@@ -15,7 +15,6 @@ export interface Config {
   target_temp: number
   hysteresis: number
   satellites: string[]
-  host_ip: string
   update_interval: number
   satellite_grace_period: number
   led_brightness: number

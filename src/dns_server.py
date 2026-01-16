@@ -1,6 +1,7 @@
 import asyncio
 import socket
 import struct
+import network_config
 
 
 class DNSServer:
@@ -9,7 +10,9 @@ class DNSServer:
     This makes devices detect a captive portal and show the login page.
     """
     
-    def __init__(self, ip_address="192.168.4.1", port=53):
+    def __init__(self, ip_address=None, port=53):
+        if ip_address is None:
+            ip_address = network_config.AP_IP
         self.ip_address = ip_address
         self.port = port
         self._socket = None

@@ -192,7 +192,6 @@ The Host decides relay state based on aggregated sensor data.
     "target_temp": 22.0,
     "hysteresis": 1.0,
     "satellites": ["192.168.1.5", "192.168.1.6"],
-    "host_ip": "192.168.4.1",
     "update_interval": 4, // Seconds
     "satellite_grace_period": 120, // Seconds
     "led_brightness": 1.0,
