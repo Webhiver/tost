@@ -35,13 +35,6 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
             return redirect('http://192.168.4.1/')
         return None
     
-    @app.after_request
-    async def add_cors_headers(request, response):
-        response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PATCH, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-        return response
-    
     @app.route('/api/status', methods=['GET'])
     async def get_status(request):
         return state_manager.get_all()
@@ -107,31 +100,31 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         return {"status": "ok", "message": "Exiting pairing mode"}
     
     @app.route('/')
-    @app.route('/app')
-    @app.route('/app/')
-    async def serve_app(request):
+    async def serve_index(request):
         try:
             return Response.send_file('app/index.html', content_type='text/html')
         except OSError:
             return "App not found. Please upload the app/ folder.", 404
     
-    @app.route('/app/<path:path>')
-    async def serve_static(request, path):
+    @app.route('/assets/<path:path>')
+    async def serve_assets(request, path):
         try:
             if path.endswith('.js'):
                 content_type = 'application/javascript'
             elif path.endswith('.css'):
                 content_type = 'text/css'
-            elif path.endswith('.html'):
-                content_type = 'text/html'
             elif path.endswith('.svg'):
                 content_type = 'image/svg+xml'
             elif path.endswith('.png'):
                 content_type = 'image/png'
+            elif path.endswith('.woff2'):
+                content_type = 'font/woff2'
+            elif path.endswith('.woff'):
+                content_type = 'font/woff'
             else:
                 content_type = 'application/octet-stream'
             
-            return Response.send_file('app/' + path, content_type=content_type)
+            return Response.send_file('app/assets/' + path, content_type=content_type)
         except OSError:
             return "Not found", 404
     

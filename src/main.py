@@ -55,8 +55,8 @@ async def watchdog_loop():
 async def main():
     print("PicoThermostat starting...")
     
-    init_watchdog()
-    pet_watchdog()
+    # init_watchdog()
+    # pet_watchdog()
     
     init_state()
     
