@@ -12,6 +12,7 @@ from pairing_manager import pairing
 from satellite_manager import SatelliteManager
 from thermostat import Thermostat
 from web_server import create_server, app
+from dns_server import dns_server
 
 
 wdt = None
@@ -84,11 +85,14 @@ async def main():
     
     create_server(state, pairing, config_manager, secrets_manager)
     
+    dns_server.set_state_manager(state)
+    
     tasks = [
         asyncio.create_task(sensor.loop()),
         asyncio.create_task(led.loop()),
         asyncio.create_task(button.loop()),
         asyncio.create_task(watchdog_loop()),
+        asyncio.create_task(dns_server.loop()),
     ]
     
     if config.get("mode") == "host":

@@ -10,30 +10,21 @@ async def delayed_reset():
     machine.reset()
 
 
+CAPTIVE_PORTAL_PATHS = [
+    '/generate_204',
+    '/hotspot-detect.html',
+    '/library/test/success.html',
+    '/connecttest.txt',
+    '/ncsi.txt',
+    '/success.txt',
+    '/canonical.html',
+    '/check_network_status.txt',
+    '/kindle-wifi/wifistub.html',
+    '/redirect',
+]
+
+
 def create_server(state_manager, pairing_manager, config_module, secrets_module):
-    
-    @app.before_request
-    async def captive_portal_redirect(request):
-        if not state_manager.get("is_pairing", False):
-            return None
-        captive_paths = [
-            '/generate_204',
-            '/gen_204',
-            '/hotspot-detect.html',
-            '/library/test/success.html',
-            '/ncsi.txt',
-            '/connecttest.txt',
-            '/redirect',
-            '/success.txt',
-            '/canonical.html',
-            '/favicon.ico'
-        ]
-        if request.path in captive_paths:
-            return redirect('http://192.168.4.1/')
-        host = request.headers.get('Host', '')
-        if host and '192.168.4.1' not in host and not request.path.startswith('/api'):
-            return redirect('http://192.168.4.1/')
-        return None
     
     @app.route('/api/status', methods=['GET'])
     async def get_status(request):
@@ -127,5 +118,13 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
             return Response.send_file('app/assets/' + path, content_type=content_type)
         except OSError:
             return "Not found", 404
+    
+    async def serve_captive_portal(request):
+        if state_manager.get("is_pairing", False):
+            return await serve_index(request)
+        return 'Not found', 404
+    
+    for path in CAPTIVE_PORTAL_PATHS:
+        app.route(path)(serve_captive_portal)
     
     return app
