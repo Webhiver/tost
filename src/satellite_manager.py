@@ -9,6 +9,35 @@ class SatelliteManager:
     
     def __init__(self, state_manager):
         self._state = state_manager
+        self._sync_satellites_from_config()
+        self._state.subscribe("config", self._on_config_change)
+    
+    def _on_config_change(self, new_config, old_config):
+        new_ips = new_config.get("satellites", [])
+        old_ips = old_config.get("satellites", []) if old_config else []
+        if new_ips != old_ips:
+            self._sync_satellites_from_config()
+    
+    def _sync_satellites_from_config(self):
+        """Sync config.satellites (IPs) to state.satellites (full objects)"""
+        config = self._state.get("config", {})
+        config_ips = config.get("satellites", [])
+        current_satellites = self._state.get("satellites", [])
+        current_by_ip = {sat["ip"]: sat for sat in current_satellites}
+        
+        updated_satellites = []
+        for ip in config_ips:
+            if ip in current_by_ip:
+                updated_satellites.append(current_by_ip[ip])
+            else:
+                updated_satellites.append({
+                    "ip": ip,
+                    "sensor": {"temperature": None, "humidity": None},
+                    "last_updated": None,
+                    "online": False
+                })
+        
+        self._state.set("satellites", updated_satellites)
     
     def poll_satellite_sync(self, ip):
         try:

@@ -35,16 +35,6 @@ def pet_watchdog():
 def init_state():
     config = config_manager.load()
     state.set("config", config)
-    
-    satellites = []
-    for ip in config.get("satellites", []):
-        satellites.append({
-            "ip": ip,
-            "sensor": {"temperature": None, "humidity": None},
-            "last_updated": None,
-            "online": False
-        })
-    state.set("satellites", satellites)
 
 
 async def watchdog_loop():
