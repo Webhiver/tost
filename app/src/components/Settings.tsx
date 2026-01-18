@@ -73,60 +73,62 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
 
       {/* Content */}
       <div className="p-5">
-        {/* Temperature Control */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Temperature Control
-          </h3>
-          
-          <SettingRow label="Hysteresis">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={localConfig.hysteresis}
-                onChange={(e) => handleUpdate('hysteresis', parseFloat(e.target.value))}
-                step="0.1"
-                min="0.1"
-                max="5"
-                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
-              />
-              <span>°C</span>
-            </div>
-          </SettingRow>
-          
-          <SettingRow label="Flame On Mode">
-            <select
-              value={localConfig.flame_on_mode}
-              onChange={(e) => handleUpdate('flame_on_mode', e.target.value as 'average' | 'all')}
-              className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-            >
-              <option value="average">Average</option>
-              <option value="all">All Sensors</option>
-            </select>
-          </SettingRow>
-          
-          <SettingRow label="Flame Off Mode">
-            <select
-              value={localConfig.flame_off_mode}
-              onChange={(e) => handleUpdate('flame_off_mode', e.target.value as 'average' | 'all')}
-              className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-            >
-              <option value="average">Average</option>
-              <option value="all">All Sensors</option>
-            </select>
-          </SettingRow>
-          
-          <SettingRow label="Local Sensor">
-            <select
-              value={localConfig.local_sensor}
-              onChange={(e) => handleUpdate('local_sensor', e.target.value as 'included' | 'fallback')}
-              className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-            >
-              <option value="included">Always Include</option>
-              <option value="fallback">Fallback Only</option>
-            </select>
-          </SettingRow>
-        </section>
+        {/* Temperature Control - Host only */}
+        {localConfig.mode !== 'satellite' && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Temperature Control
+            </h3>
+            
+            <SettingRow label="Hysteresis">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={localConfig.hysteresis}
+                  onChange={(e) => handleUpdate('hysteresis', parseFloat(e.target.value))}
+                  step="0.1"
+                  min="0.1"
+                  max="5"
+                  className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
+                />
+                <span>°C</span>
+              </div>
+            </SettingRow>
+            
+            <SettingRow label="Flame On Mode">
+              <select
+                value={localConfig.flame_on_mode}
+                onChange={(e) => handleUpdate('flame_on_mode', e.target.value as 'average' | 'all')}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="average">Average</option>
+                <option value="all">All Sensors</option>
+              </select>
+            </SettingRow>
+            
+            <SettingRow label="Flame Off Mode">
+              <select
+                value={localConfig.flame_off_mode}
+                onChange={(e) => handleUpdate('flame_off_mode', e.target.value as 'average' | 'all')}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="average">Average</option>
+                <option value="all">All Sensors</option>
+              </select>
+            </SettingRow>
+            
+            <SettingRow label="Local Sensor">
+              <select
+                value={localConfig.local_sensor}
+                onChange={(e) => handleUpdate('local_sensor', e.target.value as 'included' | 'fallback')}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="included">Always Include</option>
+                <option value="fallback">Fallback Only</option>
+              </select>
+            </SettingRow>
+          </section>
+        )}
 
         {/* Sensor Calibration */}
         <section className="mb-6">
@@ -165,42 +167,44 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
           </SettingRow>
         </section>
 
-        {/* Timing */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Timing
-          </h3>
-          
-          <SettingRow label="Satellite Grace Period">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={localConfig.satellite_grace_period}
-                onChange={(e) => handleUpdate('satellite_grace_period', parseInt(e.target.value))}
-                step="10"
-                min="30"
-                max="600"
-                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
-              />
-              <span>sec</span>
-            </div>
-          </SettingRow>
-          
-          <SettingRow label="Max Flame Duration">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={Math.round(localConfig.max_flame_duration / 3600)}
-                onChange={(e) => handleUpdate('max_flame_duration', parseInt(e.target.value) * 3600)}
-                step="1"
-                min="1"
-                max="24"
-                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
-              />
-              <span>hours</span>
-            </div>
-          </SettingRow>
-        </section>
+        {/* Timing - Host only */}
+        {localConfig.mode !== 'satellite' && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Timing
+            </h3>
+            
+            <SettingRow label="Satellite Grace Period">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={localConfig.satellite_grace_period}
+                  onChange={(e) => handleUpdate('satellite_grace_period', parseInt(e.target.value))}
+                  step="10"
+                  min="30"
+                  max="600"
+                  className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
+                />
+                <span>sec</span>
+              </div>
+            </SettingRow>
+            
+            <SettingRow label="Max Flame Duration">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={Math.round(localConfig.max_flame_duration / 3600)}
+                  onChange={(e) => handleUpdate('max_flame_duration', parseInt(e.target.value) * 3600)}
+                  step="1"
+                  min="1"
+                  max="24"
+                  className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
+                />
+                <span>hours</span>
+              </div>
+            </SettingRow>
+          </section>
+        )}
 
         {/* Display */}
         <section className="mb-6">
@@ -220,44 +224,46 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
           </SettingRow>
         </section>
 
-        {/* Satellites */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Satellites
-          </h3>
-          
-          {localConfig.satellites.map((sat, idx) => (
-            <div key={idx} className="flex items-center gap-2 py-3.5 border-b border-border-subtle last:border-b-0">
-              <input
-                type="text"
-                value={sat.name}
-                onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
-                placeholder="Name"
-                className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-              />
-              <input
-                type="text"
-                value={sat.ip}
-                onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
-                placeholder="192.168.1.x"
-                className="w-[130px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
-              />
-              <button
-                onClick={() => handleRemoveSatellite(idx)}
-                className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-          
-          <button
-            onClick={handleAddSatellite}
-            className="w-full mt-4 px-6 py-4 bg-transparent text-text-secondary border border-border-visible rounded-md text-base font-semibold transition-all hover:bg-tertiary hover:text-text-primary"
-          >
-            + Add Satellite
-          </button>
-        </section>
+        {/* Satellites - Host only */}
+        {localConfig.mode !== 'satellite' && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Satellites
+            </h3>
+            
+            {localConfig.satellites.map((sat, idx) => (
+              <div key={idx} className="flex items-center gap-2 py-3.5 border-b border-border-subtle last:border-b-0">
+                <input
+                  type="text"
+                  value={sat.name}
+                  onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
+                  placeholder="Name"
+                  className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                />
+                <input
+                  type="text"
+                  value={sat.ip}
+                  onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
+                  placeholder="192.168.1.x"
+                  className="w-[130px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
+                />
+                <button
+                  onClick={() => handleRemoveSatellite(idx)}
+                  className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            
+            <button
+              onClick={handleAddSatellite}
+              className="w-full mt-4 px-6 py-4 bg-transparent text-text-secondary border border-border-visible rounded-md text-base font-semibold transition-all hover:bg-tertiary hover:text-text-primary"
+            >
+              + Add Satellite
+            </button>
+          </section>
+        )}
 
         {/* Device */}
         <section className="mb-6">
