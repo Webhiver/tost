@@ -95,9 +95,16 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
                   {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
                 </span>
               </div>
-              <span className={`font-mono text-lg font-medium ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
-                {sat.online ? `${formatTemp(sat.sensor?.temperature)}°C` : 'No data'}
-              </span>
+              <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
+                {sat.online ? (
+                  <>
+                    <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
+                    <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
+                  </>
+                ) : (
+                  <span className="text-sm">No data</span>
+                )}
+              </div>
             </div>
           ))}
         </div>
