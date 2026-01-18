@@ -1,59 +1,127 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Config } from '../types'
-import { updateConfig } from '../api'
+import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 
-interface SettingsProps {
-  config: Config
-  isOpen: boolean
-  onClose: () => void
-  onConfigUpdate: (updates: Partial<Config>) => void
+export interface SatelliteTarget {
+  ip: string
+  name: string
 }
 
-export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsProps) {
-  const [localConfig, setLocalConfig] = useState(config)
+interface SettingsProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfigUpdate?: (updates: Partial<Config>) => void
+  satellite?: SatelliteTarget
+}
+
+export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: SettingsProps) {
+  const [localConfig, setLocalConfig] = useState<Config | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const loadConfig = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const config = satellite 
+        ? await fetchSatelliteConfig(satellite.ip)
+        : await fetchConfig()
+      setLocalConfig(config)
+    } catch (err) {
+      console.error('Failed to load config:', err)
+      setError('Failed to load settings')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [satellite])
+
+  useEffect(() => {
+    if (isOpen) {
+      loadConfig()
+    } else {
+      // Reset state when closing
+      setLocalConfig(null)
+      setError(null)
+    }
+  }, [isOpen, loadConfig])
 
   const handleUpdate = async (key: keyof Config, value: Config[keyof Config]) => {
-    setLocalConfig(prev => ({ ...prev, [key]: value }))
-    onConfigUpdate({ [key]: value })
+    if (!localConfig) return
+    setLocalConfig(prev => prev ? { ...prev, [key]: value } : null)
+    if (!satellite) {
+      onConfigUpdate?.({ [key]: value })
+    }
     try {
-      await updateConfig({ [key]: value })
+      if (satellite) {
+        await updateSatelliteConfig(satellite.ip, { [key]: value })
+      } else {
+        await updateConfig({ [key]: value })
+      }
     } catch (err) {
       console.error('Failed to update config:', err)
     }
   }
 
   const handleSatelliteChange = async (index: number, field: 'ip' | 'name', value: string) => {
+    if (!localConfig) return
     const satellites = [...localConfig.satellites]
     satellites[index] = { ...satellites[index], [field]: value }
-    setLocalConfig(prev => ({ ...prev, satellites }))
-    onConfigUpdate({ satellites })
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
+    if (!satellite) {
+      onConfigUpdate?.({ satellites })
+    }
     try {
-      await updateConfig({ satellites })
+      if (satellite) {
+        await updateSatelliteConfig(satellite.ip, { satellites })
+      } else {
+        await updateConfig({ satellites })
+      }
     } catch (err) {
       console.error('Failed to update satellites:', err)
     }
   }
 
   const handleAddSatellite = async () => {
+    if (!localConfig) return
     const satellites = [...localConfig.satellites, { ip: '', name: '' }]
-    setLocalConfig(prev => ({ ...prev, satellites }))
-    onConfigUpdate({ satellites })
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
+    if (!satellite) {
+      onConfigUpdate?.({ satellites })
+    }
     try {
-      await updateConfig({ satellites })
+      if (satellite) {
+        await updateSatelliteConfig(satellite.ip, { satellites })
+      } else {
+        await updateConfig({ satellites })
+      }
     } catch (err) {
       console.error('Failed to add satellite:', err)
     }
   }
 
   const handleRemoveSatellite = async (index: number) => {
+    if (!localConfig) return
     const satellites = localConfig.satellites.filter((_, i) => i !== index)
-    setLocalConfig(prev => ({ ...prev, satellites }))
-    onConfigUpdate({ satellites })
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
+    if (!satellite) {
+      onConfigUpdate?.({ satellites })
+    }
     try {
-      await updateConfig({ satellites })
+      if (satellite) {
+        await updateSatelliteConfig(satellite.ip, { satellites })
+      } else {
+        await updateConfig({ satellites })
+      }
     } catch (err) {
       console.error('Failed to remove satellite:', err)
     }
+  }
+
+  const getTitle = () => {
+    if (satellite) {
+      return satellite.name ? `${satellite.name} (${satellite.ip})` : satellite.ip
+    }
+    return 'Settings'
   }
 
   return (
@@ -62,7 +130,12 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
     >
       {/* Header */}
       <div className="flex justify-between items-center p-5 border-b border-border-subtle sticky top-0 bg-primary">
-        <h2 className="text-lg font-semibold">Settings</h2>
+        <div className="flex flex-col">
+          <h2 className="text-lg font-semibold">{satellite ? 'Satellite Settings' : 'Settings'}</h2>
+          {satellite && (
+            <span className="text-xs text-text-muted mt-0.5">{getTitle()}</span>
+          )}
+        </div>
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-transparent border border-border-visible text-text-primary text-xl flex items-center justify-center"
@@ -71,10 +144,33 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
         </button>
       </div>
 
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-8 h-8 border-2 border-text-muted border-t-text-primary rounded-full animate-spin" />
+          <span className="text-sm text-text-muted">Loading settings...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="text-3xl">⚠️</div>
+          <span className="text-sm text-text-secondary">{error}</span>
+          <button 
+            onClick={loadConfig}
+            className="mt-2 px-4 py-2 bg-tertiary border border-border-visible rounded-md text-sm font-medium transition-all hover:bg-elevated"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Content */}
+      {localConfig && !isLoading && !error && (
       <div className="p-5">
         {/* Temperature Control - Host only */}
-        {localConfig.mode !== 'satellite' && (
+        {localConfig.mode !== 'satellite' && !satellite && (
           <section className="mb-6">
             <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
               Temperature Control
@@ -168,7 +264,7 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
         </section>
 
         {/* Timing - Host only */}
-        {localConfig.mode !== 'satellite' && (
+        {localConfig.mode !== 'satellite' && !satellite && (
           <section className="mb-6">
             <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
               Timing
@@ -225,7 +321,7 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
         </section>
 
         {/* Satellites - Host only */}
-        {localConfig.mode !== 'satellite' && (
+        {localConfig.mode !== 'satellite' && !satellite && (
           <section className="mb-6">
             <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
               Satellites
@@ -265,24 +361,27 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
           </section>
         )}
 
-        {/* Device */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Device
-          </h3>
-          
-          <SettingRow label="Mode">
-            <select
-              value={localConfig.mode}
-              onChange={(e) => handleUpdate('mode', e.target.value as 'host' | 'satellite')}
-              className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-            >
-              <option value="host">Host</option>
-              <option value="satellite">Satellite</option>
-            </select>
-          </SettingRow>
-        </section>
+        {/* Device - Not shown when editing satellite remotely */}
+        {!satellite && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Device
+            </h3>
+            
+            <SettingRow label="Mode">
+              <select
+                value={localConfig.mode}
+                onChange={(e) => handleUpdate('mode', e.target.value as 'host' | 'satellite')}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="host">Host</option>
+                <option value="satellite">Satellite</option>
+              </select>
+            </SettingRow>
+          </section>
+        )}
       </div>
+      )}
     </div>
   )
 }

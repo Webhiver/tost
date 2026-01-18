@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { useStatus } from './hooks/useStatus'
 import { Loading } from './components/Loading'
 import { Dashboard } from './components/Dashboard'
 import { SatelliteView } from './components/SatelliteView'
 import { Pairing } from './components/Pairing'
-import { Settings } from './components/Settings'
+import { Settings, SatelliteTarget } from './components/Settings'
 
 function App() {
   const {
@@ -14,6 +15,8 @@ function App() {
     setSettingsOpen,
     updateLocalConfig,
   } = useStatus()
+
+  const [satelliteSettings, setSatelliteSettings] = useState<SatelliteTarget | null>(null)
 
   if (isLoading) {
     return <Loading />
@@ -51,14 +54,11 @@ function App() {
           status={status} 
           onOpenSettings={() => setSettingsOpen(true)} 
         />
-        {status.config && (
-          <Settings
-            config={status.config}
-            isOpen={settingsOpen}
-            onClose={() => setSettingsOpen(false)}
-            onConfigUpdate={updateLocalConfig}
-          />
-        )}
+        <Settings
+          isOpen={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onConfigUpdate={updateLocalConfig}
+        />
       </>
     )
   }
@@ -69,16 +69,19 @@ function App() {
       <Dashboard 
         status={status} 
         onOpenSettings={() => setSettingsOpen(true)}
+        onOpenSatelliteSettings={setSatelliteSettings}
         onConfigUpdate={updateLocalConfig}
       />
-      {status.config && (
-        <Settings
-          config={status.config}
-          isOpen={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-          onConfigUpdate={updateLocalConfig}
-        />
-      )}
+      <Settings
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onConfigUpdate={updateLocalConfig}
+      />
+      <Settings
+        isOpen={satelliteSettings !== null}
+        onClose={() => setSatelliteSettings(null)}
+        satellite={satelliteSettings ?? undefined}
+      />
     </>
   )
 }

@@ -51,3 +51,15 @@ export async function exitPairing(): Promise<{ status: string; message: string }
     method: 'POST',
   })
 }
+
+// Satellite proxy functions
+export async function fetchSatelliteConfig(ip: string): Promise<Config> {
+  return api<Config>(`/satellite-proxy/${ip}/config`)
+}
+
+export async function updateSatelliteConfig(ip: string, updates: Partial<Config>): Promise<{ status: string; config: Config }> {
+  return api<{ status: string; config: Config }>(`/satellite-proxy/${ip}/config`, {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  })
+}

@@ -1,4 +1,5 @@
 import type { Status } from '../types'
+import type { SatelliteTarget } from './Settings'
 import { formatTemp, formatHumidity, formatDuration } from '../utils'
 import { Header } from './Header'
 import { updateConfig } from '../api'
@@ -6,10 +7,11 @@ import { updateConfig } from '../api'
 interface DashboardProps {
   status: Status
   onOpenSettings: () => void
+  onOpenSatelliteSettings: (satellite: SatelliteTarget) => void
   onConfigUpdate: (updates: Partial<Status['config']>) => void
 }
 
-export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardProps) {
+export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate }: DashboardProps) {
   const isHeating = status.flame
   const temp = status.sensor?.temperature
   const humidity = status.sensor?.humidity
@@ -110,14 +112,25 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
                     {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
                   </span>
                 </div>
-                <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
-                  {sat.online ? (
-                    <>
-                      <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
-                      <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
-                    </>
-                  ) : (
-                    <span className="text-sm">No data</span>
+                <div className="flex items-center gap-3">
+                  <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
+                    {sat.online ? (
+                      <>
+                        <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
+                        <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
+                      </>
+                    ) : (
+                      <span className="text-sm">No data</span>
+                    )}
+                  </div>
+                  {sat.online && (
+                    <button
+                      onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
+                      className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
+                      title="Satellite settings"
+                    >
+                      ⚙
+                    </button>
                   )}
                 </div>
               </div>
