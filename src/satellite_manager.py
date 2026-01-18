@@ -1,12 +1,12 @@
 import asyncio
-import urequests
+import json
 from time import ticks_ms
 from network_config import SATELLITE_POLLING_INTERVAL
 
 
 class SatelliteManager:
     
-    TIMEOUT_MS = 5000
+    TIMEOUT_S = 5
     
     def __init__(self, state_manager):
         self._state = state_manager
@@ -46,47 +46,105 @@ class SatelliteManager:
         
         self._state.set("satellites", updated_satellites)
     
-    def poll_satellite_sync(self, ip):
-        """Poll a satellite and return (success, sensor_data).
+    async def poll_satellite_async(self, ip):
+        """Async poll a satellite using asyncio.open_connection().
         
         Returns:
             (True, sensor_data) if HTTP request succeeded
             (False, error_message) if HTTP request failed
         """
+        reader = None
+        writer = None
         try:
-            url = "http://{}:80/api/readings".format(ip)
-            response = urequests.get(url, timeout=self.TIMEOUT_MS / 1000)
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(ip, 80),
+                timeout=self.TIMEOUT_S
+            )
             
-            if response.status_code == 200:
-                data = response.json()
-                response.close()
-                # Return the sensor data as-is from the satellite
-                sensor_data = {
-                    "temperature": data.get("temperature"),
-                    "humidity": data.get("humidity"),
-                    "healthy": data.get("healthy"),
-                    "message": data.get("message")
-                }
-                return True, sensor_data
+            # Send HTTP GET request
+            request = "GET /api/readings HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n\r\n".format(ip)
+            writer.write(request.encode())
+            await writer.drain()
+            
+            # Read response until EOF (server closes connection)
+            chunks = []
+            while True:
+                chunk = await asyncio.wait_for(
+                    reader.read(512),
+                    timeout=self.TIMEOUT_S
+                )
+                if not chunk:
+                    break
+                chunks.append(chunk)
+            
+            response = b"".join(chunks).decode()
+            
+            writer.close()
+            await writer.wait_closed()
+            
+            # Parse HTTP response - handle both \r\n\r\n and \n\n
+            header_end = response.find("\r\n\r\n")
+            body_offset = 4
+            if header_end == -1:
+                header_end = response.find("\n\n")
+                body_offset = 2
+            
+            if header_end != -1:
+                headers = response[:header_end]
+                body = response[header_end + body_offset:]
+                status_line = headers.split("\n")[0]
+                
+                if "200" in status_line:
+                    data = json.loads(body)
+                    sensor_data = {
+                        "temperature": data.get("temperature"),
+                        "humidity": data.get("humidity"),
+                        "healthy": data.get("healthy"),
+                        "message": data.get("message")
+                    }
+                    return True, sensor_data
+                else:
+                    return False, "HTTP error: {}".format(status_line)
             else:
-                response.close()
-                return False, "HTTP error: {}".format(response.status_code)
+                return False, "Invalid HTTP response"
             
+        except asyncio.TimeoutError:
+            return False, "Connection timeout"
         except Exception as e:
             return False, "Connection failed"
+        finally:
+            if writer:
+                try:
+                    writer.close()
+                    await writer.wait_closed()
+                except:
+                    pass
     
-    def poll_all_satellites(self):
+    async def poll_all_satellites_async(self):
+        """Poll all satellites concurrently without blocking."""
         satellites = self._state.get("satellites", [])
+        if not satellites:
+            return
+        
         current_tick = ticks_ms()
         config = self._state.get("config", {})
         grace_period_ms = config.get("satellite_grace_period", 120) * 1000
         
+        # Poll all satellites concurrently
+        tasks = [self.poll_satellite_async(sat["ip"]) for sat in satellites]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
         updated_satellites = []
         
-        for sat in satellites:
+        for sat, result in zip(satellites, results):
             ip = sat["ip"]
             name = sat.get("name", "")
-            success, result = self.poll_satellite_sync(ip)
+            
+            # Handle exceptions from gather
+            if isinstance(result, Exception):
+                success, result = False, "Connection failed"
+            else:
+                success, result = result
             
             if success:
                 # Poll succeeded - satellite is online, use sensor data from satellite
@@ -129,5 +187,5 @@ class SatelliteManager:
         while True:
             config = self._state.get("config", {})
             if config.get("mode") == "host" and not self._state.get("is_pairing"):
-                self.poll_all_satellites()
+                await self.poll_all_satellites_async()
             await asyncio.sleep(SATELLITE_POLLING_INTERVAL)
