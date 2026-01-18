@@ -87,7 +87,7 @@ async def main():
     
     if config.get("mode") == "host":
         tasks.append(asyncio.create_task(sat_manager.loop()))
-        tasks.append(asyncio.create_task(thermostat.loop()))
+        thermostat.start()
     
     print("Starting web server on port 80...")
     server_task = asyncio.create_task(app.start_server(host='0.0.0.0', port=80))
