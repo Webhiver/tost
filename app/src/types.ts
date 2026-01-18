@@ -3,8 +3,14 @@ export interface SensorData {
   humidity: number | null
 }
 
+export interface SatelliteConfig {
+  ip: string
+  name: string
+}
+
 export interface Satellite {
   ip: string
+  name: string
   sensor: SensorData
   last_updated: number
   online: boolean
@@ -14,7 +20,7 @@ export interface Config {
   mode: 'host' | 'satellite'
   target_temp: number
   hysteresis: number
-  satellites: string[]
+  satellites: SatelliteConfig[]
   update_interval: number
   satellite_grace_period: number
   led_brightness: number

@@ -89,9 +89,10 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
               className={`flex justify-between items-center py-3.5 ${idx > 0 ? 'border-t border-border-subtle' : ''}`}
             >
               <div className="flex flex-col gap-0.5">
-                <span className="font-mono text-sm text-text-secondary">{sat.ip}</span>
+                <span className="text-sm text-text-primary">{sat.name || sat.ip}</span>
                 <span className={`text-[0.7rem] ${sat.online ? 'text-cool' : 'text-text-muted'}`}>
                   {sat.online ? '● Online' : '○ Offline'}
+                  {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
                 </span>
               </div>
               <span className={`font-mono text-lg font-medium ${!sat.online ? 'text-text-muted text-sm' : ''}`}>

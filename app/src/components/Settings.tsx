@@ -22,9 +22,9 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
     }
   }
 
-  const handleSatelliteChange = async (index: number, value: string) => {
+  const handleSatelliteChange = async (index: number, field: 'ip' | 'name', value: string) => {
     const satellites = [...localConfig.satellites]
-    satellites[index] = value
+    satellites[index] = { ...satellites[index], [field]: value }
     setLocalConfig(prev => ({ ...prev, satellites }))
     onConfigUpdate({ satellites })
     try {
@@ -35,7 +35,7 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
   }
 
   const handleAddSatellite = async () => {
-    const satellites = [...localConfig.satellites, '']
+    const satellites = [...localConfig.satellites, { ip: '', name: '' }]
     setLocalConfig(prev => ({ ...prev, satellites }))
     onConfigUpdate({ satellites })
     try {
@@ -204,18 +204,25 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
             Satellites
           </h3>
           
-          {localConfig.satellites.map((ip, idx) => (
-            <div key={idx} className="flex justify-between items-center py-3.5 border-b border-border-subtle last:border-b-0">
+          {localConfig.satellites.map((sat, idx) => (
+            <div key={idx} className="flex items-center gap-2 py-3.5 border-b border-border-subtle last:border-b-0">
               <input
                 type="text"
-                value={ip}
-                onChange={(e) => handleSatelliteChange(idx, e.target.value)}
+                value={sat.name}
+                onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
+                placeholder="Name"
+                className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              />
+              <input
+                type="text"
+                value={sat.ip}
+                onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
                 placeholder="192.168.1.x"
-                className="w-[140px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
+                className="w-[130px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
               />
               <button
                 onClick={() => handleRemoveSatellite(idx)}
-                className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary"
+                className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
               >
                 ×
               </button>

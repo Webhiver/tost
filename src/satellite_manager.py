@@ -13,25 +13,31 @@ class SatelliteManager:
         self._state.subscribe("config", self._on_config_change)
     
     def _on_config_change(self, new_config, old_config):
-        new_ips = new_config.get("satellites", [])
-        old_ips = old_config.get("satellites", []) if old_config else []
-        if new_ips != old_ips:
+        new_sats = new_config.get("satellites", [])
+        old_sats = old_config.get("satellites", []) if old_config else []
+        if new_sats != old_sats:
             self._sync_satellites_from_config()
     
     def _sync_satellites_from_config(self):
-        """Sync config.satellites (IPs) to state.satellites (full objects)"""
+        """Sync config.satellites (objects with ip/name) to state.satellites (full objects)"""
         config = self._state.get("config", {})
-        config_ips = config.get("satellites", [])
+        config_sats = config.get("satellites", [])
         current_satellites = self._state.get("satellites", [])
         current_by_ip = {sat["ip"]: sat for sat in current_satellites}
         
         updated_satellites = []
-        for ip in config_ips:
+        for sat_config in config_sats:
+            ip = sat_config.get("ip", "")
+            name = sat_config.get("name", "")
+            
             if ip in current_by_ip:
-                updated_satellites.append(current_by_ip[ip])
+                existing = current_by_ip[ip]
+                existing["name"] = name  # Always update name from config
+                updated_satellites.append(existing)
             else:
                 updated_satellites.append({
                     "ip": ip,
+                    "name": name,
                     "sensor": {"temperature": None, "humidity": None},
                     "last_updated": None,
                     "online": False
@@ -87,11 +93,13 @@ class SatelliteManager:
         
         for sat in satellites:
             ip = sat["ip"]
+            name = sat.get("name", "")
             temp, humidity = self.poll_satellite_sync(ip)
             
             if temp is not None and humidity is not None:
                 updated_satellites.append({
                     "ip": ip,
+                    "name": name,
                     "sensor": {"temperature": temp, "humidity": humidity},
                     "last_updated": current_tick,
                     "online": True
@@ -108,6 +116,7 @@ class SatelliteManager:
                 
                 updated_satellites.append({
                     "ip": ip,
+                    "name": name,
                     "sensor": sat.get("sensor", {"temperature": None, "humidity": None}),
                     "last_updated": last_updated,
                     "online": online
