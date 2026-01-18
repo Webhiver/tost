@@ -128,6 +128,43 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
           </SettingRow>
         </section>
 
+        {/* Sensor Calibration */}
+        <section className="mb-6">
+          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+            Sensor Calibration
+          </h3>
+          
+          <SettingRow label="Temperature Offset">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={localConfig.sensor_temperature_offset}
+                onChange={(e) => handleUpdate('sensor_temperature_offset', parseFloat(e.target.value))}
+                step="0.1"
+                min="-10"
+                max="10"
+                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
+              />
+              <span>°C</span>
+            </div>
+          </SettingRow>
+          
+          <SettingRow label="Humidity Offset">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={localConfig.sensor_humidity_offset}
+                onChange={(e) => handleUpdate('sensor_humidity_offset', parseFloat(e.target.value))}
+                step="1"
+                min="-20"
+                max="20"
+                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
+              />
+              <span>%</span>
+            </div>
+          </SettingRow>
+        </section>
+
         {/* Timing */}
         <section className="mb-6">
           <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">

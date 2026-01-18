@@ -11,7 +11,9 @@ DEFAULT_CONFIG = {
     "flame_on_mode": "average",
     "flame_off_mode": "average",
     "local_sensor": "included",
-    "max_flame_duration": 14400
+    "max_flame_duration": 14400,
+    "sensor_temperature_offset": 0.0,
+    "sensor_humidity_offset": 0.0
 }
 
 CONFIG_FILE = "config.json"

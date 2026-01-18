@@ -30,6 +30,8 @@ export interface Config {
   flame_off_mode: 'average' | 'all'
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
+  sensor_temperature_offset: number
+  sensor_humidity_offset: number
 }
 
 export interface Status {

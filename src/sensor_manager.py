@@ -31,6 +31,17 @@ class SensorManager:
             if not humidity_valid:
                 humidity = None
             
+            # Apply offsets from config
+            config = state.get("config", {})
+            if temp is not None:
+                temp_offset = config.get("sensor_temperature_offset", 0.0)
+                temp = round(temp + temp_offset, 1)
+            if humidity is not None:
+                humidity_offset = config.get("sensor_humidity_offset", 0.0)
+                humidity = round(humidity + humidity_offset, 1)
+                # Clamp humidity to valid range after offset
+                humidity = max(self.MIN_HUMIDITY, min(self.MAX_HUMIDITY, humidity))
+            
             self._last_temp = temp
             self._last_humidity = humidity
             
