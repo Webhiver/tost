@@ -1,6 +1,8 @@
 export interface SensorData {
   temperature: number | null
   humidity: number | null
+  healthy: boolean
+  message: string
 }
 
 export interface SatelliteConfig {

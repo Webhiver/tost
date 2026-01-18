@@ -64,7 +64,9 @@ state = StateManager({
     "wifi_connected": False,
     "sensor": {
         "temperature": None,
-        "humidity": None
+        "humidity": None,
+        "healthy": False,
+        "message": "Initializing..."
     },
     "flame": False,
     "flame_start_tick": None,

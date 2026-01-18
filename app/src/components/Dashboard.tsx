@@ -13,6 +13,8 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
   const isHeating = status.flame
   const temp = status.sensor?.temperature
   const humidity = status.sensor?.humidity
+  const sensorHealthy = status.sensor?.healthy ?? true
+  const sensorError = status.sensor?.message ?? ''
   const target = status.config?.target_temp ?? 22
   const satellites = status.satellites || []
   const onlineCount = satellites.filter(s => s.online).length
@@ -46,6 +48,14 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
           </svg>
           <span>{formatHumidity(humidity)}% humidity</span>
         </div>
+        {!sensorHealthy && (
+          <div className="mt-3 flex items-center justify-center gap-1.5 text-sm text-amber-400">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 10v4h2v-4h-2zm0 6v2h2v-2h-2z"/>
+            </svg>
+            <span>{sensorError || 'Sensor issue'}</span>
+          </div>
+        )}
       </div>
 
       {/* Target Control */}
@@ -83,30 +93,36 @@ export function Dashboard({ status, onOpenSettings, onConfigUpdate }: DashboardP
               {onlineCount}/{satellites.length} online
             </span>
           </div>
-          {satellites.map((sat, idx) => (
-            <div 
-              key={sat.ip} 
-              className={`flex justify-between items-center py-3.5 ${idx > 0 ? 'border-t border-border-subtle' : ''}`}
-            >
-              <div className="flex flex-col gap-0.5">
-                <span className="text-sm text-text-primary">{sat.name || sat.ip}</span>
-                <span className={`text-[0.7rem] ${sat.online ? 'text-cool' : 'text-text-muted'}`}>
-                  {sat.online ? '● Online' : '○ Offline'}
-                  {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
-                </span>
+          {satellites.map((sat, idx) => {
+            const satHealthy = sat.sensor?.healthy
+            const satError = sat.sensor?.message
+            return (
+              <div 
+                key={sat.ip} 
+                className={`flex justify-between items-center py-3.5 ${idx > 0 ? 'border-t border-border-subtle' : ''}`}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-sm text-text-primary">{sat.name || sat.ip}</span>
+                  <span className={`text-[0.7rem] ${sat.online ? (satHealthy ? 'text-cool' : 'text-amber-400') : 'text-text-muted'}`}>
+                    {sat.online 
+                      ? (satHealthy ? '● Online' : '⚠ ' + (satError || 'Sensor issue'))
+                      : '○ Offline'}
+                    {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
+                  </span>
+                </div>
+                <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
+                  {sat.online ? (
+                    <>
+                      <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
+                      <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
+                    </>
+                  ) : (
+                    <span className="text-sm">No data</span>
+                  )}
+                </div>
               </div>
-              <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
-                {sat.online ? (
-                  <>
-                    <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
-                    <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
-                  </>
-                ) : (
-                  <span className="text-sm">No data</span>
-                )}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

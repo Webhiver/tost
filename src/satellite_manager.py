@@ -38,7 +38,7 @@ class SatelliteManager:
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": {"temperature": None, "humidity": None},
+                    "sensor": {"temperature": None, "humidity": None, "healthy": False, "message": "Not yet polled"},
                     "last_updated": None,
                     "online": False
                 })
@@ -46,42 +46,33 @@ class SatelliteManager:
         self._state.set("satellites", updated_satellites)
     
     def poll_satellite_sync(self, ip):
+        """Poll a satellite and return (success, sensor_data).
+        
+        Returns:
+            (True, sensor_data) if HTTP request succeeded
+            (False, error_message) if HTTP request failed
+        """
         try:
             url = "http://{}:80/api/readings".format(ip)
             response = urequests.get(url, timeout=self.TIMEOUT_MS / 1000)
             
             if response.status_code == 200:
                 data = response.json()
-                temp = data.get("temperature")
-                humidity = data.get("humidity")
                 response.close()
-                
-                if self._is_valid_reading(temp, humidity):
-                    return temp, humidity
+                # Return the sensor data as-is from the satellite
+                sensor_data = {
+                    "temperature": data.get("temperature"),
+                    "humidity": data.get("humidity"),
+                    "healthy": data.get("healthy"),
+                    "message": data.get("message")
+                }
+                return True, sensor_data
             else:
                 response.close()
+                return False, "HTTP error: {}".format(response.status_code)
             
-            return None, None
-            
-        except Exception:
-            return None, None
-    
-    def _is_valid_reading(self, temp, humidity):
-        if temp is None or humidity is None:
-            return False
-        
-        try:
-            if temp != temp or humidity != humidity:
-                return False
-            
-            if temp < -40 or temp > 80:
-                return False
-            if humidity < 0 or humidity > 100:
-                return False
-            
-            return True
-        except (TypeError, ValueError):
-            return False
+        except Exception as e:
+            return False, "Connection failed"
     
     def poll_all_satellites(self):
         satellites = self._state.get("satellites", [])
@@ -94,17 +85,19 @@ class SatelliteManager:
         for sat in satellites:
             ip = sat["ip"]
             name = sat.get("name", "")
-            temp, humidity = self.poll_satellite_sync(ip)
+            success, result = self.poll_satellite_sync(ip)
             
-            if temp is not None and humidity is not None:
+            if success:
+                # Poll succeeded - satellite is online, use sensor data from satellite
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": {"temperature": temp, "humidity": humidity},
+                    "sensor": result,  # sensor_data dict from satellite
                     "last_updated": current_tick,
                     "online": True
                 })
             else:
+                # Poll failed - check grace period for online status
                 last_updated = sat.get("last_updated")
                 online = False
                 
@@ -114,10 +107,17 @@ class SatelliteManager:
                         elapsed = current_tick + (0xFFFFFFFF - last_updated)
                     online = elapsed <= grace_period_ms
                 
+                # Keep existing sensor data, update message with connection error
+                existing_sensor = sat.get("sensor", {"temperature": None, "humidity": None, "healthy": False, "message": ""})
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": sat.get("sensor", {"temperature": None, "humidity": None}),
+                    "sensor": {
+                        "temperature": existing_sensor.get("temperature"),
+                        "humidity": existing_sensor.get("humidity"),
+                        "healthy": False,
+                        "message": result  # error message string
+                    },
                     "last_updated": last_updated,
                     "online": online
                 })

@@ -23,18 +23,29 @@ class SensorManager:
             temp = self._sensor.temperature()
             humidity = self._sensor.humidity()
             
-            if not self._is_valid_temp(temp):
+            temp_valid = self._is_valid_temp(temp)
+            humidity_valid = self._is_valid_humidity(humidity)
+            
+            if not temp_valid:
                 temp = None
-            if not self._is_valid_humidity(humidity):
+            if not humidity_valid:
                 humidity = None
             
             self._last_temp = temp
             self._last_humidity = humidity
             
-            return temp, humidity
+            # Determine health status
+            if temp is None and humidity is None:
+                return temp, humidity, False, "No valid readings"
+            elif temp is None:
+                return temp, humidity, False, "Invalid temperature"
+            elif humidity is None:
+                return temp, humidity, False, "Invalid humidity"
+            else:
+                return temp, humidity, True, ""
             
-        except OSError:
-            return None, None
+        except OSError as e:
+            return None, None, False, "Sensor read error"
     
     def _is_valid_temp(self, temp):
         if temp is None:
@@ -66,8 +77,13 @@ class SensorManager:
 
     async def loop(self):
         while True:
-            temp, humidity = self.read()
-            state.set("sensor", {"temperature": temp, "humidity": humidity})
+            temp, humidity, healthy, message = self.read()
+            state.set("sensor", {
+                "temperature": temp,
+                "humidity": humidity,
+                "healthy": healthy,
+                "message": message
+            })
             await asyncio.sleep(2)
 
 
