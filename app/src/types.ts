@@ -23,7 +23,6 @@ export interface Config {
   target_temp: number
   hysteresis: number
   satellites: SatelliteConfig[]
-  update_interval: number
   satellite_grace_period: number
   led_brightness: number
   flame_on_mode: 'average' | 'all'

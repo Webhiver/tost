@@ -171,21 +171,6 @@ export function Settings({ config, isOpen, onClose, onConfigUpdate }: SettingsPr
             Timing
           </h3>
           
-          <SettingRow label="Update Interval">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={localConfig.update_interval}
-                onChange={(e) => handleUpdate('update_interval', parseInt(e.target.value))}
-                step="1"
-                min="1"
-                max="60"
-                className="w-20 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm text-right"
-              />
-              <span>sec</span>
-            </div>
-          </SettingRow>
-          
           <SettingRow label="Satellite Grace Period">
             <div className="flex items-center gap-2">
               <input

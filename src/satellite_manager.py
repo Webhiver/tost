@@ -1,6 +1,7 @@
 import asyncio
 import urequests
 from time import ticks_ms
+from network_config import SATELLITE_POLLING_INTERVAL
 
 
 class SatelliteManager:
@@ -129,5 +130,4 @@ class SatelliteManager:
             config = self._state.get("config", {})
             if config.get("mode") == "host" and not self._state.get("is_pairing"):
                 self.poll_all_satellites()
-            interval = config.get("update_interval", 4)
-            await asyncio.sleep(interval)
+            await asyncio.sleep(SATELLITE_POLLING_INTERVAL)

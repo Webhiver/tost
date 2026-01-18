@@ -5,7 +5,6 @@ DEFAULT_CONFIG = {
     "target_temp": 22.0,
     "hysteresis": 1.0,
     "satellites": [],
-    "update_interval": 4,
     "satellite_grace_period": 120,
     "led_brightness": 1.0,
     "flame_on_mode": "average",
