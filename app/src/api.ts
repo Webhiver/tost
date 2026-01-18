@@ -1,4 +1,4 @@
-import type { Status, Config, Network } from './types'
+import type { Status, Config, Network, DebugInfo } from './types'
 
 const API_BASE = '/api'
 
@@ -62,4 +62,8 @@ export async function updateSatelliteConfig(ip: string, updates: Partial<Config>
     method: 'PATCH',
     body: JSON.stringify(updates),
   })
+}
+
+export async function fetchDebug(): Promise<DebugInfo> {
+  return api<DebugInfo>('/debug')
 }

@@ -5,6 +5,7 @@ import { Dashboard } from './components/Dashboard'
 import { SatelliteView } from './components/SatelliteView'
 import { Pairing } from './components/Pairing'
 import { Settings, SatelliteTarget } from './components/Settings'
+import { DebugPanel } from './components/DebugPanel'
 
 function App() {
   const {
@@ -17,6 +18,7 @@ function App() {
   } = useStatus()
 
   const [satelliteSettings, setSatelliteSettings] = useState<SatelliteTarget | null>(null)
+  const [debugOpen, setDebugOpen] = useState(false)
 
   if (isLoading) {
     return <Loading />
@@ -43,7 +45,12 @@ function App() {
 
   // Pairing mode
   if (status.is_pairing) {
-    return <Pairing />
+    return (
+      <>
+        <Pairing />
+        <DebugPanel isOpen={debugOpen} onToggle={() => setDebugOpen(!debugOpen)} />
+      </>
+    )
   }
 
   // Satellite mode
@@ -59,6 +66,7 @@ function App() {
           onClose={() => setSettingsOpen(false)}
           onConfigUpdate={updateLocalConfig}
         />
+        <DebugPanel isOpen={debugOpen} onToggle={() => setDebugOpen(!debugOpen)} />
       </>
     )
   }
@@ -82,6 +90,7 @@ function App() {
         onClose={() => setSatelliteSettings(null)}
         satellite={satelliteSettings ?? undefined}
       />
+      <DebugPanel isOpen={debugOpen} onToggle={() => setDebugOpen(!debugOpen)} />
     </>
   )
 }

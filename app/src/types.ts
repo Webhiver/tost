@@ -47,3 +47,45 @@ export interface Network {
   ssid: string
   rssi: number
 }
+
+export interface DebugInfo {
+  memory: {
+    free_bytes: number
+    allocated_bytes: number
+    total_bytes: number
+    free_kb: number
+    percent_used: number
+  }
+  cpu: {
+    frequency_hz: number
+    frequency_mhz: number
+  }
+  uptime: {
+    milliseconds: number
+    seconds: number
+    formatted: string
+  }
+  internal_temp_c: number | null
+  flash: {
+    total_bytes: number | null
+    free_bytes: number | null
+    used_bytes: number | null
+    total_kb: number | null
+    free_kb: number | null
+    percent_used: number | null
+  }
+  system: {
+    sysname: string
+    nodename: string
+    release: string
+    version: string
+    machine: string
+  } | null
+  network: {
+    ip: string
+    subnet: string
+    gateway: string
+    dns: string
+    rssi: number | null
+  } | null
+}
