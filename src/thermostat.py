@@ -137,6 +137,8 @@ class Thermostat:
             if self.should_turn_flame_on(active_sensors, ignore_hysteresis):
                 self._state.set("flame", True)
         
+        self._state.set("flame_duration", self.get_flame_duration())
+        
         return self._state.get("flame", False)
     
     def get_diagnostics(self):

@@ -70,5 +70,6 @@ state = StateManager({
     },
     "flame": False,
     "flame_start_tick": None,
+    "flame_duration": 0,
     "satellites": []
 })
