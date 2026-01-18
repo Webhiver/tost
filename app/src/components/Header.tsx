@@ -1,6 +1,7 @@
 interface HeaderProps {
   statusType: 'heating' | 'idle' | 'satellite' | 'pairing'
   statusText: string
+  wifiStrength?: number | null
 }
 
 const statusStyles = {
@@ -10,9 +11,45 @@ const statusStyles = {
   pairing: 'bg-gradient-to-r from-warning/15 to-warning/8 text-warning border-warning/25 animate-pulse-glow',
 }
 
-export function Header({ statusType, statusText }: HeaderProps) {
+function WifiIcon({ strength }: { strength: number | null | undefined }) {
+  const level = strength ?? 0
+  
   return (
-    <header className="py-6 pb-4 text-center border-b border-border-subtle">
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {/* Outer arc - level 4 */}
+      <path 
+        d="M1.5 9a18.5 18.5 0 0 1 21 0" 
+        className={level >= 4 ? 'opacity-90' : 'opacity-20'}
+      />
+      {/* Middle-outer arc - level 3 */}
+      <path 
+        d="M5 12.5a12.5 12.5 0 0 1 14 0" 
+        className={level >= 3 ? 'opacity-90' : 'opacity-20'}
+      />
+      {/* Middle-inner arc - level 2 */}
+      <path 
+        d="M8.5 16a6.5 6.5 0 0 1 7 0" 
+        className={level >= 2 ? 'opacity-90' : 'opacity-20'}
+      />
+      {/* Center dot - level 1 */}
+      <circle 
+        cx="12" 
+        cy="20" 
+        r="1.5" 
+        fill="currentColor" 
+        stroke="none"
+        className={level >= 1 ? 'opacity-90' : 'opacity-20'}
+      />
+    </svg>
+  )
+}
+
+export function Header({ statusType, statusText, wifiStrength }: HeaderProps) {
+  return (
+    <header className="py-6 pb-4 border-b border-border-subtle relative">
+      <div className="absolute top-4 right-4 text-text-muted">
+        <WifiIcon strength={wifiStrength} />
+      </div>
       <div className="flex items-center justify-center gap-2.5">
         <svg 
           className="w-7 h-7 opacity-90" 
@@ -27,9 +64,11 @@ export function Header({ statusType, statusText }: HeaderProps) {
           PicoThermostat
         </h1>
       </div>
-      <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 mt-3.5 rounded-full text-xs font-semibold uppercase tracking-wider border ${statusStyles[statusType]}`}>
-        <span className={`w-2 h-2 rounded-full bg-current shadow-[0_0_8px_currentColor] ${statusType === 'heating' ? 'animate-flame-pulse' : ''}`} />
-        {statusText}
+      <div className="flex justify-center">
+        <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 mt-3.5 rounded-full text-xs font-semibold uppercase tracking-wider border ${statusStyles[statusType]}`}>
+          <span className={`w-2 h-2 rounded-full bg-current shadow-[0_0_8px_currentColor] ${statusType === 'heating' ? 'animate-flame-pulse' : ''}`} />
+          {statusText}
+        </div>
       </div>
     </header>
   )

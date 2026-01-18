@@ -62,6 +62,7 @@ state = StateManager({
     "config": {},
     "is_pairing": False,
     "wifi_connected": False,
+    "wifi_strength": None,
     "sensor": {
         "temperature": None,
         "humidity": None,

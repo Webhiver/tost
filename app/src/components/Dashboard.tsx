@@ -35,7 +35,8 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
     <div className="w-full max-w-[480px] mx-auto px-5">
       <Header 
         statusType={isHeating ? 'heating' : 'idle'} 
-        statusText={isHeating ? 'Heating' : 'Idle'} 
+        statusText={isHeating ? 'Heating' : 'Idle'}
+        wifiStrength={status.wifi_strength}
       />
       
       {/* Temperature Display */}

@@ -13,7 +13,7 @@ export function SatelliteView({ status, onOpenSettings }: SatelliteViewProps) {
 
   return (
     <div className="w-full max-w-[480px] mx-auto px-5">
-      <Header statusType="satellite" statusText="Satellite Mode" />
+      <Header statusType="satellite" statusText="Satellite Mode" wifiStrength={status.wifi_strength} />
       
       {/* Temperature Display */}
       <div className="py-12 pb-10 text-center">

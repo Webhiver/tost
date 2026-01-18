@@ -36,6 +36,7 @@ export interface Config {
 export interface Status {
   config: Config
   is_pairing: boolean
+  wifi_strength: number | null
   sensor: SensorData
   flame: boolean
   flame_start_tick: number | null
