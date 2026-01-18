@@ -221,7 +221,6 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         
         # Proxy the request to the satellite
         url = "http://{}:80/api/{}".format(ip, path)
-        print(url)
         response = None
         try:
             # Forward request based on method
