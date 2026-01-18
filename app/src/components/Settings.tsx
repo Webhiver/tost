@@ -1,6 +1,34 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Config } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
+
+// Debounce hook for slider values
+function useDebouncedCallback<T extends (...args: Parameters<T>) => void>(
+  callback: T,
+  delay: number
+): T {
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  
+  const debouncedCallback = useCallback((...args: Parameters<T>) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    timeoutRef.current = setTimeout(() => {
+      callback(...args)
+    }, delay)
+  }, [callback, delay]) as T
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
+  
+  return debouncedCallback
+}
 
 export interface SatelliteTarget {
   ip: string
@@ -18,6 +46,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
   const [localConfig, setLocalConfig] = useState<Config | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Local slider value for immediate UI feedback (prevents lag while debouncing API calls)
+  const [localBrightness, setLocalBrightness] = useState<number | null>(null)
 
   const loadConfig = useCallback(async () => {
     setIsLoading(true)
@@ -42,8 +72,42 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       // Reset state when closing
       setLocalConfig(null)
       setError(null)
+      setLocalBrightness(null)
     }
   }, [isOpen, loadConfig])
+
+  // Sync local brightness with config when it loads
+  useEffect(() => {
+    if (localConfig && localBrightness === null) {
+      setLocalBrightness(localConfig.led_brightness)
+    }
+  }, [localConfig, localBrightness])
+
+  // Debounced API call for brightness changes (300ms delay)
+  const debouncedBrightnessUpdate = useDebouncedCallback(
+    async (value: number) => {
+      try {
+        if (satellite) {
+          await updateSatelliteConfig(satellite.ip, { led_brightness: value })
+        } else {
+          await updateConfig({ led_brightness: value })
+        }
+      } catch (err) {
+        console.error('Failed to update brightness:', err)
+      }
+    },
+    150
+  )
+
+  // Handle brightness slider changes: update UI immediately, debounce API call
+  const handleBrightnessChange = (value: number) => {
+    setLocalBrightness(value)
+    setLocalConfig(prev => prev ? { ...prev, led_brightness: value } : null)
+    if (!satellite) {
+      onConfigUpdate?.({ led_brightness: value })
+    }
+    debouncedBrightnessUpdate(value)
+  }
 
   const handleUpdate = async (key: keyof Config, value: Config[keyof Config]) => {
     if (!localConfig) return
@@ -313,8 +377,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
           <SettingRow label="LED Brightness">
             <input
               type="range"
-              value={localConfig.led_brightness * 100}
-              onChange={(e) => handleUpdate('led_brightness', parseInt(e.target.value) / 100)}
+              value={(localBrightness ?? localConfig.led_brightness) * 100}
+              onChange={(e) => handleBrightnessChange(parseInt(e.target.value) / 100)}
               min="0"
               max="100"
               className="w-[100px]"
