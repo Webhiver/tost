@@ -47,6 +47,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
 
   const handleUpdate = async (key: keyof Config, value: Config[keyof Config]) => {
     if (!localConfig) return
+    // Skip update if value is NaN (from invalid numeric input like empty string or whitespace)
+    if (typeof value === 'number' && Number.isNaN(value)) return
     setLocalConfig(prev => prev ? { ...prev, [key]: value } : null)
     if (!satellite) {
       onConfigUpdate?.({ [key]: value })

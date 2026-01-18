@@ -15,7 +15,21 @@ DEFAULT_CONFIG = {
     "sensor_humidity_offset": 0.0
 }
 
+# Keys that must be numeric (int or float) - None values will be replaced with defaults
+NUMERIC_KEYS = {
+    "target_temp", "hysteresis", "satellite_grace_period", "led_brightness",
+    "max_flame_duration", "sensor_temperature_offset", "sensor_humidity_offset"
+}
+
 CONFIG_FILE = "config.json"
+
+
+def _sanitize_config(config):
+    """Replace None values for numeric keys with their defaults."""
+    for key in NUMERIC_KEYS:
+        if key in config and config[key] is None:
+            config[key] = DEFAULT_CONFIG.get(key, 0)
+    return config
 
 
 def load():
@@ -30,6 +44,7 @@ def load():
 
 
 def save(config):
+    config = _sanitize_config(config)
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
