@@ -60,7 +60,7 @@ export function DebugPanel({ isOpen, onToggle }: DebugPanelProps) {
       {/* Debug Button */}
       <button
         onClick={onToggle}
-        className={`fixed bottom-4 left-4 z-[150] w-10 h-10 rounded-full border transition-all duration-200 flex items-center justify-center text-sm font-mono ${
+        className={`fixed bottom-8 left-8 z-[150] w-10 h-10 rounded-full border transition-all duration-200 flex items-center justify-center text-sm font-mono ${
           isOpen 
             ? 'bg-elevated border-idle text-idle' 
             : 'bg-secondary border-border-visible text-text-muted hover:bg-tertiary hover:text-text-secondary'
