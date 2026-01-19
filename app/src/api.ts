@@ -13,8 +13,8 @@ async function api<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   return response.json()
 }
 
-export async function fetchStatus(): Promise<Status> {
-  return api<Status>('/status')
+export async function fetchStatus(signal?: AbortSignal): Promise<Status> {
+  return api<Status>('/status', { signal })
 }
 
 export async function fetchConfig(): Promise<Config> {

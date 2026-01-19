@@ -10,6 +10,8 @@ interface DashboardProps {
   onOpenSettings: () => void
   onOpenSatelliteSettings: (satellite: SatelliteTarget) => void
   onConfigUpdate: (updates: Partial<Status['config']>) => void
+  onCancelPendingFetch: () => void
+  onRefreshAndResetInterval: () => Promise<void>
 }
 
 const MIN_TEMP = 5
@@ -17,7 +19,7 @@ const MAX_TEMP = 32
 const TEMP_STEP = 0.5
 const DEBOUNCE_MS = 500
 
-export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate }: DashboardProps) {
+export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate, onCancelPendingFetch, onRefreshAndResetInterval }: DashboardProps) {
   const isHeating = status.flame
   const temp = status.sensor?.temperature
   const humidity = status.sensor?.humidity
@@ -43,6 +45,9 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
     setLocalTarget(newTarget)
     onConfigUpdate({ target_temp: newTarget })
 
+    // Cancel any in-flight status fetch to prevent race conditions
+    onCancelPendingFetch()
+
     // Clear existing debounce timer
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
@@ -53,6 +58,8 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
       debounceRef.current = null
       try {
         await updateConfig({ target_temp: newTarget })
+        // After successful update, refresh status and reset polling interval
+        await onRefreshAndResetInterval()
       } catch (err) {
         console.error('Failed to update target temp:', err)
       }

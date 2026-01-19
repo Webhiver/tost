@@ -15,6 +15,8 @@ function App() {
     settingsOpen,
     setSettingsOpen,
     updateLocalConfig,
+    cancelPendingFetch,
+    refreshAndResetInterval,
   } = useStatus()
 
   const [satelliteSettings, setSatelliteSettings] = useState<SatelliteTarget | null>(null)
@@ -79,6 +81,8 @@ function App() {
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenSatelliteSettings={setSatelliteSettings}
         onConfigUpdate={updateLocalConfig}
+        onCancelPendingFetch={cancelPendingFetch}
+        onRefreshAndResetInterval={refreshAndResetInterval}
       />
       <Settings
         isOpen={settingsOpen}
