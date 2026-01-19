@@ -158,8 +158,18 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         except OSError:
             return "App not found. Please upload the app/ folder.", 404
     
-    @app.route('/assets/<path:path>')
-    async def serve_assets(request, path):
+    # Captive portal routes - must be before the catch-all static route
+    async def serve_captive_portal(request):
+        if state_manager.get("is_pairing", False):
+            return await serve_index(request)
+        return 'Not found', 404
+    
+    for path in CAPTIVE_PORTAL_PATHS:
+        app.route(path)(serve_captive_portal)
+    
+    # Catch-all route for static files from the app folder
+    @app.route('/<path:path>')
+    async def serve_static(request, path):
         try:
             if path.endswith('.js'):
                 content_type = 'application/javascript'
@@ -169,23 +179,21 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
                 content_type = 'image/svg+xml'
             elif path.endswith('.png'):
                 content_type = 'image/png'
+            elif path.endswith('.ico'):
+                content_type = 'image/x-icon'
             elif path.endswith('.woff2'):
                 content_type = 'font/woff2'
             elif path.endswith('.woff'):
                 content_type = 'font/woff'
+            elif path.endswith('.webmanifest') or path.endswith('.json'):
+                content_type = 'application/json'
+            elif path.endswith('.html'):
+                content_type = 'text/html'
             else:
                 content_type = 'application/octet-stream'
             
-            return Response.send_file('app/assets/' + path, content_type=content_type)
+            return Response.send_file('app/' + path, content_type=content_type)
         except OSError:
             return "Not found", 404
-    
-    async def serve_captive_portal(request):
-        if state_manager.get("is_pairing", False):
-            return await serve_index(request)
-        return 'Not found', 404
-    
-    for path in CAPTIVE_PORTAL_PATHS:
-        app.route(path)(serve_captive_portal)
     
     return app
