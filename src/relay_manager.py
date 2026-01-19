@@ -16,6 +16,9 @@ class RelayManager:
         state.subscribe("flame", self._on_flame_change)
     
     def _on_flame_change(self, new_flame, old_flame):
+        if state.get("config", {}).get("mode") == "satellite":
+            return
+        
         if new_flame:
             self._relay.on()
             if not old_flame:
