@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import type { Status } from '../types'
 import type { SatelliteTarget } from './Settings'
 import { formatTemp, formatHumidity, formatDuration } from '../utils'
@@ -11,25 +12,61 @@ interface DashboardProps {
   onConfigUpdate: (updates: Partial<Status['config']>) => void
 }
 
+const MIN_TEMP = 5
+const MAX_TEMP = 32
+const TEMP_STEP = 0.5
+const DEBOUNCE_MS = 500
+
 export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate }: DashboardProps) {
   const isHeating = status.flame
   const temp = status.sensor?.temperature
   const humidity = status.sensor?.humidity
   const sensorHealthy = status.sensor?.healthy ?? true
   const sensorError = status.sensor?.message ?? ''
-  const target = status.config?.target_temp ?? 22
+  const serverTarget = status.config?.target_temp ?? 22
   const satellites = status.satellites || []
   const onlineCount = satellites.filter(s => s.online).length
 
-  const handleAdjustTarget = async (delta: number) => {
-    const newTarget = Math.round((target + delta) * 10) / 10
-    onConfigUpdate({ target_temp: newTarget })
-    try {
-      await updateConfig({ target_temp: newTarget })
-    } catch (err) {
-      console.error('Failed to update target temp:', err)
+  // Local state for immediate slider feedback
+  const [localTarget, setLocalTarget] = useState(serverTarget)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Sync local state when server value changes (and we're not actively sliding)
+  useEffect(() => {
+    if (!debounceRef.current) {
+      setLocalTarget(serverTarget)
     }
+  }, [serverTarget])
+
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTarget = parseFloat(e.target.value)
+    setLocalTarget(newTarget)
+    onConfigUpdate({ target_temp: newTarget })
+
+    // Clear existing debounce timer
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    // Set new debounce timer
+    debounceRef.current = setTimeout(async () => {
+      debounceRef.current = null
+      try {
+        await updateConfig({ target_temp: newTarget })
+      } catch (err) {
+        console.error('Failed to update target temp:', err)
+      }
+    }, DEBOUNCE_MS)
   }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [])
 
   return (
     <div className="w-full max-w-[480px] mx-auto px-5">
@@ -66,24 +103,49 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
         <div className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-4 font-medium">
           Target Temperature
         </div>
-        <div className="flex items-center justify-between">
-          <div className="font-mono text-[2.5rem] font-normal tracking-tight">
-            {target.toFixed(1)}°C
+        <div className="font-mono text-[2.5rem] font-normal tracking-tight text-center mb-5">
+          {localTarget.toFixed(1)}°C
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-text-muted font-mono w-8">{MIN_TEMP}°</span>
+          <div className="relative flex-1">
+            <input
+              type="range"
+              min={MIN_TEMP}
+              max={MAX_TEMP}
+              step={TEMP_STEP}
+              value={localTarget}
+              onChange={handleSliderChange}
+              className="w-full h-2 bg-tertiary rounded-full appearance-none cursor-pointer
+                [&::-webkit-slider-thumb]:appearance-none
+                [&::-webkit-slider-thumb]:w-6
+                [&::-webkit-slider-thumb]:h-6
+                [&::-webkit-slider-thumb]:rounded-full
+                [&::-webkit-slider-thumb]:bg-flame
+                [&::-webkit-slider-thumb]:border-2
+                [&::-webkit-slider-thumb]:border-white/20
+                [&::-webkit-slider-thumb]:shadow-lg
+                [&::-webkit-slider-thumb]:shadow-flame/30
+                [&::-webkit-slider-thumb]:cursor-grab
+                [&::-webkit-slider-thumb]:active:cursor-grabbing
+                [&::-webkit-slider-thumb]:transition-transform
+                [&::-webkit-slider-thumb]:hover:scale-110
+                [&::-moz-range-thumb]:w-6
+                [&::-moz-range-thumb]:h-6
+                [&::-moz-range-thumb]:rounded-full
+                [&::-moz-range-thumb]:bg-flame
+                [&::-moz-range-thumb]:border-2
+                [&::-moz-range-thumb]:border-white/20
+                [&::-moz-range-thumb]:shadow-lg
+                [&::-moz-range-thumb]:shadow-flame/30
+                [&::-moz-range-thumb]:cursor-grab
+                [&::-moz-range-thumb]:active:cursor-grabbing"
+              style={{
+                background: `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, #1a1a26 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, #1a1a26 100%)`
+              }}
+            />
           </div>
-          <div className="flex gap-3">
-            <button 
-              onClick={() => handleAdjustTarget(-0.5)}
-              className="w-[52px] h-[52px] rounded-full border border-border-visible bg-tertiary text-text-primary text-2xl font-light flex items-center justify-center transition-all hover:bg-elevated hover:border-text-secondary hover:scale-105 active:scale-95"
-            >
-              −
-            </button>
-            <button 
-              onClick={() => handleAdjustTarget(0.5)}
-              className="w-[52px] h-[52px] rounded-full border border-border-visible bg-tertiary text-text-primary text-2xl font-light flex items-center justify-center transition-all hover:bg-elevated hover:border-text-secondary hover:scale-105 active:scale-95"
-            >
-              +
-            </button>
-          </div>
+          <span className="text-xs text-text-muted font-mono w-8 text-right">{MAX_TEMP}°</span>
         </div>
       </div>
 
