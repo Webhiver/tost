@@ -126,7 +126,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                 [&::-moz-range-thumb]:cursor-grab
                 [&::-moz-range-thumb]:active:cursor-grabbing"
               style={{
-                background: `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, #1a1a26 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, #1a1a26 100%)`
+                background: `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) 100%)`
               }}
             />
           </div>

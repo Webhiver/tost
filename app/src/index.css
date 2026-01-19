@@ -2,6 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light theme (default) */
+:root {
+  --color-void: #f8f9fa;
+  --color-primary: #ffffff;
+  --color-secondary: #f1f3f5;
+  --color-tertiary: #e9ecef;
+  --color-elevated: #dee2e6;
+  --color-text-primary: #212529;
+  --color-text-secondary: #495057;
+  --color-text-muted: #868e96;
+  --color-border-subtle: rgba(0, 0, 0, 0.06);
+  --color-border-visible: rgba(0, 0, 0, 0.12);
+  --color-error: #dc3545;
+  --color-error-bg: rgba(220, 53, 69, 0.1);
+  --scrollbar-track: #f1f3f5;
+  --scrollbar-thumb: #ced4da;
+  --scrollbar-thumb-hover: #adb5bd;
+  --gradient-flame: rgba(255, 107, 53, 0.06);
+  --gradient-cool: rgba(0, 212, 170, 0.04);
+}
+
+/* Dark theme */
+.dark {
+  --color-void: #050507;
+  --color-primary: #0a0a0f;
+  --color-secondary: #12121a;
+  --color-tertiary: #1a1a26;
+  --color-elevated: #222230;
+  --color-text-primary: #f4f4f8;
+  --color-text-secondary: #9090a0;
+  --color-text-muted: #606070;
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-visible: rgba(255, 255, 255, 0.1);
+  --color-error: #ff6b6b;
+  --color-error-bg: rgba(255, 107, 107, 0.1);
+  --scrollbar-track: #0a0a0f;
+  --scrollbar-thumb: #222230;
+  --scrollbar-thumb-hover: #2a2a3a;
+  --gradient-flame: rgba(255, 107, 53, 0.08);
+  --gradient-cool: rgba(0, 212, 170, 0.05);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -14,12 +56,13 @@ html, body {
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #050507;
-  color: #f4f4f8;
+  background: var(--color-void);
+  color: var(--color-text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Animated background gradient */
@@ -28,8 +71,8 @@ body::before {
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 107, 53, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 212, 170, 0.05), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--gradient-flame), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%, var(--gradient-cool), transparent);
   pointer-events: none;
   z-index: -1;
 }
@@ -46,14 +89,14 @@ body::before {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222230;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a2a3a;
+  background: var(--scrollbar-thumb-hover);
 }

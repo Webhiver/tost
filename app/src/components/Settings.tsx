@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Config } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
+import { useTheme, type Theme } from '../hooks/useTheme'
 
 // Debounce hook for slider values
 function useDebouncedCallback<T extends (...args: Parameters<T>) => void>(
@@ -48,6 +49,7 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
   const [error, setError] = useState<string | null>(null)
   // Local slider value for immediate UI feedback (prevents lag while debouncing API calls)
   const [localBrightness, setLocalBrightness] = useState<number | null>(null)
+  const { theme, setTheme } = useTheme()
 
   const loadConfig = useCallback(async () => {
     setIsLoading(true)
@@ -235,6 +237,17 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       {/* Content */}
       {localConfig && !isLoading && !error && (
       <div className="p-5">
+        {/* Appearance - Web app theme */}
+        <section className="mb-6">
+          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+            Appearance
+          </h3>
+          
+          <SettingRow label="Theme">
+            <ThemeSelector value={theme} onChange={setTheme} />
+          </SettingRow>
+        </section>
+
         {/* Temperature Control - Host only */}
         {localConfig.mode !== 'satellite' && !satellite && (
           <section className="mb-6">
@@ -462,6 +475,68 @@ function SettingRow({ label, children }: SettingRowProps) {
     <div className="flex justify-between items-center py-3.5 border-b border-border-subtle last:border-b-0">
       <span className="text-sm">{label}</span>
       {children}
+    </div>
+  )
+}
+
+interface ThemeSelectorProps {
+  value: Theme
+  onChange: (theme: Theme) => void
+}
+
+function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
+  const options: { value: Theme; label: string; icon: React.ReactNode }[] = [
+    { 
+      value: 'light', 
+      label: 'Light',
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      )
+    },
+    { 
+      value: 'dark', 
+      label: 'Dark',
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      )
+    },
+    { 
+      value: 'system', 
+      label: 'Auto',
+      icon: (
+        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      )
+    },
+  ]
+
+  return (
+    <div className="flex gap-1 p-1 bg-tertiary rounded-md">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          onClick={() => onChange(option.value)}
+          className={`
+            flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all
+            ${value === option.value 
+              ? 'bg-elevated text-text-primary shadow-sm' 
+              : 'text-text-secondary hover:text-text-primary'
+            }
+          `}
+          title={option.label}
+        >
+          {option.icon}
+          <span className="hidden sm:inline">{option.label}</span>
+        </button>
+      ))}
     </div>
   )
 }

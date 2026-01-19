@@ -80,7 +80,7 @@ export function Pairing() {
           />
           
           {error && (
-            <div className="mt-4 p-3 bg-[rgba(255,107,107,0.1)] rounded-sm text-[#ff6b6b] text-sm">
+            <div className="mt-4 p-3 bg-error-bg rounded-sm text-error text-sm">
               {error}
             </div>
           )}
