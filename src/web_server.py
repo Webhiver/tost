@@ -1,15 +1,10 @@
 import asyncio
-import gc
 import machine
-import os
-import time
 from lib.microdot import Microdot, Response, redirect
 import urequests
+import debug_manager
 
 app = Microdot()
-
-# Track boot time for uptime calculation
-_boot_ticks = time.ticks_ms()
 
 
 async def delayed_reset():
@@ -99,114 +94,7 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     
     @app.route('/api/debug', methods=['GET'])
     async def get_debug(request):
-        # Force garbage collection for accurate memory reading
-        gc.collect()
-        
-        # Memory info
-        mem_free = gc.mem_free()
-        mem_alloc = gc.mem_alloc()
-        mem_total = mem_free + mem_alloc
-        
-        # CPU frequency
-        cpu_freq = machine.freq()
-        
-        # Uptime calculation
-        current_ticks = time.ticks_ms()
-        uptime_ms = time.ticks_diff(current_ticks, _boot_ticks)
-        uptime_seconds = uptime_ms // 1000
-        uptime_minutes = uptime_seconds // 60
-        uptime_hours = uptime_minutes // 60
-        uptime_days = uptime_hours // 24
-        
-        # Internal temperature sensor (ADC channel 4)
-        try:
-            sensor_temp = machine.ADC(4)
-            reading = sensor_temp.read_u16()
-            voltage = reading * 3.3 / 65535
-            # Temperature formula for RP2040/RP2350
-            internal_temp_c = 27 - (voltage - 0.706) / 0.001721
-            internal_temp_c = round(internal_temp_c, 1)
-        except Exception:
-            internal_temp_c = None
-        
-        # Flash/storage info
-        try:
-            stat = os.statvfs('/')
-            block_size = stat[0]
-            total_blocks = stat[2]
-            free_blocks = stat[3]
-            flash_total = block_size * total_blocks
-            flash_free = block_size * free_blocks
-            flash_used = flash_total - flash_free
-        except Exception:
-            flash_total = None
-            flash_free = None
-            flash_used = None
-        
-        # System info
-        try:
-            uname = os.uname()
-            sys_info = {
-                "sysname": uname.sysname,
-                "nodename": uname.nodename,
-                "release": uname.release,
-                "version": uname.version,
-                "machine": uname.machine
-            }
-        except Exception:
-            sys_info = None
-        
-        # Network info
-        network_info = None
-        try:
-            import network
-            wlan = network.WLAN(network.STA_IF)
-            if wlan.active() and wlan.isconnected():
-                ifconfig = wlan.ifconfig()
-                network_info = {
-                    "ip": ifconfig[0],
-                    "subnet": ifconfig[1],
-                    "gateway": ifconfig[2],
-                    "dns": ifconfig[3],
-                    "rssi": wlan.status('rssi') if hasattr(wlan, 'status') else None
-                }
-        except Exception:
-            pass
-        
-        return {
-            "memory": {
-                "free_bytes": mem_free,
-                "allocated_bytes": mem_alloc,
-                "total_bytes": mem_total,
-                "free_kb": round(mem_free / 1024, 1),
-                "percent_used": round((mem_alloc / mem_total) * 100, 1)
-            },
-            "cpu": {
-                "frequency_hz": cpu_freq,
-                "frequency_mhz": cpu_freq // 1_000_000
-            },
-            "uptime": {
-                "milliseconds": uptime_ms,
-                "seconds": uptime_seconds,
-                "formatted": "{}d {}h {}m {}s".format(
-                    uptime_days,
-                    uptime_hours % 24,
-                    uptime_minutes % 60,
-                    uptime_seconds % 60
-                )
-            },
-            "internal_temp_c": internal_temp_c,
-            "flash": {
-                "total_bytes": flash_total,
-                "free_bytes": flash_free,
-                "used_bytes": flash_used,
-                "total_kb": round(flash_total / 1024, 1) if flash_total else None,
-                "free_kb": round(flash_free / 1024, 1) if flash_free else None,
-                "percent_used": round((flash_used / flash_total) * 100, 1) if flash_total and flash_used else None
-            },
-            "system": sys_info,
-            "network": network_info
-        }
+        return debug_manager.get_debug_info()
     
     @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     async def satellite_proxy(request, ip, path):
