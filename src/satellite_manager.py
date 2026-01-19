@@ -46,11 +46,11 @@ class SatelliteManager:
         
         self._state.set("satellites", updated_satellites)
     
-    async def poll_satellite_async(self, ip):
-        """Async poll a satellite using asyncio.open_connection().
+    async def _http_request_async(self, ip, method, path, body=None):
+        """Generic async HTTP request using asyncio.open_connection().
         
         Returns:
-            (True, sensor_data) if HTTP request succeeded
+            (True, response_data) if HTTP request succeeded with 2xx status
             (False, error_message) if HTTP request failed
         """
         reader = None
@@ -61,8 +61,15 @@ class SatelliteManager:
                 timeout=self.TIMEOUT_S
             )
             
-            # Send HTTP GET request
-            request = "GET /api/readings HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n\r\n".format(ip)
+            # Build HTTP request
+            if body is not None:
+                body_str = json.dumps(body)
+                request = "{} {} HTTP/1.0\r\nHost: {}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}".format(
+                    method, path, ip, len(body_str), body_str
+                )
+            else:
+                request = "{} {} HTTP/1.0\r\nHost: {}\r\nConnection: close\r\n\r\n".format(method, path, ip)
+            
             writer.write(request.encode())
             await writer.drain()
             
@@ -91,18 +98,12 @@ class SatelliteManager:
             
             if header_end != -1:
                 headers = response[:header_end]
-                body = response[header_end + body_offset:]
+                response_body = response[header_end + body_offset:]
                 status_line = headers.split("\n")[0]
                 
                 if "200" in status_line:
-                    data = json.loads(body)
-                    sensor_data = {
-                        "temperature": data.get("temperature"),
-                        "humidity": data.get("humidity"),
-                        "healthy": data.get("healthy"),
-                        "message": data.get("message")
-                    }
-                    return True, sensor_data
+                    data = json.loads(response_body) if response_body.strip() else {}
+                    return True, data
                 else:
                     return False, "HTTP error: {}".format(status_line)
             else:
@@ -119,6 +120,33 @@ class SatelliteManager:
                     await writer.wait_closed()
                 except:
                     pass
+
+    async def poll_satellite_async(self, ip):
+        """Async poll a satellite for sensor readings.
+        
+        Returns:
+            (True, sensor_data) if HTTP request succeeded
+            (False, error_message) if HTTP request failed
+        """
+        success, result = await self._http_request_async(ip, "GET", "/api/readings")
+        if success:
+            sensor_data = {
+                "temperature": result.get("temperature"),
+                "humidity": result.get("humidity"),
+                "healthy": result.get("healthy"),
+                "message": result.get("message")
+            }
+            return True, sensor_data
+        return False, result
+
+    async def sync_satellite_async(self, ip, sync_data):
+        """Async sync data to a satellite.
+        
+        Returns:
+            (True, response_data) if sync succeeded
+            (False, error_message) if sync failed
+        """
+        return await self._http_request_async(ip, "POST", "/api/sync", sync_data)
     
     async def poll_all_satellites_async(self):
         """Poll all satellites concurrently without blocking."""
@@ -135,6 +163,7 @@ class SatelliteManager:
         results = await asyncio.gather(*tasks, return_exceptions=True)
         
         updated_satellites = []
+        online_ips = []
         
         for sat, result in zip(satellites, results):
             ip = sat["ip"]
@@ -155,6 +184,7 @@ class SatelliteManager:
                     "last_updated": current_tick,
                     "online": True
                 })
+                online_ips.append(ip)
             else:
                 # Poll failed - check grace period for online status
                 last_updated = sat.get("last_updated")
@@ -182,6 +212,14 @@ class SatelliteManager:
                 })
         
         self._state.set("satellites", updated_satellites)
+        
+        # Sync state to online satellites
+        if online_ips:
+            sync_data = {
+                "flame": self._state.get("flame", False)
+            }
+            sync_tasks = [self.sync_satellite_async(ip, sync_data) for ip in online_ips]
+            await asyncio.gather(*sync_tasks, return_exceptions=True)
 
     async def loop(self):
         while True:

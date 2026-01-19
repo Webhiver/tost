@@ -96,6 +96,20 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     async def get_debug(request):
         return debug_manager.get_debug_info()
     
+    @app.route('/api/sync', methods=['POST'])
+    async def sync(request):
+        config = state_manager.get("config", {})
+        if config.get("mode") != "satellite":
+            return {"error": "Sync only available in satellite mode"}, 403
+        
+        try:
+            data = request.json
+            if data and "flame" in data:
+                state_manager.set("flame", data["flame"])
+            return {"status": "ok"}
+        except Exception as e:
+            return {"error": str(e)}, 400
+    
     @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     async def satellite_proxy(request, ip, path):
 
