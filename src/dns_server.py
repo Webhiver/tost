@@ -2,6 +2,7 @@ import asyncio
 import socket
 import struct
 import network_config
+from state_manager import state
 
 
 class DNSServer:
@@ -17,17 +18,10 @@ class DNSServer:
         self.port = port
         self._socket = None
         self._running = False
-        self._state_manager = None
-    
-    def set_state_manager(self, state_manager):
-        """Set the state manager to check pairing mode."""
-        self._state_manager = state_manager
     
     def _is_pairing(self):
         """Check if we're in pairing mode."""
-        if self._state_manager is None:
-            return False
-        return self._state_manager.get("is_pairing", False)
+        return state.get("is_pairing", False)
     
     def _parse_domain(self, request):
         """Extract the domain name from a DNS request."""

@@ -3,6 +3,8 @@ import machine
 from lib.microdot import Microdot, Response, redirect
 import urequests
 import debug_manager
+from state_manager import state
+from config_manager import config
 
 app = Microdot()
 
@@ -12,28 +14,30 @@ async def delayed_reset():
     machine.reset()
 
 
-def create_server(state_manager, pairing_manager, config_module, secrets_module):
+def create_server(pairing_manager, secrets_module):
     
     @app.route('/api/status', methods=['GET'])
     async def get_status(request):
-        return state_manager.get_all()
+        return {
+            "state": state.get_all(),
+            "config": config.get_all()
+        }
     
     @app.route('/api/readings', methods=['GET'])
     async def get_readings(request):
-        return state_manager.get("sensor", {"temperature": None, "humidity": None})
+        return state.get("sensor", {"temperature": None, "humidity": None})
     
     @app.route('/api/config', methods=['GET'])
     async def get_config(request):
-        return state_manager.get("config", {})
+        return config.get_all()
     
     @app.route('/api/config', methods=['POST'])
     async def set_config(request):
         try:
             new_config = request.json
             if new_config:
-                state_manager.set("config", new_config)
-                config_module.save(new_config)
-                return {"status": "ok", "config": state_manager.get("config")}
+                config.set_all(new_config)
+                return {"status": "ok", "config": config.get_all()}
             return {"error": "No config provided"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
@@ -43,9 +47,8 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         try:
             updates = request.json
             if updates:
-                state_manager.update("config", updates)
-                config_module.save(state_manager.get("config"))
-                return {"status": "ok", "config": state_manager.get("config")}
+                config.update_all(updates)
+                return {"status": "ok", "config": config.get_all()}
             return {"error": "No updates provided"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
@@ -75,7 +78,7 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     
     @app.route('/api/pairing/exit', methods=['POST'])
     async def exit_pairing(request):
-        state_manager.set("is_pairing", False)
+        state.set("is_pairing", False)
         return {"status": "ok", "message": "Exiting pairing mode"}
     
     @app.route('/api/debug', methods=['GET'])
@@ -84,14 +87,13 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):
-        config = state_manager.get("config", {})
         if config.get("mode") != "satellite":
             return {"error": "Sync only available in satellite mode"}, 403
         
         try:
             data = request.json
             if data and "flame" in data:
-                state_manager.set("flame", data["flame"])
+                state.set("flame", data["flame"])
             return {"status": "ok"}
         except Exception as e:
             return {"error": str(e)}, 400
@@ -100,7 +102,6 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     async def satellite_proxy(request, ip, path):
 
         # Check that IP is in configured satellites
-        config = state_manager.get("config", {})
         satellites = config.get("satellites", [])
         satellite_ips = [sat.get("ip") for sat in satellites]
         
@@ -156,7 +157,7 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     @app.route('/kindle-wifi/wifistub.html')
     @app.route('/redirect')
     async def serve_captive_portal(request):
-        if state_manager.get("is_pairing", False):
+        if state.get("is_pairing", False):
             return await serve_index(request)
         return 'Not found', 404
     

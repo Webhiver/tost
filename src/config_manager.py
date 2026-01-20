@@ -32,7 +32,7 @@ def _sanitize_config(config):
     return config
 
 
-def load():
+def _load_from_file():
     try:
         with open(CONFIG_FILE, "r") as f:
             config = json.load(f)
@@ -43,14 +43,104 @@ def load():
         return DEFAULT_CONFIG.copy()
 
 
-def save(config):
+def _save_to_file(config):
     config = _sanitize_config(config)
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f)
 
 
-def update(updates):
-    config = load()
-    config.update(updates)
-    save(config)
-    return config
+class ConfigManager:
+    
+    def __init__(self, initial_config=None):
+        self._config = initial_config or _load_from_file()
+        self._subscribers = {}
+    
+    def get(self, key, default=None):
+        return self._config.get(key, default)
+    
+    def set(self, key, value):
+        old_value = self._config.get(key)
+        self._config[key] = value
+        
+        if old_value != value:
+            self._notify(key, value, old_value)
+            self._save()
+    
+    def update(self, key, updates):
+        current = self._config.get(key, {})
+        if isinstance(current, dict) and isinstance(updates, dict):
+            old_value = current.copy()
+            current.update(updates)
+            self._config[key] = current
+            self._notify(key, current, old_value)
+        else:
+            self.set(key, updates)
+            return
+        self._save()
+    
+    def subscribe(self, key, callback):
+        if key not in self._subscribers:
+            self._subscribers[key] = []
+        
+        self._subscribers[key].append(callback)
+        
+        def unsubscribe():
+            if callback in self._subscribers.get(key, []):
+                self._subscribers[key].remove(callback)
+        
+        return unsubscribe
+    
+    def _notify(self, key, new_value, old_value):
+        for callback in self._subscribers.get(key, []):
+            try:
+                callback(new_value, old_value)
+            except Exception as e:
+                print("Config subscriber error:", e)
+    
+    def get_all(self):
+        return self._config.copy()
+    
+    def set_all(self, new_config):
+        old_config = self._config.copy()
+        self._config = new_config
+        
+        all_keys = set(old_config.keys()) | set(new_config.keys())
+        for key in all_keys:
+            old_val = old_config.get(key)
+            new_val = new_config.get(key)
+            if old_val != new_val:
+                self._notify(key, new_val, old_val)
+        
+        self._save()
+    
+    def update_all(self, updates):
+        """Update multiple config keys at once."""
+        old_config = self._config.copy()
+        self._config.update(updates)
+        
+        for key in updates.keys():
+            old_val = old_config.get(key)
+            new_val = updates.get(key)
+            if old_val != new_val:
+                self._notify(key, new_val, old_val)
+        
+        self._save()
+    
+    def _save(self):
+        _save_to_file(self._config)
+    
+    def reload(self):
+        """Reload config from file."""
+        old_config = self._config.copy()
+        self._config = _load_from_file()
+        
+        all_keys = set(old_config.keys()) | set(self._config.keys())
+        for key in all_keys:
+            old_val = old_config.get(key)
+            new_val = self._config.get(key)
+            if old_val != new_val:
+                self._notify(key, new_val, old_val)
+
+
+# Singleton instance
+config = ConfigManager()

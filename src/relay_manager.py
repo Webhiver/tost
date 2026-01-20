@@ -2,6 +2,7 @@ from time import ticks_ms
 from lib.picozero import DigitalOutputDevice
 import hardware_config
 from state_manager import state
+from config_manager import config
 
 
 class RelayManager:
@@ -16,7 +17,7 @@ class RelayManager:
         state.subscribe("flame", self._on_flame_change)
     
     def _on_flame_change(self, new_flame, old_flame):
-        if state.get("config", {}).get("mode") == "satellite":
+        if config.get("mode") == "satellite":
             return
         
         if new_flame:

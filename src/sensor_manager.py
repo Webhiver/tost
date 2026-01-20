@@ -3,6 +3,7 @@ from machine import Pin
 import dht
 import hardware_config
 from state_manager import state
+from config_manager import config
 
 
 class SensorManager:
@@ -32,7 +33,6 @@ class SensorManager:
                 humidity = None
             
             # Apply offsets from config
-            config = state.get("config", {})
             if temp is not None:
                 temp_offset = config.get("sensor_temperature_offset", 0.0)
                 temp = round(temp + temp_offset, 1)

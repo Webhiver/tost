@@ -59,7 +59,6 @@ class StateManager:
 
 
 state = StateManager({
-    "config": {},
     "is_pairing": False,
     "wifi_connected": False,
     "wifi_strength": None,

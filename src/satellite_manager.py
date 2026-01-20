@@ -2,28 +2,26 @@ import asyncio
 import json
 from time import ticks_ms
 from network_config import SATELLITE_POLLING_INTERVAL
+from state_manager import state
+from config_manager import config
 
 
 class SatelliteManager:
     
     TIMEOUT_S = 5
     
-    def __init__(self, state_manager):
-        self._state = state_manager
+    def __init__(self):
         self._sync_satellites_from_config()
-        self._state.subscribe("config", self._on_config_change)
+        config.subscribe("satellites", self._on_satellites_config_change)
     
-    def _on_config_change(self, new_config, old_config):
-        new_sats = new_config.get("satellites", [])
-        old_sats = old_config.get("satellites", []) if old_config else []
+    def _on_satellites_config_change(self, new_sats, old_sats):
         if new_sats != old_sats:
             self._sync_satellites_from_config()
     
     def _sync_satellites_from_config(self):
         """Sync config.satellites (objects with ip/name) to state.satellites (full objects)"""
-        config = self._state.get("config", {})
         config_sats = config.get("satellites", [])
-        current_satellites = self._state.get("satellites", [])
+        current_satellites = state.get("satellites", [])
         current_by_ip = {sat["ip"]: sat for sat in current_satellites}
         
         updated_satellites = []
@@ -44,7 +42,7 @@ class SatelliteManager:
                     "online": False
                 })
         
-        self._state.set("satellites", updated_satellites)
+        state.set("satellites", updated_satellites)
     
     async def _http_request_async(self, ip, method, path, body=None):
         """Generic async HTTP request using asyncio.open_connection().
@@ -150,12 +148,11 @@ class SatelliteManager:
     
     async def poll_all_satellites_async(self):
         """Poll all satellites concurrently without blocking."""
-        satellites = self._state.get("satellites", [])
+        satellites = state.get("satellites", [])
         if not satellites:
             return
         
         current_tick = ticks_ms()
-        config = self._state.get("config", {})
         grace_period_ms = config.get("satellite_grace_period", 120) * 1000
         
         # Poll all satellites concurrently
@@ -211,19 +208,21 @@ class SatelliteManager:
                     "online": online
                 })
         
-        self._state.set("satellites", updated_satellites)
+        state.set("satellites", updated_satellites)
         
         # Sync state to online satellites
         if online_ips:
             sync_data = {
-                "flame": self._state.get("flame", False)
+                "flame": state.get("flame", False)
             }
             sync_tasks = [self.sync_satellite_async(ip, sync_data) for ip in online_ips]
             await asyncio.gather(*sync_tasks, return_exceptions=True)
 
     async def loop(self):
         while True:
-            config = self._state.get("config", {})
-            if config.get("mode") == "host" and not self._state.get("is_pairing"):
+            if config.get("mode") == "host" and not state.get("is_pairing"):
                 await self.poll_all_satellites_async()
             await asyncio.sleep(SATELLITE_POLLING_INTERVAL)
+
+
+satellite_manager = SatelliteManager()
