@@ -139,9 +139,11 @@ class Thermostat:
         if current_flame:
             if self.should_turn_flame_off(active_sensors, ignore_hysteresis):
                 state.set("flame", False)
+                state.set("flame_start_tick", None)
         else:
             if self.should_turn_flame_on(active_sensors, ignore_hysteresis):
                 state.set("flame", True)
+                state.set("flame_start_tick", ticks_ms())
         
         state.set("flame_duration", self.get_flame_duration())
         

@@ -128,18 +128,6 @@ class ConfigManager:
     
     def _save(self):
         _save_to_file(self._config)
-    
-    def reload(self):
-        """Reload config from file."""
-        old_config = self._config.copy()
-        self._config = _load_from_file()
-        
-        all_keys = set(old_config.keys()) | set(self._config.keys())
-        for key in all_keys:
-            old_val = old_config.get(key)
-            new_val = self._config.get(key)
-            if old_val != new_val:
-                self._notify(key, new_val, old_val)
 
 
 # Singleton instance

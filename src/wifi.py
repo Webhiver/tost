@@ -8,6 +8,20 @@ class WifiManager:
     
     def __init__(self):
         self._sta = None
+        
+        state.subscribe("is_pairing", self._on_pairing_change)
+    
+    def _on_pairing_change(self, is_pairing, was_pairing):
+        if is_pairing:
+            state.set("wifi_connected", False)
+        else:
+            if secrets.has_wifi_credentials():
+                if self.connect():
+                    print("WiFi connected!")
+                    state.set("wifi_connected", True)
+                else:
+                    print("WiFi connection failed")
+                    state.set("wifi_connected", False)
     
     def init(self):
         """Initialize WiFi - connect or enter pairing mode."""

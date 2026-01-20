@@ -23,19 +23,9 @@ class PairingManager:
             print("Entering pairing mode...")
             ap_name = self.start_ap()
             print("AP started:", ap_name)
-            state.set("wifi_connected", False)
         else:
             print("Exiting pairing mode...")
             self.stop_ap()
-            import secrets
-            if secrets.has_wifi_credentials():
-                from wifi import wifi
-                if wifi.connect():
-                    print("WiFi connected!")
-                    state.set("wifi_connected", True)
-                else:
-                    print("WiFi connection failed")
-                    state.set("wifi_connected", False)
     
     def _generate_ap_name(self):
         try:
