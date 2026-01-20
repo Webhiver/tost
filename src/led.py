@@ -32,6 +32,8 @@ class LEDManager:
         state.subscribe("wifi_connected", self._on_state_change)
         state.subscribe("flame", self._on_state_change)
         config.subscribe("led_brightness", self._on_brightness_change)
+        
+        self._update_led()
     
     def _on_state_change(self, new_value, old_value):
         self._update_led()
