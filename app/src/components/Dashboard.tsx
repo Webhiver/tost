@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import type { Status } from '../types'
+import type { Status, Config } from '../types'
 import type { SatelliteTarget } from './Settings'
 import { formatTemp, formatHumidity, formatDuration } from '../utils'
 import { Header } from './Header'
@@ -9,7 +9,7 @@ interface DashboardProps {
   status: Status
   onOpenSettings: () => void
   onOpenSatelliteSettings: (satellite: SatelliteTarget) => void
-  onConfigUpdate: (updates: Partial<Status['config']>) => void
+  onConfigUpdate: (updates: Partial<Config>) => void
   onCancelPendingFetch: () => void
   onRefreshAndResetInterval: () => Promise<void>
 }
@@ -20,13 +20,13 @@ const TEMP_STEP = 0.5
 const DEBOUNCE_MS = 500
 
 export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate, onCancelPendingFetch, onRefreshAndResetInterval }: DashboardProps) {
-  const isHeating = status.flame
-  const temp = status.sensor?.temperature
-  const humidity = status.sensor?.humidity
-  const sensorHealthy = status.sensor?.healthy ?? true
-  const sensorError = status.sensor?.message ?? ''
-  const serverTarget = status.config?.target_temp ?? 22
-  const satellites = status.satellites || []
+  const isHeating = status.state.flame
+  const temp = status.state.sensor?.temperature
+  const humidity = status.state.sensor?.humidity
+  const sensorHealthy = status.state.sensor?.healthy ?? true
+  const sensorError = status.state.sensor?.message ?? ''
+  const serverTarget = status.config.target_temp ?? 22
+  const satellites = status.state.satellites || []
   const onlineCount = satellites.filter(s => s.online).length
 
   // Local state for immediate slider feedback
@@ -80,7 +80,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
       <Header 
         statusType={isHeating ? 'heating' : 'idle'} 
         statusText={isHeating ? 'Heating' : 'Idle'}
-        wifiStrength={status.wifi_strength}
+        wifiStrength={status.state.wifi_strength}
       />
       
       {/* Target Control */}
@@ -208,7 +208,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
 
       {/* Footer */}
       <footer className="py-6 text-center border-t border-border-subtle mt-auto">
-        <p className="text-xs text-text-muted">Flame duration: {formatDuration(status.flame_duration)}</p>
+        <p className="text-xs text-text-muted">Flame duration: {formatDuration(status.state.flame_duration)}</p>
       </footer>
 
       {/* Settings Toggle */}

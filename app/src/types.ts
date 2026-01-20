@@ -33,15 +33,20 @@ export interface Config {
   sensor_humidity_offset: number
 }
 
-export interface Status {
-  config: Config
+export interface State {
   is_pairing: boolean
+  wifi_connected: boolean
   wifi_strength: number | null
   sensor: SensorData
   flame: boolean
   flame_start_tick: number | null
   flame_duration: number
   satellites: Satellite[]
+}
+
+export interface Status {
+  state: State
+  config: Config
 }
 
 export interface Network {

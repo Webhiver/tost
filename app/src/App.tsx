@@ -46,7 +46,7 @@ function App() {
   }
 
   // Pairing mode
-  if (status.is_pairing) {
+  if (status.state.is_pairing) {
     return (
       <>
         <Pairing />
@@ -56,7 +56,7 @@ function App() {
   }
 
   // Satellite mode
-  if (status.config?.mode === 'satellite') {
+  if (status.config.mode === 'satellite') {
     return (
       <>
         <SatelliteView 
