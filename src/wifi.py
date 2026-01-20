@@ -1,5 +1,6 @@
 import asyncio
 import network
+import secrets
 from state import state
 
 
@@ -7,6 +8,55 @@ class WifiManager:
     
     def __init__(self):
         self._sta = None
+    
+    def init(self):
+        """Initialize WiFi - connect or enter pairing mode."""
+        if secrets.has_wifi_credentials():
+            print("Attempting WiFi connection...")
+            if self.connect():
+                print("WiFi connected!")
+                print("IP:", self.ip_address)
+                state.set("wifi_connected", True)
+            else:
+                print("WiFi connection failed")
+                state.set("wifi_connected", False)
+        else:
+            print("No WiFi credentials, entering pairing mode...")
+            state.set("is_pairing", True)
+    
+    def connect(self, ssid=None, password=None):
+        """Connect to WiFi network."""
+        if ssid is None or password is None:
+            creds = secrets.load()
+            if creds is None:
+                return False
+            ssid = creds.get("ssid")
+            password = creds.get("password")
+        
+        if not ssid:
+            return False
+        
+        self._sta = network.WLAN(network.STA_IF)
+        self._sta.active(True)
+        self._sta.connect(ssid, password)
+        
+        import time
+        timeout = 10000
+        start = time.ticks_ms()
+        
+        while not self._sta.isconnected():
+            elapsed = time.ticks_ms() - start
+            if elapsed > timeout:
+                return False
+            time.sleep_ms(100)
+        
+        return True
+    
+    @property
+    def ip_address(self):
+        if self._sta and self._sta.isconnected():
+            return self._sta.ifconfig()[0]
+        return None
     
     def get_rssi(self):
         """Get current WiFi signal strength (RSSI)."""

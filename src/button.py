@@ -3,8 +3,6 @@ from time import ticks_ms
 import constants
 from lib.picozero import Button
 from state import state
-from pairing import pairing
-import secrets
 
 
 class ButtonManager:
@@ -35,27 +33,7 @@ class ButtonManager:
             
             if elapsed >= constants.PAIRING_LONG_PRESS_MS:
                 self._triggered = True
-                self._toggle_pairing()
-    
-    def _toggle_pairing(self):
-        is_pairing = not state.get("is_pairing", False)
-        state.set("is_pairing", is_pairing)
-        
-        if is_pairing:
-            print("Entering pairing mode...")
-            ap_name = pairing.start_ap()
-            print("AP started:", ap_name)
-            state.set("wifi_connected", False)
-        else:
-            print("Exiting pairing mode...")
-            pairing.stop_ap()
-            if secrets.has_wifi_credentials():
-                if pairing.connect_wifi():
-                    print("WiFi connected!")
-                    state.set("wifi_connected", True)
-                else:
-                    print("WiFi connection failed")
-                    state.set("wifi_connected", False)
+                state.set("is_pairing", not state.get("is_pairing", False))
     
     @property
     def is_pressed(self):

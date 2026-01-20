@@ -1,8 +1,8 @@
 import network
 import machine
-import secrets
 import constants
 import binascii
+from state import state
 
 
 class PairingManager:
@@ -14,9 +14,28 @@ class PairingManager:
     
     def __init__(self):
         self._ap = None
-        self._sta = None
-        self._is_pairing = False
         self._ap_ssid = None
+        
+        state.subscribe("is_pairing", self._on_pairing_change)
+    
+    def _on_pairing_change(self, is_pairing, was_pairing):
+        if is_pairing:
+            print("Entering pairing mode...")
+            ap_name = self.start_ap()
+            print("AP started:", ap_name)
+            state.set("wifi_connected", False)
+        else:
+            print("Exiting pairing mode...")
+            self.stop_ap()
+            import secrets
+            if secrets.has_wifi_credentials():
+                from wifi import wifi
+                if wifi.connect():
+                    print("WiFi connected!")
+                    state.set("wifi_connected", True)
+                else:
+                    print("WiFi connection failed")
+                    state.set("wifi_connected", False)
     
     def _generate_ap_name(self):
         try:
@@ -29,15 +48,14 @@ class PairingManager:
     def start_ap(self):
         self._ap_ssid = self._generate_ap_name()
         
-        self._sta = network.WLAN(network.STA_IF)
-        self._sta.active(False)
+        # Disable station mode when starting AP
+        sta = network.WLAN(network.STA_IF)
+        sta.active(False)
         
         self._ap = network.WLAN(network.AP_IF)
         self._ap.config(essid=self._ap_ssid, security=0)
         self._ap.ifconfig((self.AP_IP, self.AP_SUBNET, self.AP_GATEWAY, self.AP_DNS))
         self._ap.active(True)
-        
-        self._is_pairing = True
         
         while not self._ap.active():
             pass
@@ -47,80 +65,27 @@ class PairingManager:
     def stop_ap(self):
         if self._ap:
             self._ap.active(False)
-        self._is_pairing = False
-    
-    def connect_wifi(self, ssid=None, password=None):
-        if ssid is None or password is None:
-            creds = secrets.load()
-            if creds is None:
-                return False
-            ssid = creds.get("ssid")
-            password = creds.get("password")
-        
-        if not ssid:
-            return False
-        
-        if self._ap:
-            self._ap.active(False)
-        
-        self._sta = network.WLAN(network.STA_IF)
-        self._sta.active(True)
-        
-        self._sta.connect(ssid, password)
-        
-        import time
-        timeout = 10000
-        start = time.ticks_ms()
-        
-        while not self._sta.isconnected():
-            elapsed = time.ticks_ms() - start
-            if elapsed > timeout:
-                return False
-            time.sleep_ms(100)
-        
-        return True
-    
-    def disconnect_wifi(self):
-        if self._sta:
-            self._sta.disconnect()
-            self._sta.active(False)
-    
-    def save_credentials(self, ssid, password):
-        secrets.save(ssid, password)
-        return self.connect_wifi(ssid, password)
-    
-    @property
-    def is_pairing(self):
-        return self._is_pairing
-    
-    @property
-    def is_connected(self):
-        if self._sta:
-            return self._sta.isconnected()
-        return False
     
     @property
     def ip_address(self):
-        if self._is_pairing and self._ap:
+        if state.get("is_pairing") and self._ap:
             return self.AP_IP
-        if self._sta and self._sta.isconnected():
-            return self._sta.ifconfig()[0]
-        return None
+        from wifi import wifi
+        return wifi.ip_address
     
     @property
     def ap_ssid(self):
         return self._ap_ssid
     
     def scan_networks(self):
-        if self._sta is None:
-            self._sta = network.WLAN(network.STA_IF)
+        sta = network.WLAN(network.STA_IF)
         
-        was_active = self._sta.active()
+        was_active = sta.active()
         if not was_active:
-            self._sta.active(True)
+            sta.active(True)
         
         try:
-            networks = self._sta.scan()
+            networks = sta.scan()
             result = []
             for net in networks:
                 ssid = net[0].decode('utf-8') if isinstance(net[0], bytes) else net[0]
@@ -131,8 +96,8 @@ class PairingManager:
             result.sort(key=lambda x: x["rssi"], reverse=True)
             return result
         finally:
-            if not was_active and not self._is_pairing:
-                self._sta.active(False)
+            if not was_active and not state.get("is_pairing"):
+                sta.active(False)
 
 
 pairing = PairingManager()

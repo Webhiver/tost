@@ -45,21 +45,7 @@ async def main():
     # init_watchdog()
     # pet_watchdog()
     
-    if secrets.has_wifi_credentials():
-        print("Attempting WiFi connection...")
-        
-        if pairing.connect_wifi():
-            print("WiFi connected!")
-            print("IP:", pairing.ip_address)
-            state.set("wifi_connected", True)
-        else:
-            print("WiFi connection failed")
-            state.set("wifi_connected", False)
-    else:
-        print("No WiFi credentials, entering pairing mode...")
-        state.set("is_pairing", True)
-        ap_name = pairing.start_ap()
-        print("AP started:", ap_name)
+    wifi.init()
     
     create_server(pairing, secrets)
     
