@@ -12,20 +12,6 @@ async def delayed_reset():
     machine.reset()
 
 
-CAPTIVE_PORTAL_PATHS = [
-    '/generate_204',
-    '/hotspot-detect.html',
-    '/library/test/success.html',
-    '/connecttest.txt',
-    '/ncsi.txt',
-    '/success.txt',
-    '/canonical.html',
-    '/check_network_status.txt',
-    '/kindle-wifi/wifistub.html',
-    '/redirect',
-]
-
-
 def create_server(state_manager, pairing_manager, config_module, secrets_module):
     
     @app.route('/api/status', methods=['GET'])
@@ -158,14 +144,21 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         except OSError:
             return "App not found. Please upload the app/ folder.", 404
     
-    # Captive portal routes - must be before the catch-all static route
+    # Captive portal routes - serve app when in pairing mode
+    @app.route('/generate_204')
+    @app.route('/hotspot-detect.html')
+    @app.route('/library/test/success.html')
+    @app.route('/connecttest.txt')
+    @app.route('/ncsi.txt')
+    @app.route('/success.txt')
+    @app.route('/canonical.html')
+    @app.route('/check_network_status.txt')
+    @app.route('/kindle-wifi/wifistub.html')
+    @app.route('/redirect')
     async def serve_captive_portal(request):
         if state_manager.get("is_pairing", False):
             return await serve_index(request)
         return 'Not found', 404
-    
-    for path in CAPTIVE_PORTAL_PATHS:
-        app.route(path)(serve_captive_portal)
     
     # Catch-all route for static files from the app folder
     @app.route('/<path:path>')
