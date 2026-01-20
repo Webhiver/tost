@@ -1,8 +1,8 @@
 import asyncio
 import socket
 import struct
-import network_config
-from state_manager import state
+import constants
+from state import state
 
 
 class DNSServer:
@@ -13,7 +13,7 @@ class DNSServer:
     
     def __init__(self, ip_address=None, port=53):
         if ip_address is None:
-            ip_address = network_config.AP_IP
+            ip_address = constants.AP_IP
         self.ip_address = ip_address
         self.port = port
         self._socket = None

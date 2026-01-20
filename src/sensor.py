@@ -1,9 +1,9 @@
 import asyncio
 from machine import Pin
 import dht
-import hardware_config
-from state_manager import state
-from config_manager import config
+import constants
+from state import state
+from config import config
 
 
 class SensorManager:
@@ -14,7 +14,7 @@ class SensorManager:
     MAX_HUMIDITY = 100.0
     
     def __init__(self):
-        self._sensor = dht.DHT22(Pin(hardware_config.PIN_DHT))
+        self._sensor = dht.DHT22(Pin(constants.PIN_DHT))
         self._last_temp = None
         self._last_humidity = None
     

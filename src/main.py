@@ -1,19 +1,19 @@
 import asyncio
 from machine import WDT
 
-import secrets_manager
-from config_manager import config
-from state_manager import state
-from sensor_manager import sensor
-from led_manager import led
-from relay_manager import relay
-from button_manager import button
-from pairing_manager import pairing
-from satellite_manager import satellite_manager
+import secrets
+from config import config
+from state import state
+from sensor import sensor
+from led import led
+from relay import relay
+from button import button
+from pairing import pairing
+from satellite import satellite
 from thermostat import thermostat
 from web_server import create_server, app
 from dns_server import dns_server
-from network_manager import network_manager
+from wifi import wifi
 
 
 wdt = None
@@ -45,7 +45,7 @@ async def main():
     # init_watchdog()
     # pet_watchdog()
     
-    if secrets_manager.has_wifi_credentials():
+    if secrets.has_wifi_credentials():
         print("Attempting WiFi connection...")
         
         if pairing.connect_wifi():
@@ -61,7 +61,7 @@ async def main():
         ap_name = pairing.start_ap()
         print("AP started:", ap_name)
     
-    create_server(pairing, secrets_manager)
+    create_server(pairing, secrets)
     
     tasks = [
         asyncio.create_task(sensor.loop()),
@@ -69,8 +69,8 @@ async def main():
         asyncio.create_task(button.loop()),
         asyncio.create_task(watchdog_loop()),
         asyncio.create_task(dns_server.loop()),
-        asyncio.create_task(network_manager.loop()),
-        asyncio.create_task(satellite_manager.loop()),
+        asyncio.create_task(wifi.loop()),
+        asyncio.create_task(satellite.loop()),
     ]
     
     print("Starting web server on port 80...")

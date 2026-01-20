@@ -1,15 +1,15 @@
 from time import ticks_ms
 from lib.picozero import DigitalOutputDevice
-import hardware_config
-from state_manager import state
-from config_manager import config
+import constants
+from state import state
+from config import config
 
 
 class RelayManager:
     
     def __init__(self):
         self._relay = DigitalOutputDevice(
-            pin=hardware_config.PIN_RELAY,
+            pin=constants.PIN_RELAY,
             active_high=True,
             initial_value=False
         )

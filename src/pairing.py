@@ -1,16 +1,16 @@
 import network
 import machine
-import secrets_manager
-import network_config
+import secrets
+import constants
 import binascii
 
 
 class PairingManager:
     
-    AP_IP = network_config.AP_IP
-    AP_SUBNET = network_config.AP_SUBNET
-    AP_GATEWAY = network_config.AP_IP
-    AP_DNS = network_config.AP_IP
+    AP_IP = constants.AP_IP
+    AP_SUBNET = constants.AP_SUBNET
+    AP_GATEWAY = constants.AP_IP
+    AP_DNS = constants.AP_IP
     
     def __init__(self):
         self._ap = None
@@ -51,11 +51,11 @@ class PairingManager:
     
     def connect_wifi(self, ssid=None, password=None):
         if ssid is None or password is None:
-            secrets = secrets_manager.load()
-            if secrets is None:
+            creds = secrets.load()
+            if creds is None:
                 return False
-            ssid = secrets.get("ssid")
-            password = secrets.get("password")
+            ssid = creds.get("ssid")
+            password = creds.get("password")
         
         if not ssid:
             return False
@@ -86,7 +86,7 @@ class PairingManager:
             self._sta.active(False)
     
     def save_credentials(self, ssid, password):
-        secrets_manager.save(ssid, password)
+        secrets.save(ssid, password)
         return self.connect_wifi(ssid, password)
     
     @property

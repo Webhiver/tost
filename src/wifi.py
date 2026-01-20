@@ -1,9 +1,9 @@
 import asyncio
 import network
-from state_manager import state
+from state import state
 
 
-class NetworkManager:
+class WifiManager:
     
     def __init__(self):
         self._sta = None
@@ -40,4 +40,4 @@ class NetworkManager:
             await asyncio.sleep(5)
 
 
-network_manager = NetworkManager()
+wifi = WifiManager()

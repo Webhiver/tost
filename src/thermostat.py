@@ -1,6 +1,6 @@
 from time import ticks_ms
-from state_manager import state
-from config_manager import config
+from state import state
+from config import config
 
 
 class Thermostat:

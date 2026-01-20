@@ -1,9 +1,9 @@
 import asyncio
 import json
 from time import ticks_ms
-from network_config import SATELLITE_POLLING_INTERVAL
-from state_manager import state
-from config_manager import config
+from constants import SATELLITE_POLLING_INTERVAL
+from state import state
+from config import config
 
 
 class SatelliteManager:
@@ -225,4 +225,4 @@ class SatelliteManager:
             await asyncio.sleep(SATELLITE_POLLING_INTERVAL)
 
 
-satellite_manager = SatelliteManager()
+satellite = SatelliteManager()

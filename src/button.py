@@ -1,18 +1,16 @@
 import asyncio
 from time import ticks_ms
-import hardware_config
+import constants
 from lib.picozero import Button
-from state_manager import state
-from pairing_manager import pairing
-import secrets_manager
+from state import state
+from pairing import pairing
+import secrets
 
 
 class ButtonManager:
     
-    LONG_PRESS_MS = 2000
-    
     def __init__(self):
-        self._button = Button(hardware_config.PIN_BUTTON, pull_up=True)
+        self._button = Button(constants.PIN_BUTTON, pull_up=True)
         self._press_start = None
         self._triggered = False
         
@@ -35,7 +33,7 @@ class ButtonManager:
             if elapsed < 0:
                 elapsed = current_tick + (0xFFFFFFFF - self._press_start)
             
-            if elapsed >= self.LONG_PRESS_MS:
+            if elapsed >= constants.PAIRING_LONG_PRESS_MS:
                 self._triggered = True
                 self._toggle_pairing()
     
@@ -51,7 +49,7 @@ class ButtonManager:
         else:
             print("Exiting pairing mode...")
             pairing.stop_ap()
-            if secrets_manager.has_wifi_credentials():
+            if secrets.has_wifi_credentials():
                 if pairing.connect_wifi():
                     print("WiFi connected!")
                     state.set("wifi_connected", True)

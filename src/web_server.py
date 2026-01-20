@@ -2,9 +2,9 @@ import asyncio
 import machine
 from lib.microdot import Microdot, Response, redirect
 import urequests
-import debug_manager
-from state_manager import state
-from config_manager import config
+import debug
+from state import state
+from config import config
 
 app = Microdot()
 
@@ -14,7 +14,7 @@ async def delayed_reset():
     machine.reset()
 
 
-def create_server(pairing_manager, secrets_module):
+def create_server(pairing, secrets_module):
     
     @app.route('/api/status', methods=['GET'])
     async def get_status(request):
@@ -55,7 +55,7 @@ def create_server(pairing_manager, secrets_module):
     
     @app.route('/api/wifi/scan', methods=['GET'])
     async def scan_wifi(request):
-        networks = pairing_manager.scan_networks()
+        networks = pairing.scan_networks()
         return {"networks": networks}
     
     @app.route('/api/wifi/connect', methods=['POST'])
@@ -83,7 +83,7 @@ def create_server(pairing_manager, secrets_module):
     
     @app.route('/api/debug', methods=['GET'])
     async def get_debug(request):
-        return debug_manager.get_debug_info()
+        return debug.get_debug_info()
     
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):

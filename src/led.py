@@ -1,9 +1,9 @@
 import asyncio
-import hardware_config
+import constants
 from lib.picozero import RGBLED
 from time import ticks_ms
-from state_manager import state
-from config_manager import config
+from state import state
+from config import config
 
 
 class LEDManager:
@@ -19,9 +19,9 @@ class LEDManager:
     
     def __init__(self):
         self._led = RGBLED(
-            red=hardware_config.PIN_LED_RED,
-            green=hardware_config.PIN_LED_GREEN,
-            blue=hardware_config.PIN_LED_BLUE,
+            red=constants.PIN_LED_RED,
+            green=constants.PIN_LED_GREEN,
+            blue=constants.PIN_LED_BLUE,
             active_high=True
         )
         self._brightness = config.get("led_brightness", 1.0)
