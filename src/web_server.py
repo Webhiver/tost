@@ -2,7 +2,9 @@ import asyncio
 import machine
 from lib.microdot import Microdot, Response, redirect
 import urequests
-import debug_manager
+import debug
+from state import state
+from config import config
 
 app = Microdot()
 
@@ -12,42 +14,30 @@ async def delayed_reset():
     machine.reset()
 
 
-CAPTIVE_PORTAL_PATHS = [
-    '/generate_204',
-    '/hotspot-detect.html',
-    '/library/test/success.html',
-    '/connecttest.txt',
-    '/ncsi.txt',
-    '/success.txt',
-    '/canonical.html',
-    '/check_network_status.txt',
-    '/kindle-wifi/wifistub.html',
-    '/redirect',
-]
-
-
-def create_server(state_manager, pairing_manager, config_module, secrets_module):
+def create_server(pairing, secrets_module):
     
     @app.route('/api/status', methods=['GET'])
     async def get_status(request):
-        return state_manager.get_all()
+        return {
+            "state": state.get_all(),
+            "config": config.get_all()
+        }
     
     @app.route('/api/readings', methods=['GET'])
     async def get_readings(request):
-        return state_manager.get("sensor", {"temperature": None, "humidity": None})
+        return state.get("sensor", {"temperature": None, "humidity": None})
     
     @app.route('/api/config', methods=['GET'])
     async def get_config(request):
-        return state_manager.get("config", {})
+        return config.get_all()
     
     @app.route('/api/config', methods=['POST'])
     async def set_config(request):
         try:
             new_config = request.json
             if new_config:
-                state_manager.set("config", new_config)
-                config_module.save(new_config)
-                return {"status": "ok", "config": state_manager.get("config")}
+                config.set_all(new_config)
+                return {"status": "ok", "config": config.get_all()}
             return {"error": "No config provided"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
@@ -57,16 +47,15 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         try:
             updates = request.json
             if updates:
-                state_manager.update("config", updates)
-                config_module.save(state_manager.get("config"))
-                return {"status": "ok", "config": state_manager.get("config")}
+                config.update_all(updates)
+                return {"status": "ok", "config": config.get_all()}
             return {"error": "No updates provided"}, 400
         except Exception as e:
             return {"error": str(e)}, 400
     
     @app.route('/api/wifi/scan', methods=['GET'])
     async def scan_wifi(request):
-        networks = pairing_manager.scan_networks()
+        networks = pairing.scan_networks()
         return {"networks": networks}
     
     @app.route('/api/wifi/connect', methods=['POST'])
@@ -89,23 +78,22 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     
     @app.route('/api/pairing/exit', methods=['POST'])
     async def exit_pairing(request):
-        state_manager.set("is_pairing", False)
+        state.set("is_pairing", False)
         return {"status": "ok", "message": "Exiting pairing mode"}
     
     @app.route('/api/debug', methods=['GET'])
     async def get_debug(request):
-        return debug_manager.get_debug_info()
+        return debug.get_debug_info()
     
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):
-        config = state_manager.get("config", {})
         if config.get("mode") != "satellite":
             return {"error": "Sync only available in satellite mode"}, 403
         
         try:
             data = request.json
             if data and "flame" in data:
-                state_manager.set("flame", data["flame"])
+                state.set("flame", data["flame"])
             return {"status": "ok"}
         except Exception as e:
             return {"error": str(e)}, 400
@@ -114,7 +102,6 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
     async def satellite_proxy(request, ip, path):
 
         # Check that IP is in configured satellites
-        config = state_manager.get("config", {})
         satellites = config.get("satellites", [])
         satellite_ips = [sat.get("ip") for sat in satellites]
         
@@ -158,14 +145,21 @@ def create_server(state_manager, pairing_manager, config_module, secrets_module)
         except OSError:
             return "App not found. Please upload the app/ folder.", 404
     
-    # Captive portal routes - must be before the catch-all static route
+    # Captive portal routes - serve app when in pairing mode
+    @app.route('/generate_204')
+    @app.route('/hotspot-detect.html')
+    @app.route('/library/test/success.html')
+    @app.route('/connecttest.txt')
+    @app.route('/ncsi.txt')
+    @app.route('/success.txt')
+    @app.route('/canonical.html')
+    @app.route('/check_network_status.txt')
+    @app.route('/kindle-wifi/wifistub.html')
+    @app.route('/redirect')
     async def serve_captive_portal(request):
-        if state_manager.get("is_pairing", False):
+        if state.get("is_pairing", False):
             return await serve_index(request)
         return 'Not found', 404
-    
-    for path in CAPTIVE_PORTAL_PATHS:
-        app.route(path)(serve_captive_portal)
     
     # Catch-all route for static files from the app folder
     @app.route('/<path:path>')

@@ -7,7 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Building PicoThermostatCO..."
 
-# Create dist directory if it doesn't exist
+# Clean and create dist directory
+rm -rf "$SCRIPT_DIR/dist"
 mkdir -p "$SCRIPT_DIR/dist"
 
 # Copy src contents to dist

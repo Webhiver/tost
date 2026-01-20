@@ -1,8 +1,9 @@
 import asyncio
-import hardware_config
+import constants
 from lib.picozero import RGBLED
 from time import ticks_ms
-from state_manager import state
+from state import state
+from config import config
 
 
 class LEDManager:
@@ -18,32 +19,27 @@ class LEDManager:
     
     def __init__(self):
         self._led = RGBLED(
-            red=hardware_config.PIN_LED_RED,
-            green=hardware_config.PIN_LED_GREEN,
-            blue=hardware_config.PIN_LED_BLUE,
+            red=constants.PIN_LED_RED,
+            green=constants.PIN_LED_GREEN,
+            blue=constants.PIN_LED_BLUE,
             active_high=True
         )
-        self._brightness = 1.0
+        self._brightness = config.get("led_brightness", 1.0)
         self._blink_state = False
         self._last_blink_tick = 0
         
         state.subscribe("is_pairing", self._on_state_change)
         state.subscribe("wifi_connected", self._on_state_change)
         state.subscribe("flame", self._on_state_change)
-        state.subscribe("config", self._on_config_change)
+        config.subscribe("led_brightness", self._on_brightness_change)
+        
+        self._update_led()
     
     def _on_state_change(self, new_value, old_value):
         self._update_led()
     
-    def _on_config_change(self, new_config, old_config):
-        new_brightness = new_config.get("led_brightness", 1.0) if new_config else 1.0
-        old_brightness = old_config.get("led_brightness", 1.0) if old_config else 1.0
-        if new_brightness != old_brightness:
-            self._brightness = max(0, min(1, new_brightness))
-            self._update_led()
-    
-    def set_brightness(self, brightness):
-        self._brightness = max(0, min(1, brightness))
+    def _on_brightness_change(self, new_brightness, old_brightness):
+        self._brightness = max(0, min(1, new_brightness if new_brightness is not None else 1.0))
         self._update_led()
     
     def _apply_brightness(self, color):

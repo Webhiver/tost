@@ -8,14 +8,14 @@ interface SatelliteViewProps {
 }
 
 export function SatelliteView({ status, onOpenSettings }: SatelliteViewProps) {
-  const temp = status.sensor?.temperature
-  const humidity = status.sensor?.humidity
-  const sensorHealthy = status.sensor?.healthy ?? true
-  const sensorError = status.sensor?.message ?? ''
+  const temp = status.state.sensor?.temperature
+  const humidity = status.state.sensor?.humidity
+  const sensorHealthy = status.state.sensor?.healthy ?? true
+  const sensorError = status.state.sensor?.message ?? ''
 
   return (
     <div className="w-full max-w-[480px] mx-auto px-5">
-      <Header statusType="satellite" statusText="Satellite Mode" wifiStrength={status.wifi_strength} />
+      <Header statusType="satellite" statusText="Satellite Mode" wifiStrength={status.state.wifi_strength} />
       
       {/* Info Card */}
       <div className="bg-secondary border border-border-subtle rounded-lg p-5 mb-4 mt-6">

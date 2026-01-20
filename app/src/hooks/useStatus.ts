@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { Status } from '../types'
+import type { Status, State, Config } from '../types'
 import { fetchStatus } from '../api'
 
 export function useStatus(pollInterval = 4000) {
@@ -84,11 +84,14 @@ export function useStatus(pollInterval = 4000) {
     }
   }, [refresh, startPolling, cancelPendingFetch])
 
-  const updateLocalStatus = useCallback((updates: Partial<Status>) => {
-    setStatus(prev => prev ? { ...prev, ...updates } : null)
+  const updateLocalState = useCallback((updates: Partial<State>) => {
+    setStatus(prev => prev ? {
+      ...prev,
+      state: { ...prev.state, ...updates }
+    } : null)
   }, [])
 
-  const updateLocalConfig = useCallback((updates: Partial<Status['config']>) => {
+  const updateLocalConfig = useCallback((updates: Partial<Config>) => {
     setStatus(prev => prev ? {
       ...prev,
       config: { ...prev.config, ...updates }
@@ -102,7 +105,7 @@ export function useStatus(pollInterval = 4000) {
     refresh,
     settingsOpen,
     setSettingsOpen,
-    updateLocalStatus,
+    updateLocalState,
     updateLocalConfig,
     cancelPendingFetch,
     refreshAndResetInterval,

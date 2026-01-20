@@ -1,8 +1,9 @@
 import asyncio
 from machine import Pin
 import dht
-import hardware_config
-from state_manager import state
+import constants
+from state import state
+from config import config
 
 
 class SensorManager:
@@ -13,7 +14,7 @@ class SensorManager:
     MAX_HUMIDITY = 100.0
     
     def __init__(self):
-        self._sensor = dht.DHT22(Pin(hardware_config.PIN_DHT))
+        self._sensor = dht.DHT22(Pin(constants.PIN_DHT))
         self._last_temp = None
         self._last_humidity = None
     
@@ -32,7 +33,6 @@ class SensorManager:
                 humidity = None
             
             # Apply offsets from config
-            config = state.get("config", {})
             if temp is not None:
                 temp_offset = config.get("sensor_temperature_offset", 0.0)
                 temp = round(temp + temp_offset, 1)
