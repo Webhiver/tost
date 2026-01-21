@@ -13,7 +13,7 @@ export interface SatelliteConfig {
 export interface Satellite {
   ip: string
   name: string
-  sensor: SensorData
+  state: State | null
   last_updated: number
   online: boolean
 }

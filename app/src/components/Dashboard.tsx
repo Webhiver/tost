@@ -163,8 +163,9 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
             </span>
           </div>
           {satellites.map((sat, idx) => {
-            const satHealthy = sat.sensor?.healthy
-            const satError = sat.sensor?.message
+            const satSensor = sat.state?.sensor
+            const satHealthy = satSensor?.healthy
+            const satError = satSensor?.message
             return (
               <div 
                 key={sat.ip} 
@@ -192,8 +193,8 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                   <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
                     {sat.online ? (
                       <>
-                        <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
-                        <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
+                        <span className="font-mono text-lg font-medium">{formatTemp(satSensor?.temperature)}°C</span>
+                        <span className="text-xs text-text-secondary ml-2">{formatHumidity(satSensor?.humidity)}%</span>
                       </>
                     ) : (
                       <span className="text-sm">No data</span>

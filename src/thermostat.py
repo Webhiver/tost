@@ -44,8 +44,10 @@ class Thermostat:
         satellite_temps = []
         satellites = state.get("satellites", [])
         for sat in satellites:
-            if sat.get("online") and self._is_valid_temp(sat.get("sensor", {}).get("temperature")):
-                satellite_temps.append(sat["sensor"]["temperature"])
+            sat_state = sat.get("state") or {}
+            sat_sensor = sat_state.get("sensor") or {}
+            if sat.get("online") and self._is_valid_temp(sat_sensor.get("temperature")):
+                satellite_temps.append(sat_sensor["temperature"])
         
         local_sensor_rule = config.get("local_sensor", "included")
         sensor_data = state.get("sensor", {})
