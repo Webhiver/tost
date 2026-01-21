@@ -15,6 +15,37 @@ DEFAULT_CONFIG = {
     "sensor_humidity_offset": 0.0
 }
 
+
+def is_valid_ip(ip):
+    """Validate IPv4 address format."""
+    if not ip or not isinstance(ip, str):
+        return False
+    parts = ip.split(".")
+    if len(parts) != 4:
+        return False
+    for part in parts:
+        try:
+            num = int(part)
+            if num < 0 or num > 255:
+                return False
+            # Reject leading zeros (e.g., "01" or "001")
+            if part != str(num):
+                return False
+        except ValueError:
+            return False
+    return True
+
+
+def _sanitize_satellites(satellites):
+    """Filter out satellites with invalid IPs."""
+    if not isinstance(satellites, list):
+        return []
+    valid = []
+    for sat in satellites:
+        if isinstance(sat, dict) and is_valid_ip(sat.get("ip", "")):
+            valid.append(sat)
+    return valid
+
 # Keys that must be numeric (int or float) - None values will be replaced with defaults
 NUMERIC_KEYS = {
     "target_temp", "hysteresis", "satellite_grace_period", "led_brightness",
@@ -59,6 +90,10 @@ class ConfigManager:
         return self._config.get(key, default)
     
     def set(self, key, value):
+        # Validate satellites before saving
+        if key == "satellites":
+            value = _sanitize_satellites(value)
+        
         old_value = self._config.get(key)
         self._config[key] = value
         
@@ -101,6 +136,10 @@ class ConfigManager:
         return self._config.copy()
     
     def set_all(self, new_config):
+        # Validate satellites before saving
+        if "satellites" in new_config:
+            new_config["satellites"] = _sanitize_satellites(new_config["satellites"])
+        
         old_config = self._config.copy()
         self._config = new_config
         
@@ -115,6 +154,10 @@ class ConfigManager:
     
     def update_all(self, updates):
         """Update multiple config keys at once."""
+        # Validate satellites before saving
+        if "satellites" in updates:
+            updates["satellites"] = _sanitize_satellites(updates["satellites"])
+        
         old_config = self._config.copy()
         self._config.update(updates)
         

@@ -6,6 +6,19 @@ import { useTheme, type Theme } from '../hooks/useTheme'
 const DEBOUNCE_MS = 750
 const RESULT_DISPLAY_MS = 5000
 
+function isValidIp(ip: string): boolean {
+  if (!ip) return false
+  const parts = ip.split('.')
+  if (parts.length !== 4) return false
+  for (const part of parts) {
+    const num = parseInt(part, 10)
+    if (isNaN(num) || num < 0 || num > 255) return false
+    // Reject leading zeros (e.g., "01" or "001")
+    if (part !== String(num)) return false
+  }
+  return true
+}
+
 export interface SatelliteTarget {
   ip: string
   name: string
@@ -159,19 +172,49 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     if (!localConfig) return
     const satellites = [...localConfig.satellites]
     satellites[index] = { ...satellites[index], [field]: value }
-    queueUpdate({ satellites })
+    
+    // Update local state immediately for responsive UI
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
+    
+    // Only queue update to server with valid satellites
+    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    
+    // Clear any existing debounce timer and schedule new one
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, satellites: validSatellites }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
   }
 
   const handleAddSatellite = () => {
     if (!localConfig) return
+    // Only update local state - empty IP won't be sent to server
     const satellites = [...localConfig.satellites, { ip: '', name: '' }]
-    queueUpdate({ satellites })
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
   }
 
   const handleRemoveSatellite = (index: number) => {
     if (!localConfig) return
     const satellites = localConfig.satellites.filter((_, i) => i !== index)
-    queueUpdate({ satellites })
+    
+    // Update local state immediately
+    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
+    
+    // Send only valid satellites to the server
+    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, satellites: validSatellites }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
   }
 
   const getTitle = () => {
@@ -422,30 +465,41 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
               Satellites
             </h3>
             
-            {localConfig.satellites.map((sat, idx) => (
-              <div key={idx} className="flex items-center gap-2 py-3.5 border-b border-border-subtle last:border-b-0">
-                <input
-                  type="text"
-                  value={sat.name}
-                  onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
-                  placeholder="Name"
-                  className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-                />
-                <input
-                  type="text"
-                  value={sat.ip}
-                  onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
-                  placeholder="192.168.1.x"
-                  className="w-[130px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
-                />
-                <button
-                  onClick={() => handleRemoveSatellite(idx)}
-                  className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+            {localConfig.satellites.map((sat, idx) => {
+              const ipValid = isValidIp(sat.ip)
+              const showError = sat.ip.length > 0 && !ipValid
+              return (
+                <div key={idx} className="flex flex-col gap-1 py-3.5 border-b border-border-subtle last:border-b-0">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={sat.name}
+                      onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
+                      placeholder="Name"
+                      className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                    />
+                    <input
+                      type="text"
+                      value={sat.ip}
+                      onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
+                      placeholder="192.168.1.x"
+                      className={`w-[130px] px-3 py-2 bg-tertiary border rounded-sm text-text-primary font-mono text-sm ${
+                        showError ? 'border-flame' : 'border-border-subtle'
+                      }`}
+                    />
+                    <button
+                      onClick={() => handleRemoveSatellite(idx)}
+                      className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  {showError && (
+                    <span className="text-xs text-flame ml-auto mr-12">Invalid IP address</span>
+                  )}
+                </div>
+              )
+            })}
             
             <button
               onClick={handleAddSatellite}
