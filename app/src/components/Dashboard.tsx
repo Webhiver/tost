@@ -3,6 +3,7 @@ import type { Status, Config } from '../types'
 import type { SatelliteTarget } from './Settings'
 import { formatTemp, formatHumidity, formatDuration } from '../utils'
 import { Header } from './Header'
+import { WifiIcon } from './WifiIcon'
 import { updateConfig } from '../api'
 
 interface DashboardProps {
@@ -182,13 +183,16 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                 </div>
                 <div className="flex items-center gap-3">
                   {sat.online && (
-                    <button
-                      onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
-                      className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
-                      title="Satellite settings"
-                    >
-                      ⚙
-                    </button>
+                    <>
+                      <WifiIcon strength={sat.state?.wifi_strength} className="w-4 h-4 text-text-muted" />
+                      <button
+                        onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
+                        className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
+                        title="Satellite settings"
+                      >
+                        ⚙
+                      </button>
+                    </>
                   )}
                   <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
                     {sat.online ? (
