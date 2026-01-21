@@ -343,20 +343,22 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
             </SettingRow>
             
             {localConfig.flame_mode === 'one' && (
-              <SettingRow label="Flame Mode Sensor">
-                <select
-                  value={localConfig.flame_mode_sensor}
-                  onChange={(e) => handleUpdate('flame_mode_sensor', e.target.value)}
-                  className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-                >
-                  <option value="local">Local</option>
-                  {localConfig.satellites.map((sat) => (
-                    <option key={sat.ip} value={sat.ip}>
-                      {sat.name || sat.ip}
-                    </option>
-                  ))}
-                </select>
-              </SettingRow>
+              <div className="pl-6 border-b border-border-subtle">
+                <SettingRow label="Sensor">
+                  <select
+                    value={localConfig.flame_mode_sensor}
+                    onChange={(e) => handleUpdate('flame_mode_sensor', e.target.value)}
+                    className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                  >
+                    <option value="local">Local</option>
+                    {localConfig.satellites.map((sat) => (
+                      <option key={sat.ip} value={sat.ip}>
+                        {sat.name || sat.ip}
+                      </option>
+                    ))}
+                  </select>
+                </SettingRow>
+              </div>
             )}
             
             <SettingRow label="Local Sensor">
