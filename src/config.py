@@ -9,6 +9,8 @@ DEFAULT_CONFIG = {
     "led_brightness": 1.0,
     "flame_on_mode": "average",
     "flame_off_mode": "average",
+    "flame_mode": "average",
+    "flame_mode_sensor": "local",
     "local_sensor": "included",
     "max_flame_duration": 14400,
     "sensor_temperature_offset": 0.0,

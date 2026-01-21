@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { Config } from '../types'
+import type { Config, FlameMode } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
 
@@ -350,6 +350,36 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
                 <option value="all">All Sensors</option>
               </select>
             </SettingRow>
+            
+            <SettingRow label="Flame Mode">
+              <select
+                value={localConfig.flame_mode}
+                onChange={(e) => handleUpdate('flame_mode', e.target.value as FlameMode)}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="average">Average</option>
+                <option value="all">All Sensors</option>
+                <option value="any">Any Sensor</option>
+                <option value="one">One Sensor</option>
+              </select>
+            </SettingRow>
+            
+            {localConfig.flame_mode === 'one' && (
+              <SettingRow label="Flame Mode Sensor">
+                <select
+                  value={localConfig.flame_mode_sensor}
+                  onChange={(e) => handleUpdate('flame_mode_sensor', e.target.value)}
+                  className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                >
+                  <option value="local">Local</option>
+                  {localConfig.satellites.map((sat) => (
+                    <option key={sat.ip} value={sat.ip}>
+                      {sat.name || sat.ip}
+                    </option>
+                  ))}
+                </select>
+              </SettingRow>
+            )}
             
             <SettingRow label="Local Sensor">
               <select

@@ -18,6 +18,8 @@ export interface Satellite {
   online: boolean
 }
 
+export type FlameMode = 'average' | 'all' | 'any' | 'one'
+
 export interface Config {
   mode: 'host' | 'satellite'
   target_temperature: number
@@ -27,6 +29,8 @@ export interface Config {
   led_brightness: number
   flame_on_mode: 'average' | 'all'
   flame_off_mode: 'average' | 'all'
+  flame_mode: FlameMode
+  flame_mode_sensor: string  // 'local' or satellite IP
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
   sensor_temperature_offset: number
