@@ -13,3 +13,5 @@ SATELLITE_POLLING_INTERVAL = 5
 
 # Button configuration
 PAIRING_LONG_PRESS_MS = 2000
+SHORT_PRESS_MIN_MS = 50      # Minimum press duration (debounce)
+SHORT_PRESS_MAX_MS = 500     # Maximum press duration for short press
