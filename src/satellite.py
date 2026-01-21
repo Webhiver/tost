@@ -126,13 +126,14 @@ class SatelliteManager:
             (True, sensor_data) if HTTP request succeeded
             (False, error_message) if HTTP request failed
         """
-        success, result = await self._http_request_async(ip, "GET", "/api/readings")
+        success, result = await self._http_request_async(ip, "GET", "/api/status")
         if success:
+            sensor = result.get("state", {}).get("sensor", {})
             sensor_data = {
-                "temperature": result.get("temperature"),
-                "humidity": result.get("humidity"),
-                "healthy": result.get("healthy"),
-                "message": result.get("message")
+                "temperature": sensor.get("temperature"),
+                "humidity": sensor.get("humidity"),
+                "healthy": sensor.get("healthy"),
+                "message": sensor.get("message")
             }
             return True, sensor_data
         return False, result
