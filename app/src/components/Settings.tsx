@@ -3,33 +3,7 @@ import type { Config } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
 
-// Debounce hook for slider values
-function useDebouncedCallback<T extends (...args: Parameters<T>) => void>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
-  const debouncedCallback = useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-    timeoutRef.current = setTimeout(() => {
-      callback(...args)
-    }, delay)
-  }, [callback, delay]) as T
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
-  
-  return debouncedCallback
-}
+const DEBOUNCE_MS = 500
 
 export interface SatelliteTarget {
   ip: string
@@ -47,9 +21,11 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
   const [localConfig, setLocalConfig] = useState<Config | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Local slider value for immediate UI feedback (prevents lag while debouncing API calls)
-  const [localBrightness, setLocalBrightness] = useState<number | null>(null)
   const { theme, setTheme } = useTheme()
+  
+  // Debounce state: accumulate pending updates and flush after delay
+  const pendingUpdatesRef = useRef<Partial<Config>>({})
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadConfig = useCallback(async () => {
     setIsLoading(true)
@@ -67,122 +43,104 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     }
   }, [satellite])
 
-  useEffect(() => {
-    if (isOpen) {
-      loadConfig()
-    } else {
-      // Reset state when closing
-      setLocalConfig(null)
-      setError(null)
-      setLocalBrightness(null)
-    }
-  }, [isOpen, loadConfig])
-
-  // Sync local brightness with config when it loads
-  useEffect(() => {
-    if (localConfig && localBrightness === null) {
-      setLocalBrightness(localConfig.led_brightness)
-    }
-  }, [localConfig, localBrightness])
-
-  // Debounced API call for brightness changes (300ms delay)
-  const debouncedBrightnessUpdate = useDebouncedCallback(
-    async (value: number) => {
-      try {
-        if (satellite) {
-          await updateSatelliteConfig(satellite.ip, { led_brightness: value })
-        } else {
-          await updateConfig({ led_brightness: value })
-        }
-      } catch (err) {
-        console.error('Failed to update brightness:', err)
-      }
-    },
-    150
-  )
-
-  // Handle brightness slider changes: update UI immediately, debounce API call
-  const handleBrightnessChange = (value: number) => {
-    setLocalBrightness(value)
-    setLocalConfig(prev => prev ? { ...prev, led_brightness: value } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ led_brightness: value })
-    }
-    debouncedBrightnessUpdate(value)
-  }
-
-  const handleUpdate = async (key: keyof Config, value: Config[keyof Config]) => {
-    if (!localConfig) return
-    // Skip update if value is NaN (from invalid numeric input like empty string or whitespace)
-    if (typeof value === 'number' && Number.isNaN(value)) return
-    setLocalConfig(prev => prev ? { ...prev, [key]: value } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ [key]: value })
-    }
+  // Flush pending updates to the API
+  const flushUpdates = useCallback(async () => {
+    const updates = pendingUpdatesRef.current
+    if (Object.keys(updates).length === 0) return
+    
+    pendingUpdatesRef.current = {}
+    
     try {
       if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { [key]: value })
+        await updateSatelliteConfig(satellite.ip, updates)
       } else {
-        await updateConfig({ [key]: value })
+        await updateConfig(updates)
       }
     } catch (err) {
       console.error('Failed to update config:', err)
     }
+  }, [satellite])
+
+  // Schedule a debounced flush
+  const scheduleFlush = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
+  }, [flushUpdates])
+
+  // Queue an update: update local state immediately, debounce API call
+  const queueUpdate = useCallback((updates: Partial<Config>) => {
+    if (!localConfig) return
+    
+    // Skip if any numeric value is NaN
+    for (const value of Object.values(updates)) {
+      if (typeof value === 'number' && Number.isNaN(value)) return
+    }
+    
+    // Update local state immediately
+    setLocalConfig(prev => prev ? { ...prev, ...updates } : null)
+    
+    // Notify parent for optimistic UI updates
+    if (!satellite) {
+      onConfigUpdate?.(updates)
+    }
+    
+    // Accumulate pending updates and schedule flush
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...updates }
+    scheduleFlush()
+  }, [localConfig, satellite, onConfigUpdate, scheduleFlush])
+
+  useEffect(() => {
+    if (isOpen) {
+      loadConfig()
+    } else {
+      // Flush any pending updates before closing
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+        flushUpdates()
+      }
+      // Reset state
+      setLocalConfig(null)
+      setError(null)
+      pendingUpdatesRef.current = {}
+    }
+  }, [isOpen, loadConfig, flushUpdates])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [])
+
+  const handleUpdate = (key: keyof Config, value: Config[keyof Config]) => {
+    queueUpdate({ [key]: value } as Partial<Config>)
   }
 
-  const handleSatelliteChange = async (index: number, field: 'ip' | 'name', value: string) => {
+  const handleSatelliteChange = (index: number, field: 'ip' | 'name', value: string) => {
     if (!localConfig) return
     const satellites = [...localConfig.satellites]
     satellites[index] = { ...satellites[index], [field]: value }
-    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
-    }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to update satellites:', err)
-    }
+    queueUpdate({ satellites })
   }
 
-  const handleAddSatellite = async () => {
+  const handleAddSatellite = () => {
     if (!localConfig) return
     const satellites = [...localConfig.satellites, { ip: '', name: '' }]
-    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
-    }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to add satellite:', err)
-    }
+    queueUpdate({ satellites })
   }
 
-  const handleRemoveSatellite = async (index: number) => {
+  const handleRemoveSatellite = (index: number) => {
     if (!localConfig) return
     const satellites = localConfig.satellites.filter((_, i) => i !== index)
-    setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
-    }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to remove satellite:', err)
-    }
+    queueUpdate({ satellites })
   }
 
   const getTitle = () => {
@@ -390,8 +348,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
           <SettingRow label="LED Brightness">
             <input
               type="range"
-              value={(localBrightness ?? localConfig.led_brightness) * 100}
-              onChange={(e) => handleBrightnessChange(parseInt(e.target.value) / 100)}
+              value={localConfig.led_brightness * 100}
+              onChange={(e) => handleUpdate('led_brightness', parseInt(e.target.value) / 100)}
               min="0"
               max="100"
               className="w-[100px]"
