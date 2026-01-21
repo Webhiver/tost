@@ -26,7 +26,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
   const humidity = status.state.sensor?.humidity
   const sensorHealthy = status.state.sensor?.healthy ?? true
   const sensorError = status.state.sensor?.message ?? ''
-  const serverTarget = status.config.target_temp ?? 22
+  const serverTarget = status.config.target_temperature ?? 22
   const satellites = status.state.satellites || []
   const onlineCount = satellites.filter(s => s.online).length
 
@@ -44,7 +44,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTarget = parseFloat(e.target.value)
     setLocalTarget(newTarget)
-    onConfigUpdate({ target_temp: newTarget })
+    onConfigUpdate({ target_temperature: newTarget })
 
     // Cancel any in-flight status fetch to prevent race conditions
     onCancelPendingFetch()
@@ -58,7 +58,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
     debounceRef.current = setTimeout(async () => {
       debounceRef.current = null
       try {
-        await updateConfig({ target_temp: newTarget })
+        await updateConfig({ target_temperature: newTarget })
         // After successful update, refresh status and reset polling interval
         await onRefreshAndResetInterval()
       } catch (err) {

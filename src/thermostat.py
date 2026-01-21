@@ -9,7 +9,7 @@ class Thermostat:
         state.subscribe("sensor", self._on_sensor_change)
         state.subscribe("satellites", self._on_satellites_change)
         config.subscribe("mode", self._on_mode_change)
-        config.subscribe("target_temp", self._on_config_change)
+        config.subscribe("target_temperature", self._on_config_change)
         config.subscribe("hysteresis", self._on_config_change)
         config.subscribe("flame_on_mode", self._on_config_change)
         config.subscribe("flame_off_mode", self._on_config_change)
@@ -102,11 +102,11 @@ class Thermostat:
         if not active_sensors:
             return False
         
-        target_temp = config.get("target_temp", 22.0)
+        target_temperature = config.get("target_temperature", 22.0)
         hysteresis = 0 if ignore_hysteresis else config.get("hysteresis", 1.0)
         flame_on_mode = config.get("flame_on_mode", "average")
         
-        threshold = target_temp - hysteresis
+        threshold = target_temperature - hysteresis
         
         if flame_on_mode == "average":
             read_temp = self.calculate_read_temp(active_sensors, "average")
@@ -115,7 +115,7 @@ class Thermostat:
             return all(temp < threshold for temp in active_sensors)
     
     def should_turn_flame_off(self, active_sensors, ignore_hysteresis=False):
-        target_temp = config.get("target_temp", 22.0)
+        target_temperature = config.get("target_temperature", 22.0)
         hysteresis = 0 if ignore_hysteresis else config.get("hysteresis", 1.0)
         flame_off_mode = config.get("flame_off_mode", "average")
         max_flame_duration = config.get("max_flame_duration", 14400)
@@ -126,7 +126,7 @@ class Thermostat:
         if not active_sensors:
             return False
         
-        threshold = target_temp + hysteresis
+        threshold = target_temperature + hysteresis
         
         if flame_off_mode == "average":
             read_temp = self.calculate_read_temp(active_sensors, "average")
@@ -162,7 +162,7 @@ class Thermostat:
             "active_sensors_count": len(active_sensors),
             "active_sensor_temps": active_sensors,
             "average_temp": avg_temp,
-            "target_temp": config.get("target_temp"),
+            "target_temperature": config.get("target_temperature"),
             "hysteresis": config.get("hysteresis"),
             "flame": state.get("flame"),
             "flame_duration": self.get_flame_duration(),

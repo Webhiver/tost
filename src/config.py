@@ -2,7 +2,7 @@ import json
 
 DEFAULT_CONFIG = {
     "mode": "host",
-    "target_temp": 22.0,
+    "target_temperature": 22.0,
     "hysteresis": 1.0,
     "satellites": [],
     "satellite_grace_period": 120,
@@ -48,7 +48,7 @@ def _sanitize_satellites(satellites):
 
 # Keys that must be numeric (int or float) - None values will be replaced with defaults
 NUMERIC_KEYS = {
-    "target_temp", "hysteresis", "satellite_grace_period", "led_brightness",
+    "target_temperature", "hysteresis", "satellite_grace_period", "led_brightness",
     "max_flame_duration", "sensor_temperature_offset", "sensor_humidity_offset"
 }
 

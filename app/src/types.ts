@@ -20,7 +20,7 @@ export interface Satellite {
 
 export interface Config {
   mode: 'host' | 'satellite'
-  target_temp: number
+  target_temperature: number
   hysteresis: number
   satellites: SatelliteConfig[]
   satellite_grace_period: number
