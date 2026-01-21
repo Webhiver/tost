@@ -251,16 +251,18 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       {/* Content */}
       {localConfig && !isLoading && !error && (
       <div className="p-5">
-        {/* Appearance - Web app theme */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Appearance
-          </h3>
-          
-          <SettingRow label="Theme">
-            <ThemeSelector value={theme} onChange={setTheme} />
-          </SettingRow>
-        </section>
+        {/* Appearance - Web app theme (not shown for satellite settings) */}
+        {!satellite && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Appearance
+            </h3>
+            
+            <SettingRow label="Theme">
+              <ThemeSelector value={theme} onChange={setTheme} />
+            </SettingRow>
+          </section>
+        )}
 
         {/* Temperature Control - Host only */}
         {localConfig.mode !== 'satellite' && !satellite && (
