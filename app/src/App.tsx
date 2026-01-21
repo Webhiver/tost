@@ -14,13 +14,27 @@ function App() {
     error,
     settingsOpen,
     setSettingsOpen,
+    satelliteSettingsOpen,
+    setSatelliteSettingsOpen,
     updateLocalConfig,
     cancelPendingFetch,
     refreshAndResetInterval,
   } = useStatus()
 
-  const [satelliteSettings, setSatelliteSettings] = useState<SatelliteTarget | null>(null)
+  const [satelliteTarget, setSatelliteTarget] = useState<SatelliteTarget | null>(null)
   const [debugOpen, setDebugOpen] = useState(false)
+
+  // Helper to open satellite settings
+  const openSatelliteSettings = (target: SatelliteTarget) => {
+    setSatelliteTarget(target)
+    setSatelliteSettingsOpen(true)
+  }
+
+  // Helper to close satellite settings
+  const closeSatelliteSettings = () => {
+    setSatelliteSettingsOpen(false)
+    setSatelliteTarget(null)
+  }
 
   if (isLoading) {
     return <Loading />
@@ -79,7 +93,7 @@ function App() {
       <Dashboard 
         status={status} 
         onOpenSettings={() => setSettingsOpen(true)}
-        onOpenSatelliteSettings={setSatelliteSettings}
+        onOpenSatelliteSettings={openSatelliteSettings}
         onConfigUpdate={updateLocalConfig}
         onCancelPendingFetch={cancelPendingFetch}
         onRefreshAndResetInterval={refreshAndResetInterval}
@@ -90,9 +104,9 @@ function App() {
         onConfigUpdate={updateLocalConfig}
       />
       <Settings
-        isOpen={satelliteSettings !== null}
-        onClose={() => setSatelliteSettings(null)}
-        satellite={satelliteSettings ?? undefined}
+        isOpen={satelliteSettingsOpen}
+        onClose={closeSatelliteSettings}
+        satellite={satelliteTarget ?? undefined}
       />
       <DebugPanel isOpen={debugOpen} onToggle={() => setDebugOpen(!debugOpen)} />
     </>

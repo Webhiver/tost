@@ -7,6 +7,7 @@ export function useStatus(pollInterval = 4000) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [satelliteSettingsOpen, setSatelliteSettingsOpen] = useState(false)
   
   // Track the current abort controller and interval
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -22,7 +23,7 @@ export function useStatus(pollInterval = 4000) {
 
   const refresh = useCallback(async () => {
     // Don't refresh while settings are open (to prevent form resets)
-    if (settingsOpen && !isLoading) {
+    if ((settingsOpen || satelliteSettingsOpen) && !isLoading) {
       return
     }
     
@@ -56,7 +57,7 @@ export function useStatus(pollInterval = 4000) {
         abortControllerRef.current = null
       }
     }
-  }, [settingsOpen, isLoading, cancelPendingFetch])
+  }, [settingsOpen, satelliteSettingsOpen, isLoading, cancelPendingFetch])
 
   // Start/restart the polling interval
   const startPolling = useCallback(() => {
@@ -105,6 +106,8 @@ export function useStatus(pollInterval = 4000) {
     refresh,
     settingsOpen,
     setSettingsOpen,
+    satelliteSettingsOpen,
+    setSatelliteSettingsOpen,
     updateLocalState,
     updateLocalConfig,
     cancelPendingFetch,
