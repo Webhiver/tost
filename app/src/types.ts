@@ -27,8 +27,6 @@ export interface Config {
   satellites: SatelliteConfig[]
   satellite_grace_period: number
   led_brightness: number
-  flame_on_mode: 'average' | 'all'
-  flame_off_mode: 'average' | 'all'
   flame_mode: FlameMode
   flame_mode_sensor: string  // 'local' or satellite IP
   local_sensor: 'included' | 'fallback'

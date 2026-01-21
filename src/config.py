@@ -7,8 +7,6 @@ DEFAULT_CONFIG = {
     "satellites": [],
     "satellite_grace_period": 120,
     "led_brightness": 1.0,
-    "flame_on_mode": "average",
-    "flame_off_mode": "average",
     "flame_mode": "average",
     "flame_mode_sensor": "local",
     "local_sensor": "included",

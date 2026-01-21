@@ -329,28 +329,6 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
               </div>
             </SettingRow>
             
-            <SettingRow label="Flame On Mode">
-              <select
-                value={localConfig.flame_on_mode}
-                onChange={(e) => handleUpdate('flame_on_mode', e.target.value as 'average' | 'all')}
-                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-              >
-                <option value="average">Average</option>
-                <option value="all">All Sensors</option>
-              </select>
-            </SettingRow>
-            
-            <SettingRow label="Flame Off Mode">
-              <select
-                value={localConfig.flame_off_mode}
-                onChange={(e) => handleUpdate('flame_off_mode', e.target.value as 'average' | 'all')}
-                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-              >
-                <option value="average">Average</option>
-                <option value="all">All Sensors</option>
-              </select>
-            </SettingRow>
-            
             <SettingRow label="Flame Mode">
               <select
                 value={localConfig.flame_mode}
