@@ -11,6 +11,7 @@ from button import button
 from pairing import pairing
 from satellite import satellite
 from thermostat import thermostat
+from temperature import temperature
 from web_server import create_server, app
 from dns_server import dns_server
 from wifi import wifi

@@ -46,6 +46,7 @@ export interface State {
   flame_start_tick: number | null
   flame_duration: number
   satellites: Satellite[]
+  effective_temperature: number | null
 }
 
 export interface Status {
