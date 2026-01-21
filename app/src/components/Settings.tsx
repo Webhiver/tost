@@ -3,7 +3,8 @@ import type { Config } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
 
-const DEBOUNCE_MS = 500
+const DEBOUNCE_MS = 750
+const RESULT_DISPLAY_MS = 5000
 
 export interface SatelliteTarget {
   ip: string
@@ -21,11 +22,14 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
   const [localConfig, setLocalConfig] = useState<Config | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveResult, setSaveResult] = useState<'success' | 'error' | null>(null)
   const { theme, setTheme } = useTheme()
   
   // Debounce state: accumulate pending updates and flush after delay
   const pendingUpdatesRef = useRef<Partial<Config>>({})
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadConfig = useCallback(async () => {
     setIsLoading(true)
@@ -43,12 +47,26 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     }
   }, [satellite])
 
+  // Show save result for a limited time
+  const showResult = useCallback((result: 'success' | 'error') => {
+    // Clear any existing result timer
+    if (resultTimerRef.current) {
+      clearTimeout(resultTimerRef.current)
+    }
+    setSaveResult(result)
+    resultTimerRef.current = setTimeout(() => {
+      resultTimerRef.current = null
+      setSaveResult(null)
+    }, RESULT_DISPLAY_MS)
+  }, [])
+
   // Flush pending updates to the API
   const flushUpdates = useCallback(async () => {
     const updates = pendingUpdatesRef.current
     if (Object.keys(updates).length === 0) return
     
     pendingUpdatesRef.current = {}
+    setIsSaving(true)
     
     try {
       if (satellite) {
@@ -56,10 +74,14 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       } else {
         await updateConfig(updates)
       }
+      showResult('success')
     } catch (err) {
       console.error('Failed to update config:', err)
+      showResult('error')
+    } finally {
+      setIsSaving(false)
     }
-  }, [satellite])
+  }, [satellite, showResult])
 
   // Schedule a debounced flush
   const scheduleFlush = useCallback(() => {
@@ -107,7 +129,13 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       // Reset state
       setLocalConfig(null)
       setError(null)
+      setIsSaving(false)
+      setSaveResult(null)
       pendingUpdatesRef.current = {}
+      if (resultTimerRef.current) {
+        clearTimeout(resultTimerRef.current)
+        resultTimerRef.current = null
+      }
     }
   }, [isOpen, loadConfig, flushUpdates])
 
@@ -116,6 +144,9 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
+      }
+      if (resultTimerRef.current) {
+        clearTimeout(resultTimerRef.current)
       }
     }
   }, [])
@@ -157,7 +188,32 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       {/* Header */}
       <div className="flex justify-between items-center p-5 border-b border-border-subtle sticky top-0 bg-primary">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold">{satellite ? 'Satellite Settings' : 'Settings'}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">{satellite ? 'Satellite Settings' : 'Settings'}</h2>
+            {isSaving && (
+              <div className="flex items-center gap-1.5 text-text-muted">
+                <div className="w-3 h-3 border border-text-muted border-t-text-secondary rounded-full animate-spin" />
+                <span className="text-xs">Saving</span>
+              </div>
+            )}
+            {!isSaving && saveResult === 'success' && (
+              <div className="flex items-center gap-1 text-cool">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span className="text-xs">Saved</span>
+              </div>
+            )}
+            {!isSaving && saveResult === 'error' && (
+              <div className="flex items-center gap-1 text-flame">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span className="text-xs">Saving failed</span>
+              </div>
+            )}
+          </div>
           {satellite && (
             <span className="text-xs text-text-muted mt-0.5">{getTitle()}</span>
           )}
