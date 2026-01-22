@@ -147,7 +147,7 @@ A remote temperature sensor that:
 ```json
 {
     "mode": "host",
-    "target_temp": 22.0,
+    "target_temperature": 22.0,
     "hysteresis": 1.0,
     "satellites": ["192.168.1.50"],
     "update_interval": 4,
@@ -165,7 +165,7 @@ A remote temperature sensor that:
 | Option | Type | Description |
 |--------|------|-------------|
 | `mode` | string | `"host"` or `"satellite"` |
-| `target_temp` | float | Target temperature in °C |
+| `target_temperature` | float | Target temperature in °C |
 | `hysteresis` | float | Temperature buffer to prevent short-cycling |
 | `satellites` | array | List of satellite IP addresses |
 | `update_interval` | int | Seconds between satellite polls |

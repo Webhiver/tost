@@ -1,34 +1,22 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { Config } from '../types'
+import type { Config, FlameMode } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
 
-// Debounce hook for slider values
-function useDebouncedCallback<T extends (...args: Parameters<T>) => void>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
-  const debouncedCallback = useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
-    timeoutRef.current = setTimeout(() => {
-      callback(...args)
-    }, delay)
-  }, [callback, delay]) as T
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
-    }
-  }, [])
-  
-  return debouncedCallback
+const DEBOUNCE_MS = 750
+const RESULT_DISPLAY_MS = 5000
+
+function isValidIp(ip: string): boolean {
+  if (!ip) return false
+  const parts = ip.split('.')
+  if (parts.length !== 4) return false
+  for (const part of parts) {
+    const num = parseInt(part, 10)
+    if (isNaN(num) || num < 0 || num > 255) return false
+    // Reject leading zeros (e.g., "01" or "001")
+    if (part !== String(num)) return false
+  }
+  return true
 }
 
 export interface SatelliteTarget {
@@ -47,9 +35,14 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
   const [localConfig, setLocalConfig] = useState<Config | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Local slider value for immediate UI feedback (prevents lag while debouncing API calls)
-  const [localBrightness, setLocalBrightness] = useState<number | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveResult, setSaveResult] = useState<'success' | 'error' | null>(null)
   const { theme, setTheme } = useTheme()
+  
+  // Debounce state: accumulate pending updates and flush after delay
+  const pendingUpdatesRef = useRef<Partial<Config>>({})
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const loadConfig = useCallback(async () => {
     setIsLoading(true)
@@ -67,122 +60,161 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     }
   }, [satellite])
 
+  // Show save result for a limited time
+  const showResult = useCallback((result: 'success' | 'error') => {
+    // Clear any existing result timer
+    if (resultTimerRef.current) {
+      clearTimeout(resultTimerRef.current)
+    }
+    setSaveResult(result)
+    resultTimerRef.current = setTimeout(() => {
+      resultTimerRef.current = null
+      setSaveResult(null)
+    }, RESULT_DISPLAY_MS)
+  }, [])
+
+  // Flush pending updates to the API
+  const flushUpdates = useCallback(async () => {
+    const updates = pendingUpdatesRef.current
+    if (Object.keys(updates).length === 0) return
+    
+    pendingUpdatesRef.current = {}
+    setIsSaving(true)
+    
+    try {
+      if (satellite) {
+        await updateSatelliteConfig(satellite.ip, updates)
+      } else {
+        await updateConfig(updates)
+      }
+      showResult('success')
+    } catch (err) {
+      console.error('Failed to update config:', err)
+      showResult('error')
+    } finally {
+      setIsSaving(false)
+    }
+  }, [satellite, showResult])
+
+  // Schedule a debounced flush
+  const scheduleFlush = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
+  }, [flushUpdates])
+
+  // Queue an update: update local state immediately, debounce API call
+  const queueUpdate = useCallback((updates: Partial<Config>) => {
+    if (!localConfig) return
+    
+    // Skip if any numeric value is NaN
+    for (const value of Object.values(updates)) {
+      if (typeof value === 'number' && Number.isNaN(value)) return
+    }
+    
+    // Update local state immediately
+    setLocalConfig(prev => prev ? { ...prev, ...updates } : null)
+    
+    // Notify parent for optimistic UI updates
+    if (!satellite) {
+      onConfigUpdate?.(updates)
+    }
+    
+    // Accumulate pending updates and schedule flush
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, ...updates }
+    scheduleFlush()
+  }, [localConfig, satellite, onConfigUpdate, scheduleFlush])
+
   useEffect(() => {
     if (isOpen) {
       loadConfig()
     } else {
-      // Reset state when closing
+      // Flush any pending updates before closing
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+        debounceTimerRef.current = null
+        flushUpdates()
+      }
+      // Reset state
       setLocalConfig(null)
       setError(null)
-      setLocalBrightness(null)
+      setIsSaving(false)
+      setSaveResult(null)
+      pendingUpdatesRef.current = {}
+      if (resultTimerRef.current) {
+        clearTimeout(resultTimerRef.current)
+        resultTimerRef.current = null
+      }
     }
-  }, [isOpen, loadConfig])
+  }, [isOpen, loadConfig, flushUpdates])
 
-  // Sync local brightness with config when it loads
+  // Cleanup on unmount
   useEffect(() => {
-    if (localConfig && localBrightness === null) {
-      setLocalBrightness(localConfig.led_brightness)
-    }
-  }, [localConfig, localBrightness])
-
-  // Debounced API call for brightness changes (300ms delay)
-  const debouncedBrightnessUpdate = useDebouncedCallback(
-    async (value: number) => {
-      try {
-        if (satellite) {
-          await updateSatelliteConfig(satellite.ip, { led_brightness: value })
-        } else {
-          await updateConfig({ led_brightness: value })
-        }
-      } catch (err) {
-        console.error('Failed to update brightness:', err)
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
       }
-    },
-    150
-  )
-
-  // Handle brightness slider changes: update UI immediately, debounce API call
-  const handleBrightnessChange = (value: number) => {
-    setLocalBrightness(value)
-    setLocalConfig(prev => prev ? { ...prev, led_brightness: value } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ led_brightness: value })
+      if (resultTimerRef.current) {
+        clearTimeout(resultTimerRef.current)
+      }
     }
-    debouncedBrightnessUpdate(value)
+  }, [])
+
+  const handleUpdate = (key: keyof Config, value: Config[keyof Config]) => {
+    queueUpdate({ [key]: value } as Partial<Config>)
   }
 
-  const handleUpdate = async (key: keyof Config, value: Config[keyof Config]) => {
-    if (!localConfig) return
-    // Skip update if value is NaN (from invalid numeric input like empty string or whitespace)
-    if (typeof value === 'number' && Number.isNaN(value)) return
-    setLocalConfig(prev => prev ? { ...prev, [key]: value } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ [key]: value })
-    }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { [key]: value })
-      } else {
-        await updateConfig({ [key]: value })
-      }
-    } catch (err) {
-      console.error('Failed to update config:', err)
-    }
-  }
-
-  const handleSatelliteChange = async (index: number, field: 'ip' | 'name', value: string) => {
+  const handleSatelliteChange = (index: number, field: 'ip' | 'name', value: string) => {
     if (!localConfig) return
     const satellites = [...localConfig.satellites]
     satellites[index] = { ...satellites[index], [field]: value }
+    
+    // Update local state immediately for responsive UI
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
+    
+    // Only queue update to server with valid satellites
+    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    
+    // Clear any existing debounce timer and schedule new one
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
     }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to update satellites:', err)
-    }
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, satellites: validSatellites }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
   }
 
-  const handleAddSatellite = async () => {
+  const handleAddSatellite = () => {
     if (!localConfig) return
+    // Only update local state - empty IP won't be sent to server
     const satellites = [...localConfig.satellites, { ip: '', name: '' }]
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
-    }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to add satellite:', err)
-    }
   }
 
-  const handleRemoveSatellite = async (index: number) => {
+  const handleRemoveSatellite = (index: number) => {
     if (!localConfig) return
     const satellites = localConfig.satellites.filter((_, i) => i !== index)
+    
+    // Update local state immediately
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
-    if (!satellite) {
-      onConfigUpdate?.({ satellites })
+    
+    // Send only valid satellites to the server
+    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
     }
-    try {
-      if (satellite) {
-        await updateSatelliteConfig(satellite.ip, { satellites })
-      } else {
-        await updateConfig({ satellites })
-      }
-    } catch (err) {
-      console.error('Failed to remove satellite:', err)
-    }
+    pendingUpdatesRef.current = { ...pendingUpdatesRef.current, satellites: validSatellites }
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null
+      flushUpdates()
+    }, DEBOUNCE_MS)
   }
 
   const getTitle = () => {
@@ -199,7 +231,32 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       {/* Header */}
       <div className="flex justify-between items-center p-5 border-b border-border-subtle sticky top-0 bg-primary">
         <div className="flex flex-col">
-          <h2 className="text-lg font-semibold">{satellite ? 'Satellite Settings' : 'Settings'}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">{satellite ? 'Satellite Settings' : 'Settings'}</h2>
+            {isSaving && (
+              <div className="flex items-center gap-1.5 text-text-muted">
+                <div className="w-3 h-3 border border-text-muted border-t-text-secondary rounded-full animate-spin" />
+                <span className="text-xs">Saving</span>
+              </div>
+            )}
+            {!isSaving && saveResult === 'success' && (
+              <div className="flex items-center gap-1 text-cool">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span className="text-xs">Saved</span>
+              </div>
+            )}
+            {!isSaving && saveResult === 'error' && (
+              <div className="flex items-center gap-1 text-flame">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                <span className="text-xs">Saving failed</span>
+              </div>
+            )}
+          </div>
           {satellite && (
             <span className="text-xs text-text-muted mt-0.5">{getTitle()}</span>
           )}
@@ -237,16 +294,18 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
       {/* Content */}
       {localConfig && !isLoading && !error && (
       <div className="p-5">
-        {/* Appearance - Web app theme */}
-        <section className="mb-6">
-          <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
-            Appearance
-          </h3>
-          
-          <SettingRow label="Theme">
-            <ThemeSelector value={theme} onChange={setTheme} />
-          </SettingRow>
-        </section>
+        {/* Appearance - Web app theme (not shown for satellite settings) */}
+        {!satellite && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Appearance
+            </h3>
+            
+            <SettingRow label="Theme">
+              <ThemeSelector value={theme} onChange={setTheme} />
+            </SettingRow>
+          </section>
+        )}
 
         {/* Temperature Control - Host only */}
         {localConfig.mode !== 'satellite' && !satellite && (
@@ -270,27 +329,37 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
               </div>
             </SettingRow>
             
-            <SettingRow label="Flame On Mode">
+            <SettingRow label="Flame Mode">
               <select
-                value={localConfig.flame_on_mode}
-                onChange={(e) => handleUpdate('flame_on_mode', e.target.value as 'average' | 'all')}
+                value={localConfig.flame_mode}
+                onChange={(e) => handleUpdate('flame_mode', e.target.value as FlameMode)}
                 className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
               >
                 <option value="average">Average</option>
                 <option value="all">All Sensors</option>
+                <option value="any">Any Sensor</option>
+                <option value="one">One Sensor</option>
               </select>
             </SettingRow>
             
-            <SettingRow label="Flame Off Mode">
-              <select
-                value={localConfig.flame_off_mode}
-                onChange={(e) => handleUpdate('flame_off_mode', e.target.value as 'average' | 'all')}
-                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-              >
-                <option value="average">Average</option>
-                <option value="all">All Sensors</option>
-              </select>
-            </SettingRow>
+            {localConfig.flame_mode === 'one' && (
+              <div className="pl-6 border-b border-border-subtle">
+                <SettingRow label="Sensor">
+                  <select
+                    value={localConfig.flame_mode_sensor}
+                    onChange={(e) => handleUpdate('flame_mode_sensor', e.target.value)}
+                    className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                  >
+                    <option value="local">Local</option>
+                    {localConfig.satellites.map((sat) => (
+                      <option key={sat.ip} value={sat.ip}>
+                        {sat.name || sat.ip}
+                      </option>
+                    ))}
+                  </select>
+                </SettingRow>
+              </div>
+            )}
             
             <SettingRow label="Local Sensor">
               <select
@@ -390,8 +459,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
           <SettingRow label="LED Brightness">
             <input
               type="range"
-              value={(localBrightness ?? localConfig.led_brightness) * 100}
-              onChange={(e) => handleBrightnessChange(parseInt(e.target.value) / 100)}
+              value={localConfig.led_brightness * 100}
+              onChange={(e) => handleUpdate('led_brightness', parseInt(e.target.value) / 100)}
               min="0"
               max="100"
               className="w-[100px]"
@@ -406,30 +475,41 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
               Satellites
             </h3>
             
-            {localConfig.satellites.map((sat, idx) => (
-              <div key={idx} className="flex items-center gap-2 py-3.5 border-b border-border-subtle last:border-b-0">
-                <input
-                  type="text"
-                  value={sat.name}
-                  onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
-                  placeholder="Name"
-                  className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
-                />
-                <input
-                  type="text"
-                  value={sat.ip}
-                  onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
-                  placeholder="192.168.1.x"
-                  className="w-[130px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary font-mono text-sm"
-                />
-                <button
-                  onClick={() => handleRemoveSatellite(idx)}
-                  className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+            {localConfig.satellites.map((sat, idx) => {
+              const ipValid = isValidIp(sat.ip)
+              const showError = sat.ip.length > 0 && !ipValid
+              return (
+                <div key={idx} className="flex flex-col gap-1 py-3.5 border-b border-border-subtle last:border-b-0">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={sat.name}
+                      onChange={(e) => handleSatelliteChange(idx, 'name', e.target.value)}
+                      placeholder="Name"
+                      className="flex-1 min-w-0 px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                    />
+                    <input
+                      type="text"
+                      value={sat.ip}
+                      onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
+                      placeholder="192.168.1.x"
+                      className={`w-[130px] px-3 py-2 bg-tertiary border rounded-sm text-text-primary font-mono text-sm ${
+                        showError ? 'border-flame' : 'border-border-subtle'
+                      }`}
+                    />
+                    <button
+                      onClick={() => handleRemoveSatellite(idx)}
+                      className="px-3 py-2 bg-transparent text-text-secondary border border-border-visible rounded-sm transition-all hover:bg-tertiary hover:text-text-primary flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  {showError && (
+                    <span className="text-xs text-flame ml-auto mr-12">Invalid IP address</span>
+                  )}
+                </div>
+              )
+            })}
             
             <button
               onClick={handleAddSatellite}

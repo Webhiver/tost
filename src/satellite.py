@@ -37,7 +37,7 @@ class SatelliteManager:
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": {"temperature": None, "humidity": None, "healthy": False, "message": "Not yet polled"},
+                    "state": None,
                     "last_updated": None,
                     "online": False
                 })
@@ -120,21 +120,15 @@ class SatelliteManager:
                     pass
 
     async def poll_satellite_async(self, ip):
-        """Async poll a satellite for sensor readings.
+        """Async poll a satellite for its full state.
         
         Returns:
-            (True, sensor_data) if HTTP request succeeded
+            (True, state_data) if HTTP request succeeded
             (False, error_message) if HTTP request failed
         """
-        success, result = await self._http_request_async(ip, "GET", "/api/readings")
+        success, result = await self._http_request_async(ip, "GET", "/api/status")
         if success:
-            sensor_data = {
-                "temperature": result.get("temperature"),
-                "humidity": result.get("humidity"),
-                "healthy": result.get("healthy"),
-                "message": result.get("message")
-            }
-            return True, sensor_data
+            return True, result.get("state", {})
         return False, result
 
     async def sync_satellite_async(self, ip, sync_data):
@@ -173,11 +167,11 @@ class SatelliteManager:
                 success, result = result
             
             if success:
-                # Poll succeeded - satellite is online, use sensor data from satellite
+                # Poll succeeded - satellite is online, store full state from satellite
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": result,  # sensor_data dict from satellite
+                    "state": result,  # full state dict from satellite
                     "last_updated": current_tick,
                     "online": True
                 })
@@ -193,17 +187,11 @@ class SatelliteManager:
                         elapsed = current_tick + (0xFFFFFFFF - last_updated)
                     online = elapsed <= grace_period_ms
                 
-                # Keep existing sensor data, update message with connection error
-                existing_sensor = sat.get("sensor", {"temperature": None, "humidity": None, "healthy": False, "message": ""})
+                # Keep existing state as-is
                 updated_satellites.append({
                     "ip": ip,
                     "name": name,
-                    "sensor": {
-                        "temperature": existing_sensor.get("temperature"),
-                        "humidity": existing_sensor.get("humidity"),
-                        "healthy": False,
-                        "message": result  # error message string
-                    },
+                    "state": sat.get("state"),
                     "last_updated": last_updated,
                     "online": online
                 })

@@ -1,3 +1,5 @@
+import { WifiIcon } from './WifiIcon'
+
 interface HeaderProps {
   statusType: 'heating' | 'idle' | 'satellite' | 'pairing'
   statusText: string
@@ -9,39 +11,6 @@ const statusStyles = {
   idle: 'bg-gradient-to-r from-cool/15 to-cool/8 text-cool border-cool/25',
   satellite: 'bg-gradient-to-r from-idle/15 to-idle/8 text-idle border-idle/25',
   pairing: 'bg-gradient-to-r from-warning/15 to-warning/8 text-warning border-warning/25 animate-pulse-glow',
-}
-
-function WifiIcon({ strength }: { strength: number | null | undefined }) {
-  const level = strength ?? 0
-  
-  return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      {/* Outer arc - level 4 */}
-      <path 
-        d="M1.5 9a18.5 18.5 0 0 1 21 0" 
-        className={level >= 4 ? 'opacity-90' : 'opacity-20'}
-      />
-      {/* Middle-outer arc - level 3 */}
-      <path 
-        d="M5 12.5a12.5 12.5 0 0 1 14 0" 
-        className={level >= 3 ? 'opacity-90' : 'opacity-20'}
-      />
-      {/* Middle-inner arc - level 2 */}
-      <path 
-        d="M8.5 16a6.5 6.5 0 0 1 7 0" 
-        className={level >= 2 ? 'opacity-90' : 'opacity-20'}
-      />
-      {/* Center dot - level 1 */}
-      <circle 
-        cx="12" 
-        cy="20" 
-        r="1.5" 
-        fill="currentColor" 
-        stroke="none"
-        className={level >= 1 ? 'opacity-90' : 'opacity-20'}
-      />
-    </svg>
-  )
 }
 
 export function Header({ statusType, statusText, wifiStrength }: HeaderProps) {

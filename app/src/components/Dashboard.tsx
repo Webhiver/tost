@@ -3,6 +3,7 @@ import type { Status, Config } from '../types'
 import type { SatelliteTarget } from './Settings'
 import { formatTemp, formatHumidity, formatDuration } from '../utils'
 import { Header } from './Header'
+import { WifiIcon } from './WifiIcon'
 import { updateConfig } from '../api'
 
 interface DashboardProps {
@@ -25,7 +26,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
   const humidity = status.state.sensor?.humidity
   const sensorHealthy = status.state.sensor?.healthy ?? true
   const sensorError = status.state.sensor?.message ?? ''
-  const serverTarget = status.config.target_temp ?? 22
+  const serverTarget = status.config.target_temperature ?? 22
   const satellites = status.state.satellites || []
   const onlineCount = satellites.filter(s => s.online).length
 
@@ -43,7 +44,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTarget = parseFloat(e.target.value)
     setLocalTarget(newTarget)
-    onConfigUpdate({ target_temp: newTarget })
+    onConfigUpdate({ target_temperature: newTarget })
 
     // Cancel any in-flight status fetch to prevent race conditions
     onCancelPendingFetch()
@@ -57,7 +58,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
     debounceRef.current = setTimeout(async () => {
       debounceRef.current = null
       try {
-        await updateConfig({ target_temp: newTarget })
+        await updateConfig({ target_temperature: newTarget })
         // After successful update, refresh status and reset polling interval
         await onRefreshAndResetInterval()
       } catch (err) {
@@ -134,6 +135,21 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
         </div>
       </div>
 
+      {/* Effective Temperature */}
+      <div className="bg-secondary border border-border-subtle rounded-lg p-5 mb-4">
+        <div className="flex justify-between items-center">
+          <span className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted font-medium">
+            Effective Temperature
+          </span>
+          <span className="font-mono text-lg font-medium">
+            {status.state.effective_temperature !== null 
+              ? `${formatTemp(status.state.effective_temperature)}°C`
+              : '—'
+            }
+          </span>
+        </div>
+      </div>
+
       {/* Device (Local Sensor) */}
       <div className="bg-secondary border border-border-subtle rounded-lg p-5 mb-4">
         <div className="flex justify-between items-center mb-4">
@@ -147,8 +163,8 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
             </span>
           </div>
           <div className="text-right">
-            <span className="font-mono text-lg font-medium">{formatTemp(temp)}°C</span>
-            <span className="text-xs text-text-secondary ml-2">{formatHumidity(humidity)}%</span>
+            <div className="font-mono text-lg font-medium">{formatTemp(temp)}°C</div>
+            <div className="text-xs text-text-secondary">{formatHumidity(humidity)}% humidity</div>
           </div>
         </div>
       </div>
@@ -163,8 +179,9 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
             </span>
           </div>
           {satellites.map((sat, idx) => {
-            const satHealthy = sat.sensor?.healthy
-            const satError = sat.sensor?.message
+            const satSensor = sat.state?.sensor
+            const satHealthy = satSensor?.healthy
+            const satError = satSensor?.message
             return (
               <div 
                 key={sat.ip} 
@@ -181,19 +198,22 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                 </div>
                 <div className="flex items-center gap-3">
                   {sat.online && (
-                    <button
-                      onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
-                      className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
-                      title="Satellite settings"
-                    >
-                      ⚙
-                    </button>
+                    <>
+                      <WifiIcon strength={sat.state?.wifi_strength} className="w-4 h-4 text-text-muted" />
+                      <button
+                        onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
+                        className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
+                        title="Satellite settings"
+                      >
+                        ⚙
+                      </button>
+                    </>
                   )}
                   <div className={`text-right ${!sat.online ? 'text-text-muted text-sm' : ''}`}>
                     {sat.online ? (
                       <>
-                        <span className="font-mono text-lg font-medium">{formatTemp(sat.sensor?.temperature)}°C</span>
-                        <span className="text-xs text-text-secondary ml-2">{formatHumidity(sat.sensor?.humidity)}%</span>
+                        <div className="font-mono text-lg font-medium">{formatTemp(satSensor?.temperature)}°C</div>
+                        <div className="text-xs text-text-secondary">{formatHumidity(satSensor?.humidity)}% humidity</div>
                       </>
                     ) : (
                       <span className="text-sm">No data</span>

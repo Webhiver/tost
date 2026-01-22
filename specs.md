@@ -138,17 +138,17 @@ The Host decides relay state based on aggregated sensor data.
     
     - **Turn Flame ON** if:
         
-        - (`flame_on_mode == "average"`) AND (`read_temp < target_temp - hysteresis`)
+        - (`flame_on_mode == "average"`) AND (`read_temp < target_temperature - hysteresis`)
             
-        - (`flame_on_mode == "all"`) AND (ALL `active_sensors` are `< target_temp - hysteresis`)
+        - (`flame_on_mode == "all"`) AND (ALL `active_sensors` are `< target_temperature - hysteresis`)
             
     - **Turn Flame OFF** if:
         
         - **Safety**: `flame_duration > max_flame_duration` (Force Cooldown).
             
-        - (`flame_off_mode == "average"`) AND (`read_temp > target_temp + hysteresis`)
+        - (`flame_off_mode == "average"`) AND (`read_temp > target_temperature + hysteresis`)
             
-        - (`flame_off_mode == "all"`) AND (ALL `active_sensors` are `> target_temp + hysteresis`)
+        - (`flame_off_mode == "all"`) AND (ALL `active_sensors` are `> target_temperature + hysteresis`)
             
 
 ## 5. Software Architecture
@@ -189,7 +189,7 @@ The Host decides relay state based on aggregated sensor data.
 ```
 {
     "mode": "host", // "host" or "satellite"
-    "target_temp": 22.0,
+    "target_temperature": 22.0,
     "hysteresis": 1.0,
     "satellites": ["192.168.1.5", "192.168.1.6"],
     "update_interval": 4, // Seconds

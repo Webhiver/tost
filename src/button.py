@@ -1,5 +1,6 @@
 import asyncio
 from time import ticks_ms
+import machine
 import constants
 from lib.picozero import Button
 from state import state
@@ -20,16 +21,29 @@ class ButtonManager:
         self._triggered = False
     
     def _on_release(self):
+        if self._press_start is not None and not self._triggered:
+            elapsed = self._get_elapsed()
+            # Short press: reboot the device
+            if constants.SHORT_PRESS_MIN_MS <= elapsed < constants.SHORT_PRESS_MAX_MS:
+                print("Short press detected - rebooting...")
+                machine.reset()  # Hard reset, clears all state
+        
         self._press_start = None
         self._triggered = False
     
+    def _get_elapsed(self):
+        """Get elapsed time since button press, handling tick overflow."""
+        if self._press_start is None:
+            return 0
+        current_tick = ticks_ms()
+        elapsed = current_tick - self._press_start
+        if elapsed < 0:
+            elapsed = current_tick + (0xFFFFFFFF - self._press_start)
+        return elapsed
+    
     def tick(self):
         if self._button.is_pressed and self._press_start is not None and not self._triggered:
-            current_tick = ticks_ms()
-            elapsed = current_tick - self._press_start
-            
-            if elapsed < 0:
-                elapsed = current_tick + (0xFFFFFFFF - self._press_start)
+            elapsed = self._get_elapsed()
             
             if elapsed >= constants.PAIRING_LONG_PRESS_MS:
                 self._triggered = True

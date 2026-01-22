@@ -23,10 +23,6 @@ def create_server(pairing, secrets_module):
             "config": config.get_all()
         }
     
-    @app.route('/api/readings', methods=['GET'])
-    async def get_readings(request):
-        return state.get("sensor", {"temperature": None, "humidity": None})
-    
     @app.route('/api/config', methods=['GET'])
     async def get_config(request):
         return config.get_all()
