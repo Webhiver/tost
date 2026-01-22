@@ -1,3 +1,5 @@
+# Default values - can be overridden by env.py
+
 # Hardware pin configuration
 PIN_LED_RED = 13
 PIN_LED_GREEN = 12
@@ -15,3 +17,9 @@ SATELLITE_POLLING_INTERVAL = 5
 PAIRING_LONG_PRESS_MS = 2000
 SHORT_PRESS_MIN_MS = 50      # Minimum press duration (debounce)
 SHORT_PRESS_MAX_MS = 500     # Maximum press duration for short press
+
+# Load overrides from env.py if it exists
+try:
+    from env import *
+except ImportError:
+    pass
