@@ -1,6 +1,6 @@
 import {useRef, useEffect} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {AppContext} from "../../_context";
+import {LocalContext} from "../../_context";
 
 export const Info = () => {
     // TEMP
@@ -14,10 +14,10 @@ export const Info = () => {
     const flameOffColor = "#aaacb7";
     // TEMP
 
-    const flameOn = useContextSelector(AppContext, c => c.flame);
-    const targetTemp = useContextSelector(AppContext, c => c.targetTemp);
-    const effectiveTemp = useContextSelector(AppContext, c => c.effectiveTemp);
-    const knobSize = useContextSelector(AppContext, c => c.knobSize);
+    const flameOn = useContextSelector(LocalContext, c => c.flame);
+    const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
+    const effectiveTemp = useContextSelector(LocalContext, c => c.effectiveTemp);
+    const knobSize = useContextSelector(LocalContext, c => c.knobSize);
 
     const flameAnimation = useRef<SVGAnimateElement>(null);
 

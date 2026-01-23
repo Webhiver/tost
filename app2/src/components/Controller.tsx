@@ -8,7 +8,7 @@ import {ScaleProgress} from './knob/ScaleProgress';
 import {Pointer} from './knob/Pointer';
 import {Info} from './knob/Info';
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {AppContext} from "../_context";
+import {ApiContext, LocalContext} from "../_context";
 import {clamp, getPercentageFromValue, findClosest} from "./knob/utils";
 
 export const stepsToSnapTo = (steps: number, snap: boolean): number[] | undefined => {
@@ -20,13 +20,17 @@ export const stepsToSnapTo = (steps: number, snap: boolean): number[] | undefine
 
 const Controller = () => {
 
-    const targetTemp = useContextSelector(AppContext, c => c.targetTemp);
-    const knobSize = useContextSelector(AppContext, c => c.knobSize);
-    const knobMinTemp = useContextSelector(AppContext, c => c.knobMinTemp);
-    const knobMaxTemp = useContextSelector(AppContext, c => c.knobMaxTemp);
-    const knobSteps = useContextSelector(AppContext, c => c.knobSteps);
-    const setTargetTemp = useContextSelector(AppContext, c => c.setTargetTemp);
-    const setKnobPercentage = useContextSelector(AppContext, c => c.setKnobPercentage);
+    const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
+    const knobSize = useContextSelector(LocalContext, c => c.knobSize);
+    const knobMinTemp = useContextSelector(LocalContext, c => c.knobMinTemp);
+    const knobMaxTemp = useContextSelector(LocalContext, c => c.knobMaxTemp);
+    const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
+    const setTargetTemp = useContextSelector(LocalContext, c => c.setTargetTemp);
+    const setKnobPercentage = useContextSelector(LocalContext, c => c.setKnobPercentage);
+    const cancelPendingGetStatus = useContextSelector(ApiContext, c => c.cancelPendingGetStatus);
+    const startGettingStatus = useContextSelector(ApiContext, c => c.startGettingStatus);
+    const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
+    const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
 
     const rootRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
@@ -43,16 +47,11 @@ const Controller = () => {
         }
 
         const newTargetTemp = clamp(knobMinTemp, knobMaxTemp, targetTemp + ((knobMaxTemp - knobMinTemp) / knobSteps) * direction);
-        let percentage = getPercentageFromValue(knobMinTemp, knobMaxTemp, newTargetTemp);
-        const stepSnappingPercentages = stepsToSnapTo(knobSteps, true);
-        if(stepSnappingPercentages){
-            percentage = findClosest(stepSnappingPercentages, percentage);
-        }
-
-        setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
 
-    }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp]);
+        submitConfig(newTargetTemp);
+
+    }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp, submitConfig]);
 
     const handleKeyUp = useCallback(() => {
 
@@ -66,16 +65,11 @@ const Controller = () => {
         }
 
         const newTargetTemp = clamp(knobMinTemp, knobMaxTemp, targetTemp + ((knobMaxTemp - knobMinTemp) / knobSteps) * direction);
-        let percentage = getPercentageFromValue(knobMinTemp, knobMaxTemp, newTargetTemp);
-        const stepSnappingPercentages = stepsToSnapTo(knobSteps, true);
-        if(stepSnappingPercentages){
-            percentage = findClosest(stepSnappingPercentages, percentage);
-        }
-
-        setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
 
-    }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp]);
+        submitConfig(newTargetTemp);
+
+    }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp, submitConfig]);
 
     return (
         <div

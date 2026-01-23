@@ -141,7 +141,7 @@ export const calcKnobArcPathRounded = (data: PathData): string => {
 
     const innerRadius = radius - arcWidth;
     const cornerRadius = Math.min(6, arcWidth / 2, innerRadius);
-    const angleOverflow = degToRad(4);
+    const angleOverflow = degToRad(5);
     const angle = angleRange * percentage;
     const angleRad = degToRad(angle);
     const startAngle = angleOffset - 90;

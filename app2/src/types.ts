@@ -99,7 +99,7 @@ export interface DebugInfo {
   } | null
 }
 
-export interface AppProviderProps {
+export interface LocalProviderProps {
   isLoading: boolean,
   flame: boolean,
   flameDuration: number,
@@ -120,10 +120,14 @@ export interface AppProviderProps {
   effectiveTemp: number,
   setTargetTemp: (temp: number) => void,
   setKnobPercentage: (percentage: number) => void,
-  cancelPendingFetch: () => void,
-  resetAndStartRefreshing: () => void,
 }
 
 export interface ApiProviderProps {
+  config: Config | null,
+  state: State | null,
   submitConfig: (targetTemp: number) => void;
+  startGettingStatus: () => void,
+  stopGettingStatus: () => void,
+  resetAndStartGettingStatus: () => void,
+  cancelPendingGetStatus: () => void,
 }

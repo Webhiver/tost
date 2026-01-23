@@ -1,17 +1,18 @@
-import AppProvider from './_providers/AppProvider'
+import LocalProvider from './_providers/LocalProvider'
 import ApiProvider from './_providers/ApiProvider'
 import App from './App.tsx'
 
 const Layout = () => {
 
-  // Host mode (default)
-  return (
-    <AppProvider>
+    // Host mode (default)
+    return (
+
         <ApiProvider>
-            <App />
+            <LocalProvider>
+                <App/>
+            </LocalProvider>
         </ApiProvider>
-    </AppProvider>
-  )
+    )
 }
 
 export default Layout

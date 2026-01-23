@@ -1,6 +1,6 @@
 import {RefObject, useCallback, useRef, useState, useEffect, MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {AppContext, ApiContext} from "../../_context";
+import {LocalContext, ApiContext} from "../../_context";
 import {
     getStartXY,
     calculatePercentage,
@@ -14,19 +14,20 @@ interface PointerProps {
 }
 
 export const Pointer = (props: PointerProps) => {
-    const targetTemp = useContextSelector(AppContext, c => c.targetTemp);
-    const knobWidth = useContextSelector(AppContext, c => c.knobWidth);
-    const knobSize = useContextSelector(AppContext, c => c.knobSize);
-    const knobAngleRange = useContextSelector(AppContext, c => c.knobAngleRange);
-    const knobAngleOffset = useContextSelector(AppContext, c => c.knobAngleOffset);
-    const knobMinTemp = useContextSelector(AppContext, c => c.knobMinTemp);
-    const knobMaxTemp = useContextSelector(AppContext, c => c.knobMaxTemp);
-    const knobSteps = useContextSelector(AppContext, c => c.knobSteps);
-    const knobPercentage = useContextSelector(AppContext, c => c.knobPercentage);
-    const setTargetTemp = useContextSelector(AppContext, c => c.setTargetTemp);
-    const setKnobPercentage = useContextSelector(AppContext, c => c.setKnobPercentage);
-    const cancelPendingFetch = useContextSelector(AppContext, c => c.cancelPendingFetch);
-    const resetAndStartRefreshing = useContextSelector(AppContext, c => c.resetAndStartRefreshing);
+    const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
+    const knobWidth = useContextSelector(LocalContext, c => c.knobWidth);
+    const knobSize = useContextSelector(LocalContext, c => c.knobSize);
+    const knobAngleRange = useContextSelector(LocalContext, c => c.knobAngleRange);
+    const knobAngleOffset = useContextSelector(LocalContext, c => c.knobAngleOffset);
+    const knobMinTemp = useContextSelector(LocalContext, c => c.knobMinTemp);
+    const knobMaxTemp = useContextSelector(LocalContext, c => c.knobMaxTemp);
+    const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
+    const knobPercentage = useContextSelector(LocalContext, c => c.knobPercentage);
+    const setTargetTemp = useContextSelector(LocalContext, c => c.setTargetTemp);
+    const setKnobPercentage = useContextSelector(LocalContext, c => c.setKnobPercentage);
+    const cancelPendingGetStatus = useContextSelector(ApiContext, c => c.cancelPendingGetStatus);
+    const startGettingStatus = useContextSelector(ApiContext, c => c.startGettingStatus);
+    const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
     const knobRadius = knobSize / 2 - knobWidth + 8;
     const knobCenter = knobSize / 2;
@@ -47,9 +48,11 @@ export const Pointer = (props: PointerProps) => {
     const startTracking = useCallback((event?: ReactMouseEvent | ReactTouchEvent) => {
         event?.stopPropagation();
         event?.preventDefault();
+        cancelPendingGetStatus();
+        stopGettingStatus();
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
-    }, [rootRef, knobSize, cancelPendingFetch]);
+    }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus]);
 
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
@@ -94,9 +97,7 @@ export const Pointer = (props: PointerProps) => {
         setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
 
-        //submitConfig(newTargetTemp);
-
-    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps, cancelPendingFetch, resetAndStartRefreshing]);
+    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps]);
 
     useEffect(() => {
         if (trackingActive) {

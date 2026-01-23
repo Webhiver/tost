@@ -1,11 +1,11 @@
 // import {useContextSelector} from "@fluentui/react-context-selector";
-// import AppContext from "../_context";
+// import LocalContext from "../_context";
 import Spacer from "./components/Spacer";
 import Header from "./components/Header";
 import Controller from "./components/Controller";
 
 const App = () => {
-    //const flame = useContextSelector(AppContext, c => c.flame)
+    //const flame = useContextSelector(LocalContext, c => c.flame)
 
     return (
         <div className="w-screen h-screen bg-slate-200 flex items-center justify-center">

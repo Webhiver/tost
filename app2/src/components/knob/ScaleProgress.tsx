@@ -1,15 +1,15 @@
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {AppContext} from "../../_context";
+import {LocalContext} from "../../_context";
 
 export const ScaleProgress = () => {
-    const knobWidth = useContextSelector(AppContext, c => c.knobWidth);
-    const knobSize = useContextSelector(AppContext, c => c.knobSize);
-    const knobAngleRange = useContextSelector(AppContext, c => c.knobAngleRange);
-    const knobAngleOffset = useContextSelector(AppContext, c => c.knobAngleOffset);
-    const knobTickWidth = useContextSelector(AppContext, c => c.knobTickWidth);
-    const knobTickHeight = useContextSelector(AppContext, c => c.knobTickHeight);
-    const knobSteps = useContextSelector(AppContext, c => c.knobSteps);
-    const knobPercentage = useContextSelector(AppContext, c => c.knobPercentage);
+    const knobWidth = useContextSelector(LocalContext, c => c.knobWidth);
+    const knobSize = useContextSelector(LocalContext, c => c.knobSize);
+    const knobAngleRange = useContextSelector(LocalContext, c => c.knobAngleRange);
+    const knobAngleOffset = useContextSelector(LocalContext, c => c.knobAngleOffset);
+    const knobTickWidth = useContextSelector(LocalContext, c => c.knobTickWidth);
+    const knobTickHeight = useContextSelector(LocalContext, c => c.knobTickHeight);
+    const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
+    const knobPercentage = useContextSelector(LocalContext, c => c.knobPercentage);
     const knobRadius = knobSize / 2;
     const knobCenter = knobSize / 2;
 
