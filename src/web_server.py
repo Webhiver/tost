@@ -23,6 +23,12 @@ def create_server(pairing, secrets_module):
             "config": config.get_all()
         }
     
+    @app.route('/api/state', methods=['GET'])
+    async def get_state(request):
+        if config.get("mode") == "satellite":
+            return state.get_satellite_state()
+        return state.get_all()
+    
     @app.route('/api/config', methods=['GET'])
     async def get_config(request):
         return config.get_all()

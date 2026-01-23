@@ -10,10 +10,15 @@ export interface SatelliteConfig {
   name: string
 }
 
+export interface SatelliteState {
+  sensor: SensorData
+  wifi_strength: number | null
+}
+
 export interface Satellite {
   ip: string
   name: string
-  state: State | null
+  state: SatelliteState | null
   last_updated: number
   online: boolean
 }

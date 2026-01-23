@@ -56,6 +56,13 @@ class StateManager:
             new_val = state.get(key)
             if old_val != new_val:
                 self._notify(key, new_val, old_val)
+    
+    def get_satellite_state(self):
+        """Get trimmed state for satellites (only sensor and wifi_strength)."""
+        return {
+            "sensor": self._state.get("sensor"),
+            "wifi_strength": self._state.get("wifi_strength")
+        }
 
 
 state = StateManager({

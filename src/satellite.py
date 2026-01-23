@@ -120,15 +120,15 @@ class SatelliteManager:
                     pass
 
     async def poll_satellite_async(self, ip):
-        """Async poll a satellite for its full state.
+        """Async poll a satellite for its trimmed state (sensor and wifi_strength).
         
         Returns:
             (True, state_data) if HTTP request succeeded
             (False, error_message) if HTTP request failed
         """
-        success, result = await self._http_request_async(ip, "GET", "/api/status")
+        success, result = await self._http_request_async(ip, "GET", "/api/state")
         if success:
-            return True, result.get("state", {})
+            return True, result
         return False, result
 
     async def sync_satellite_async(self, ip, sync_data):
