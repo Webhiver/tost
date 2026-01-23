@@ -31,6 +31,8 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setFlame(state?.flame ?? false);
         setFlameDuration(state?.flame_duration ?? 0);
         setEffectiveTemp(state?.effective_temperature ?? 0);
+        setWifiConnected(state?.wifi_connected ?? false);
+        setWifiStrength(state?.wifi_strength ?? 0);
     }, [state]);
 
     useEffect(() => {

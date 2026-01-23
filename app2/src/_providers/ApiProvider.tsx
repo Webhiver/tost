@@ -67,8 +67,6 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     }, [cancelPendingGetStatus, getStatus, startGettingStatus]);
 
     const submitConfig = useCallback((targetTemp: number) => {
-        console.log(targetTemp);
-
         stopGettingStatus();
         cancelPendingGetStatus();
 
