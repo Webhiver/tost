@@ -1,7 +1,7 @@
 import { WifiIcon } from './WifiIcon'
 
 interface HeaderProps {
-  statusType: 'heating' | 'idle' | 'satellite' | 'pairing'
+  statusType: 'heating' | 'idle' | 'satellite' | 'pairing' | 'off'
   statusText: string
   wifiStrength?: number | null
 }
@@ -11,6 +11,7 @@ const statusStyles = {
   idle: 'bg-gradient-to-r from-cool/15 to-cool/8 text-cool border-cool/25',
   satellite: 'bg-gradient-to-r from-idle/15 to-idle/8 text-idle border-idle/25',
   pairing: 'bg-gradient-to-r from-warning/15 to-warning/8 text-warning border-warning/25 animate-pulse-glow',
+  off: 'bg-gradient-to-r from-text-muted/15 to-text-muted/8 text-text-muted border-text-muted/25',
 }
 
 export function Header({ statusType, statusText, wifiStrength }: HeaderProps) {

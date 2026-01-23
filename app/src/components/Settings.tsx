@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { Config, FlameMode } from '../types'
+import type { Config, FlameMode, OperatingMode } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
 
@@ -313,6 +313,17 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
             <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
               Temperature Control
             </h3>
+            
+            <SettingRow label="Operating Mode">
+              <select
+                value={localConfig.operating_mode}
+                onChange={(e) => handleUpdate('operating_mode', e.target.value as OperatingMode)}
+                className="px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+              >
+                <option value="manual">Manual</option>
+                <option value="off">Off</option>
+              </select>
+            </SettingRow>
             
             <SettingRow label="Hysteresis">
               <div className="flex items-center gap-2">

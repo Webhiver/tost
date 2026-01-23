@@ -22,6 +22,7 @@ const DEBOUNCE_MS = 500
 
 export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onConfigUpdate, onCancelPendingFetch, onRefreshAndResetInterval }: DashboardProps) {
   const isHeating = status.state.flame
+  const isOff = status.config.operating_mode === 'off'
   const temp = status.state.sensor?.temperature
   const humidity = status.state.sensor?.humidity
   const sensorHealthy = status.state.sensor?.healthy ?? true
@@ -42,6 +43,9 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
   }, [serverTarget])
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Don't allow changes when off
+    if (isOff) return
+
     const newTarget = parseFloat(e.target.value)
     setLocalTarget(newTarget)
     onConfigUpdate({ target_temperature: newTarget })
@@ -76,20 +80,32 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
     }
   }, [])
 
+  const getStatusType = () => {
+    if (isOff) return 'off'
+    if (isHeating) return 'heating'
+    return 'idle'
+  }
+
+  const getStatusText = () => {
+    if (isOff) return 'Off'
+    if (isHeating) return 'Heating'
+    return 'Idle'
+  }
+
   return (
     <div className="w-full max-w-[480px] mx-auto px-5">
       <Header 
-        statusType={isHeating ? 'heating' : 'idle'} 
-        statusText={isHeating ? 'Heating' : 'Idle'}
+        statusType={getStatusType()} 
+        statusText={getStatusText()}
         wifiStrength={status.state.wifi_strength}
       />
       
       {/* Target Control */}
-      <div className={`bg-secondary border border-border-subtle rounded-lg p-6 mb-4 mt-6 relative overflow-hidden before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-border-visible before:to-transparent ${isHeating ? 'after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_30%,rgba(255,107,53,0.15),transparent_70%)] after:pointer-events-none' : ''}`}>
+      <div className={`bg-secondary border border-border-subtle rounded-lg p-6 mb-4 mt-6 relative overflow-hidden before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-border-visible before:to-transparent ${isHeating ? 'after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_30%,rgba(255,107,53,0.15),transparent_70%)] after:pointer-events-none' : ''} ${isOff ? 'opacity-60' : ''}`}>
         <div className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-4 font-medium">
           Target Temperature
         </div>
-        <div className="font-mono text-[2.5rem] font-normal tracking-tight text-center mb-5">
+        <div className={`font-mono text-[2.5rem] font-normal tracking-tight text-center mb-5 ${isOff ? 'text-text-muted' : ''}`}>
           {localTarget.toFixed(1)}°C
         </div>
         <div className="flex items-center gap-3">
@@ -102,32 +118,30 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
               step={TEMP_STEP}
               value={localTarget}
               onChange={handleSliderChange}
-              className="w-full h-2 bg-tertiary rounded-full appearance-none cursor-pointer
+              disabled={isOff}
+              className={`w-full h-2 bg-tertiary rounded-full appearance-none
                 [&::-webkit-slider-thumb]:appearance-none
                 [&::-webkit-slider-thumb]:w-6
                 [&::-webkit-slider-thumb]:h-6
                 [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-flame
                 [&::-webkit-slider-thumb]:border-2
                 [&::-webkit-slider-thumb]:border-white/20
                 [&::-webkit-slider-thumb]:shadow-lg
-                [&::-webkit-slider-thumb]:shadow-flame/30
-                [&::-webkit-slider-thumb]:cursor-grab
-                [&::-webkit-slider-thumb]:active:cursor-grabbing
                 [&::-webkit-slider-thumb]:transition-transform
-                [&::-webkit-slider-thumb]:hover:scale-110
                 [&::-moz-range-thumb]:w-6
                 [&::-moz-range-thumb]:h-6
                 [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-flame
                 [&::-moz-range-thumb]:border-2
                 [&::-moz-range-thumb]:border-white/20
                 [&::-moz-range-thumb]:shadow-lg
-                [&::-moz-range-thumb]:shadow-flame/30
-                [&::-moz-range-thumb]:cursor-grab
-                [&::-moz-range-thumb]:active:cursor-grabbing"
+                ${isOff 
+                  ? 'cursor-not-allowed [&::-webkit-slider-thumb]:bg-text-muted [&::-webkit-slider-thumb]:shadow-none [&::-moz-range-thumb]:bg-text-muted [&::-moz-range-thumb]:shadow-none' 
+                  : 'cursor-pointer [&::-webkit-slider-thumb]:bg-flame [&::-webkit-slider-thumb]:shadow-flame/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:hover:scale-110 [&::-moz-range-thumb]:bg-flame [&::-moz-range-thumb]:shadow-flame/30 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:active:cursor-grabbing'
+                }`}
               style={{
-                background: `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) 100%)`
+                background: isOff 
+                  ? 'var(--color-tertiary)'
+                  : `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) ${((localTarget - MIN_TEMP) / (MAX_TEMP - MIN_TEMP)) * 100}%, var(--color-tertiary) 100%)`
               }}
             />
           </div>

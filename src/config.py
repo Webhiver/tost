@@ -2,6 +2,7 @@ import json
 
 DEFAULT_CONFIG = {
     "mode": "host",
+    "operating_mode": "manual",
     "target_temperature": 22.0,
     "hysteresis": 1.0,
     "satellites": [],

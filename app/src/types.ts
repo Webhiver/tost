@@ -19,9 +19,11 @@ export interface Satellite {
 }
 
 export type FlameMode = 'average' | 'all' | 'any' | 'one'
+export type OperatingMode = 'off' | 'manual'
 
 export interface Config {
   mode: 'host' | 'satellite'
+  operating_mode: OperatingMode
   target_temperature: number
   hysteresis: number
   satellites: SatelliteConfig[]

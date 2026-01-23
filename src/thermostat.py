@@ -8,12 +8,15 @@ class Thermostat:
     def __init__(self):
         state.subscribe("effective_temperature", self._on_temp_change)
         config.subscribe("mode", self._on_mode_change)
+        config.subscribe("operating_mode", self._on_operating_mode_change)
         config.subscribe("target_temperature", self._on_config_change)
         config.subscribe("hysteresis", self._on_config_change)
         config.subscribe("max_flame_duration", self._on_config_change)
     
     def _is_active(self):
-        return config.get("mode") == "host" and not state.get("is_pairing")
+        return (config.get("mode") == "host" and 
+                config.get("operating_mode") == "manual" and 
+                not state.get("is_pairing"))
     
     def _on_temp_change(self, new_val, old_val):
         if self._is_active():
@@ -25,6 +28,15 @@ class Thermostat:
         elif old_mode == "host":
             # Switching away from host mode - turn off flame
             state.set("flame", False)
+    
+    def _on_operating_mode_change(self, new_mode, old_mode):
+        if new_mode == "off":
+            # Switching to off mode - turn off flame
+            state.set("flame", False)
+            state.set("flame_start_tick", None)
+        elif new_mode == "manual" and config.get("mode") == "host":
+            # Switching back to manual mode - update thermostat
+            self.update(ignore_hysteresis=True)
     
     def _on_config_change(self, new_val, old_val):
         if self._is_active():
