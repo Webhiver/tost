@@ -1,6 +1,6 @@
 import {RefObject, useCallback, useRef, useState, useEffect} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
-import AppContext from "../../_context";
+import {AppContext, ApiContext} from "../../_context";
 import {
     getStartXY,
     calculatePercentage,
@@ -14,6 +14,7 @@ interface PointerProps {
 }
 
 export const Pointer = (props: PointerProps) => {
+    const targetTemp = useContextSelector(AppContext, c => c.targetTemp);
     const knobWidth = useContextSelector(AppContext, c => c.knobWidth);
     const knobSize = useContextSelector(AppContext, c => c.knobSize);
     const knobAngleRange = useContextSelector(AppContext, c => c.knobAngleRange);
@@ -24,6 +25,9 @@ export const Pointer = (props: PointerProps) => {
     const knobPercentage = useContextSelector(AppContext, c => c.knobPercentage);
     const setTargetTemp = useContextSelector(AppContext, c => c.setTargetTemp);
     const setKnobPercentage = useContextSelector(AppContext, c => c.setKnobPercentage);
+    const cancelPendingFetch = useContextSelector(AppContext, c => c.cancelPendingFetch);
+    const resetAndStartRefreshing = useContextSelector(AppContext, c => c.resetAndStartRefreshing);
+    const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
     const knobRadius = knobSize / 2 - knobWidth + 8;
     const knobCenter = knobSize / 2;
     const [trackingActive, setTrackingActive] = useState(false);
@@ -43,12 +47,13 @@ export const Pointer = (props: PointerProps) => {
     const startTracking = useCallback(() => {
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
-    }, [rootRef, knobSize]);
+    }, [rootRef, knobSize, cancelPendingFetch]);
 
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
         startXY.current = {startX: 0, startY: 0};
-    }, []);
+        submitConfig(targetTemp);
+    }, [targetTemp]);
 
     const handleMove = useCallback((event: MouseEvent | TouchEvent) => {
         event.stopPropagation();
@@ -58,11 +63,11 @@ export const Pointer = (props: PointerProps) => {
 
         let pageX = 0;
         let pageY = 0;
-        if(event && "touches" in event) {
+        if (event && "touches" in event) {
             pageX = event.changedTouches[0].pageX;
             pageY = event.changedTouches[0].pageY;
         }
-        if(event && "pageX" in event){
+        if (event && "pageX" in event) {
             pageX = event.pageX;
             pageY = event.pageY;
         }
@@ -77,7 +82,7 @@ export const Pointer = (props: PointerProps) => {
         });
 
         const stepSnappingPercentages = stepsToSnapTo(knobSteps, true);
-        if(stepSnappingPercentages){
+        if (stepSnappingPercentages) {
             percentage = findClosest(stepSnappingPercentages, percentage);
         }
 
@@ -87,10 +92,12 @@ export const Pointer = (props: PointerProps) => {
         setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
 
-    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps]);
+        //submitConfig(newTargetTemp);
+
+    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps, cancelPendingFetch, resetAndStartRefreshing]);
 
     useEffect(() => {
-        if(trackingActive){
+        if (trackingActive) {
             //console.log('attach');
             document.body.addEventListener('mousemove', handleMove as EventListener);
             document.body.addEventListener('mouseup', stopTracking);
@@ -117,8 +124,8 @@ export const Pointer = (props: PointerProps) => {
                 width={width}
                 height={height}
                 fill={color}
-                rx={width/2}
-                ry={width/2}
+                rx={width / 2}
+                ry={width / 2}
                 style={{
                     strokeWidth: heatZoneSize,
                     stroke: heatZoneColor,

@@ -1,6 +1,6 @@
 import {useRef, useEffect} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
-import AppContext from "../../_context";
+import {AppContext} from "../../_context";
 
 export const Info = () => {
     // TEMP
@@ -16,6 +16,7 @@ export const Info = () => {
 
     const flameOn = useContextSelector(AppContext, c => c.flame);
     const targetTemp = useContextSelector(AppContext, c => c.targetTemp);
+    const effectiveTemp = useContextSelector(AppContext, c => c.effectiveTemp);
     const knobSize = useContextSelector(AppContext, c => c.knobSize);
 
     const flameAnimation = useRef<SVGAnimateElement>(null);
@@ -43,7 +44,7 @@ export const Info = () => {
                 textAnchor={'middle'}
                 className="fill-slate-400 font-mono font-semibold text-5xl users-select-none"
             >
-                {targetTemp.toFixed(decimalPlace)}
+                {targetTemp.toFixed(decimalPlace)}°C
             </text>
 
             <g
@@ -77,6 +78,24 @@ export const Info = () => {
                     </polygon>
                 </svg>
             </g>
+
+            <text
+                x={'50%'}
+                y={190}
+                textAnchor={'middle'}
+                className="fill-amber-600 font-sans font-medium text-md users-select-none"
+            >
+                ROOM
+            </text>
+
+            <text
+                x={'50%'}
+                y={210}
+                textAnchor={'middle'}
+                className="fill-slate-500 font-sans font-semibold text-md users-select-none"
+            >
+                {effectiveTemp.toFixed(decimalPlace)}°C
+            </text>
         </g>
     );
 }

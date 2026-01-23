@@ -13,36 +13,43 @@ export interface SatelliteConfig {
 export interface Satellite {
   ip: string
   name: string
-  sensor: SensorData
+  state: State | null
   last_updated: number
   online: boolean
 }
 
+export type FlameMode = 'average' | 'all' | 'any' | 'one'
+
 export interface Config {
   mode: 'host' | 'satellite'
-  target_temp: number
+  target_temperature: number
   hysteresis: number
   satellites: SatelliteConfig[]
   satellite_grace_period: number
   led_brightness: number
-  flame_on_mode: 'average' | 'all'
-  flame_off_mode: 'average' | 'all'
+  flame_mode: FlameMode
+  flame_mode_sensor: string  // 'local' or satellite IP
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
   sensor_temperature_offset: number
   sensor_humidity_offset: number
 }
 
-export interface Status {
-  config: Config
+export interface State {
   is_pairing: boolean
-  wifi_strength: number | null
   wifi_connected: boolean
+  wifi_strength: number | null
   sensor: SensorData
   flame: boolean
   flame_start_tick: number | null
   flame_duration: number
   satellites: Satellite[]
+  effective_temperature: number | null
+}
+
+export interface Status {
+  state: State
+  config: Config
 }
 
 export interface Network {
@@ -110,6 +117,13 @@ export interface AppProviderProps {
   knobSteps: number,
   knobPercentage: number,
   targetTemp: number,
+  effectiveTemp: number,
   setTargetTemp: (temp: number) => void,
   setKnobPercentage: (percentage: number) => void,
+  cancelPendingFetch: () => void,
+  resetAndStartRefreshing: () => void,
+}
+
+export interface ApiProviderProps {
+  submitConfig: (targetTemp: number) => void;
 }

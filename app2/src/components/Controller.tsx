@@ -8,7 +8,7 @@ import {ScaleProgress} from './knob/ScaleProgress';
 import {Pointer} from './knob/Pointer';
 import {Info} from './knob/Info';
 import {useContextSelector} from "@fluentui/react-context-selector";
-import AppContext from "../_context";
+import {AppContext} from "../_context";
 import {clamp, getPercentageFromValue, findClosest} from "./knob/utils";
 
 export const stepsToSnapTo = (steps: number, snap: boolean): number[] | undefined => {

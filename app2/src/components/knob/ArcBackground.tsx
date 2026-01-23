@@ -1,6 +1,6 @@
 import {} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
-import AppContext from "../../_context";
+import {AppContext} from "../../_context";
 import {calcKnobArcPath} from "./utils";
 
 export const ArcBackground = () => {

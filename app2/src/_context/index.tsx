@@ -1,9 +1,6 @@
 import { createContext} from '@fluentui/react-context-selector'
-import { AppProviderProps } from '../types'
+import { AppProviderProps, ApiProviderProps } from '../types'
 
-const AppContext = createContext<AppProviderProps>({
-  isLoading: true,
-  flame: false,
-})
+export const AppContext = createContext<AppProviderProps>({});
 
-export default AppContext
+export const ApiContext = createContext<ApiProviderProps>({});

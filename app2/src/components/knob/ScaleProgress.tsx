@@ -1,5 +1,5 @@
 import {useContextSelector} from "@fluentui/react-context-selector";
-import AppContext from "../../_context";
+import {AppContext} from "../../_context";
 
 export const ScaleProgress = () => {
     const knobWidth = useContextSelector(AppContext, c => c.knobWidth);

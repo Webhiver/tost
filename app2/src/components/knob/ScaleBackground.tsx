@@ -1,4 +1,4 @@
-import AppContext from "../../_context";
+import {AppContext} from "../../_context";
 import {useContextSelector} from "@fluentui/react-context-selector";
 
 export const ScaleBackground = () => {

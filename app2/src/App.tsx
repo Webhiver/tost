@@ -1,7 +1,8 @@
 // import {useContextSelector} from "@fluentui/react-context-selector";
 // import AppContext from "../_context";
-import Header from "./components/Header.tsx";
-import Controller from "./components/Controller.tsx";
+import Spacer from "./components/Spacer";
+import Header from "./components/Header";
+import Controller from "./components/Controller";
 
 const App = () => {
     //const flame = useContextSelector(AppContext, c => c.flame)
@@ -9,14 +10,14 @@ const App = () => {
     return (
         <div className="w-screen h-screen bg-slate-200 flex items-center justify-center">
             <div className="overflow-hidden bg-linear-to-b from-white to-slate-100 w-screen h-screen lg:w-md lg:h-auto lg:rounded-2xl lg:shadow-xl">
-                <div className="h-5"/>
+                <Spacer/>
                 <Header/>
-                <div className="h-5"/>
+                <Spacer/>
                 <Controller/>
                 {/*SCHEDULER*/}
                 {/*SENSORS*/}
                 {/*SATELLITES*/}
-                <div className="h-5"/>
+                <Spacer/>
             </div>
         </div>
     )
