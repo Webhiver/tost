@@ -1,7 +1,7 @@
 import {Fragment} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {AppContext} from "../../_context";
-import {calcKnobArcPath} from "./utils";
+import {calcKnobArcPathRounded} from "./utils";
 
 export const ArcProgress = () => {
     const knobWidth = useContextSelector(AppContext, c => c.knobWidth);
@@ -10,7 +10,7 @@ export const ArcProgress = () => {
     const knobAngleOffset = useContextSelector(AppContext, c => c.knobAngleOffset);
     const knobPercentage = useContextSelector(AppContext, c => c.knobPercentage);
 
-    const path = calcKnobArcPath({
+    const path = calcKnobArcPathRounded({
         angleOffset: knobAngleOffset,
         angleRange: knobAngleRange,
         arcWidth: knobWidth,

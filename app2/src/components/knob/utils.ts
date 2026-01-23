@@ -128,3 +128,56 @@ export const calcKnobArcPath = (data: PathData): string => {
         L${p1.x},${p1.y}
     `;
 };
+
+export const calcKnobArcPathRounded = (data: PathData): string => {
+    const {
+        percentage,
+        angleOffset,
+        angleRange,
+        arcWidth,
+        radius,
+        center,
+    } = data;
+
+    const innerRadius = radius - arcWidth;
+    const cornerRadius = Math.min(6, arcWidth / 2, innerRadius);
+    const angleOverflow = degToRad(4);
+    const angle = angleRange * percentage;
+    const angleRad = degToRad(angle);
+    const startAngle = angleOffset - 90;
+    const startAngleDegree = degToRad(startAngle) - angleOverflow;
+    const endAngleDegree = degToRad(startAngle + angle) + angleOverflow;
+    const arcAngle = angleRad + angleOverflow * 2;
+
+    const outerCornerAngle = cornerRadius / radius;
+    const innerCornerAngle = cornerRadius / innerRadius;
+    const trimmedArcAngle = Math.max(0, arcAngle - outerCornerAngle * 2);
+    const largeArcFlag = trimmedArcAngle < Math.PI ? 0 : 1;
+
+    const outerStartCut = pointOnCircle(center, radius, startAngleDegree + outerCornerAngle);
+    const outerEndCut = pointOnCircle(center, radius, endAngleDegree - outerCornerAngle);
+    const innerStartCut = pointOnCircle(center, innerRadius, startAngleDegree + innerCornerAngle);
+    const innerEndCut = pointOnCircle(center, innerRadius, endAngleDegree - innerCornerAngle);
+
+    const outerStartCap = pointOnCircle(center, radius - cornerRadius, startAngleDegree);
+    const outerEndCap = pointOnCircle(center, radius - cornerRadius, endAngleDegree);
+    const innerStartCap = pointOnCircle(center, innerRadius + cornerRadius, startAngleDegree);
+    const innerEndCap = pointOnCircle(center, innerRadius + cornerRadius, endAngleDegree);
+
+    const outerStartCorner = pointOnCircle(center, radius, startAngleDegree);
+    const outerEndCorner = pointOnCircle(center, radius, endAngleDegree);
+    const innerStartCorner = pointOnCircle(center, innerRadius, startAngleDegree);
+    const innerEndCorner = pointOnCircle(center, innerRadius, endAngleDegree);
+
+    return `
+        M${outerEndCut.x},${outerEndCut.y}
+        A${radius},${radius} 0 ${largeArcFlag} 0 ${outerStartCut.x},${outerStartCut.y}
+        Q${outerStartCorner.x},${outerStartCorner.y} ${outerStartCap.x},${outerStartCap.y}
+        L${innerStartCap.x},${innerStartCap.y}
+        Q${innerStartCorner.x},${innerStartCorner.y} ${innerStartCut.x},${innerStartCut.y}
+        A${innerRadius},${innerRadius} 0 ${largeArcFlag} 1 ${innerEndCut.x},${innerEndCut.y}
+        Q${innerEndCorner.x},${innerEndCorner.y} ${innerEndCap.x},${innerEndCap.y}
+        L${outerEndCap.x},${outerEndCap.y}
+        Q${outerEndCorner.x},${outerEndCorner.y} ${outerEndCut.x},${outerEndCut.y}
+    `;
+};

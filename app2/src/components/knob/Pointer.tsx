@@ -1,4 +1,4 @@
-import {RefObject, useCallback, useRef, useState, useEffect} from 'react'
+import {RefObject, useCallback, useRef, useState, useEffect, MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {AppContext, ApiContext} from "../../_context";
 import {
@@ -44,7 +44,9 @@ export const Pointer = (props: PointerProps) => {
     const height = knobWidth - 16;
     const color = "#fff";
 
-    const startTracking = useCallback(() => {
+    const startTracking = useCallback((event?: ReactMouseEvent | ReactTouchEvent) => {
+        event?.stopPropagation();
+        event?.preventDefault();
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
     }, [rootRef, knobSize, cancelPendingFetch]);
@@ -101,7 +103,8 @@ export const Pointer = (props: PointerProps) => {
             //console.log('attach');
             document.body.addEventListener('mousemove', handleMove as EventListener);
             document.body.addEventListener('mouseup', stopTracking);
-            document.body.addEventListener('touchmove', handleMove as EventListener);
+            const nonPassiveTouch = {passive: false};
+            document.body.addEventListener('touchmove', handleMove as EventListener, nonPassiveTouch);
             document.body.addEventListener('touchend', stopTracking);
             return () => {
                 //console.log('detach');
@@ -131,6 +134,7 @@ export const Pointer = (props: PointerProps) => {
                     stroke: heatZoneColor,
                     cursor: "move",
                     paintOrder: "stroke",
+                    touchAction: "none",
                 }}
             />
         </g>
