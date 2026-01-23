@@ -28,6 +28,7 @@ export type OperatingMode = 'off' | 'manual'
 
 export interface Config {
   mode: 'host' | 'satellite'
+  name: string
   operating_mode: OperatingMode
   target_temperature: number
   hysteresis: number

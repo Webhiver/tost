@@ -171,7 +171,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
         </div>
         <div className="flex justify-between items-center py-3.5">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm text-text-primary">Local Sensor</span>
+            <span className="text-sm text-text-primary">{status.config.name || 'Local Sensor'}</span>
             <span className={`text-[0.7rem] ${sensorHealthy ? 'text-cool' : 'text-amber-400'}`}>
               {sensorHealthy ? '● Healthy' : '⚠ ' + (sensorError || 'Sensor issue')}
             </span>

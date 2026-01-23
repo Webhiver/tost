@@ -538,6 +538,18 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
               Device
             </h3>
             
+            {localConfig.mode === 'host' && (
+              <SettingRow label="Name">
+                <input
+                  type="text"
+                  value={localConfig.name || ''}
+                  onChange={(e) => handleUpdate('name', e.target.value)}
+                  placeholder="Local Sensor"
+                  className="w-[160px] px-3 py-2 bg-tertiary border border-border-subtle rounded-sm text-text-primary text-sm"
+                />
+              </SettingRow>
+            )}
+            
             <SettingRow label="Mode">
               <select
                 value={localConfig.mode}
