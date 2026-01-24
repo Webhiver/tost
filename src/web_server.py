@@ -1,5 +1,6 @@
 import asyncio
 import machine
+import micropython
 from lib.microdot import Microdot, Response, redirect
 import urequests
 import debug
@@ -86,6 +87,11 @@ def create_server(pairing, secrets_module):
     @app.route('/api/debug', methods=['GET'])
     async def get_debug(request):
         return debug.get_debug_info()
+    
+    @app.route('/api/mem-info', methods=['GET'])
+    async def get_mem_info(request):
+        micropython.mem_info(1)
+        return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
     
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):
