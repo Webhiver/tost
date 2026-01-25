@@ -33,7 +33,7 @@ export const Info = () => {
                 x={'50%'}
                 y={labelSize}
                 textAnchor={'middle'}
-                className="fill-amber-600 font-sans font-medium text-md users-select-none"
+                className="fill-amber-600 font-light text-md users-select-none"
             >
                 {label}
             </text>
@@ -42,13 +42,13 @@ export const Info = () => {
                 x={'50%'}
                 y={labelSize + valueSize + 5}
                 textAnchor={'middle'}
-                className="fill-slate-400 font-mono font-semibold text-5xl users-select-none"
+                className="fill-slate-400 font-normal text-5xl users-select-none"
             >
                 {targetTemp.toFixed(decimalPlace)}°C
             </text>
 
             <g
-                transform={`translate(${knobSize / 2 - flameSize / 2},${labelSize + valueSize + 20})`}
+                transform={`translate(${knobSize / 2 - flameSize / 2},${labelSize + valueSize + 25})`}
             >
                 <svg
                     width={flameSize}
@@ -83,7 +83,7 @@ export const Info = () => {
                 x={'50%'}
                 y={190}
                 textAnchor={'middle'}
-                className="fill-amber-600 font-sans font-medium text-md users-select-none"
+                className="fill-amber-600 font-light text-md users-select-none"
             >
                 ROOM
             </text>
@@ -92,7 +92,7 @@ export const Info = () => {
                 x={'50%'}
                 y={210}
                 textAnchor={'middle'}
-                className="fill-slate-500 font-sans font-semibold text-md users-select-none"
+                className="fill-slate-500 font-normal text-lg users-select-none"
             >
                 {effectiveTemp.toFixed(decimalPlace)}°C
             </text>

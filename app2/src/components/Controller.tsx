@@ -20,6 +20,7 @@ export const stepsToSnapTo = (steps: number, snap: boolean): number[] | undefine
 
 const Controller = () => {
 
+    const flame = useContextSelector(LocalContext, c => c.flame);
     const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
     const knobSize = useContextSelector(LocalContext, c => c.knobSize);
     const knobMinTemp = useContextSelector(LocalContext, c => c.knobMinTemp);
@@ -73,7 +74,8 @@ const Controller = () => {
 
     return (
         <div
-            className="flex justify-center items-center gap-4 px-6 outline-none"
+            className="flex justify-center items-center py-2 px-6 outline-none"
+            data-active={flame ? "true" : undefined}
             tabIndex={0}
             onKeyDown={handleKeyDown}
             onKeyUp={handleKeyUp}

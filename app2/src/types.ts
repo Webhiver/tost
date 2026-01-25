@@ -10,18 +10,26 @@ export interface SatelliteConfig {
   name: string
 }
 
+export interface SatelliteState {
+  sensor: SensorData
+  wifi_strength: number | null
+}
+
 export interface Satellite {
   ip: string
   name: string
-  state: State | null
+  state: SatelliteState | null
   last_updated: number
   online: boolean
 }
 
 export type FlameMode = 'average' | 'all' | 'any' | 'one'
+export type OperatingMode = 'off' | 'manual'
 
 export interface Config {
   mode: 'host' | 'satellite'
+  name: string
+  operating_mode: OperatingMode
   target_temperature: number
   hysteresis: number
   satellites: SatelliteConfig[]
@@ -99,11 +107,29 @@ export interface DebugInfo {
   } | null
 }
 
+// APP2 Types
+
+export interface Device {
+  id: string,
+  name: string,
+  online: boolean,
+  healthy: boolean,
+  error: string | null,
+  wifiStrength: number | null,
+  temperature: number | null,
+  humidity: number | null,
+  active: boolean,
+}
+
 export interface LocalProviderProps {
   isLoading: boolean,
   flame: boolean,
   flameDuration: number,
   isPairing: boolean,
+  hostName: string,
+  hostHealthy: boolean,
+  hostTemperature: number | null,
+  hostHumidity: number | null,
   wifiConnected: boolean,
   wifiStrength: number | null,
   knobSize: number,
@@ -118,6 +144,8 @@ export interface LocalProviderProps {
   knobPercentage: number,
   targetTemp: number,
   effectiveTemp: number,
+  satellites: Satellite[],
+  devices: Device[],
   setTargetTemp: (temp: number) => void,
   setKnobPercentage: (percentage: number) => void,
 }

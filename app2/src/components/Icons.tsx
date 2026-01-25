@@ -1,149 +1,147 @@
-import React from 'react';
-
-export const WifiOff = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const WifiOff = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path style={{opacity: 0.4}} d="M466.74 326.35a222.2 222.2 0 0 0-36.69-25.75L291.29 193.36c81.8-7.62 166.15 17.36 231.38 75.05a15.81 15.81 0 0 1 .56 23.15l-34.44 34a16.31 16.31 0 0 1-22.05.79zM207.6 128.68c126.08-38.46 268.25-10.63 371 83.53a16.25 16.25 0 0 0 22.4-.38l34.24-34a15.9 15.9 0 0 0-.36-23C496.4 26.77 297.77-1.12 133.06 71.06zM256 416a63.88 63.88 0 0 0 127 10l-88.7-68.56A64 64 0 0 0 256 416zM5.09 154.87a15.88 15.88 0 0 0-.35 23L39 211.8a16.25 16.25 0 0 0 22.4.38c7-6.4 14.31-12.22 21.65-18L18.07 144c-4.3 3.67-8.79 7-12.98 10.87zm113.22 113.52a15.9 15.9 0 0 0-.57 23.17l34.28 34a16.17 16.17 0 0 0 21.94.8c13.35-11.6 28-20.66 43.15-28.55L148.75 245a299.77 299.77 0 0 0-30.44 23.39z"/>
         <path style={{opacity: 1}} d="M636.64 480.55L617 505.82a16 16 0 0 1-22.46 2.81L6.18 53.9a16 16 0 0 1-2.81-22.45L23 6.18a16 16 0 0 1 22.47-2.81L633.83 458.1a16 16 0 0 1 2.81 22.45z"/>
     </svg>;
 };
 
-export const WifiEmpty = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const WifiEmpty = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path style={{opacity: 0.4}} d="M320 352c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zm202.7-83.6c-115.3-101.9-290.2-101.8-405.3 0-6.5 5.8-7.1 15.8-1.4 22.3.3.3.5.6.8.8l34.4 34c6 5.9 15.6 6.3 22 .8 84-72.6 209.7-72.4 293.5 0 6.4 5.5 16 5.2 22-.8l34.4-34c6.2-6.1 6.4-16.1.3-22.4l-.7-.7zm112.7-113c-.2-.2-.4-.3-.5-.5C457.7-9 182.2-8.9 5.1 154.9c-6.4 6-6.8 16-.9 22.5.2.2.3.4.5.5l34.2 34c6.2 6.1 16 6.2 22.4.4 145.9-133.7 371.3-133.7 517.2 0 6.4 5.9 16.2 5.7 22.4-.4l34.2-34c6.4-6.2 6.5-16.2.3-22.5z"/>
     </svg>;
 };
 
-export const WifiLow = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const WifiLow = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path style={{opacity: 0.4}} d="M634.9 154.9C457.7-9 182.2-8.9 5.1 154.9c-6.4 6-6.8 16-.9 22.5.2.2.3.4.5.5l34.2 34c6.2 6.1 16 6.2 22.4.4 145.9-133.7 371.3-133.7 517.2 0 6.4 5.9 16.2 5.7 22.4-.4l34.2-34c6.3-6.2 6.3-16.2.2-22.5 0-.2-.2-.4-.4-.5zM522.7 268.4c-115.3-101.9-290.2-101.8-405.3 0-6.5 5.8-7.1 15.8-1.4 22.3.3.3.5.6.8.8l34.4 34c6 5.9 15.6 6.3 22.1.8 83.9-72.6 209.7-72.4 293.5 0 6.4 5.5 16 5.2 22-.8l34.4-34c6.2-6.1 6.4-16.1.3-22.4-.3-.2-.5-.4-.8-.7z"/>
         <path style={{opacity: 1}} d="M320 352c35.3 0 64 28.7 64 64s-28.7 64-64 64-64-28.7-64-64 28.7-64 64-64z"/>
     </svg>;
 };
 
-export const WifiMedium = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const WifiMedium = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path style={{opacity: 0.4}} d="M635.3 177.9l-34.2 34c-6.2 6.1-16 6.2-22.4.4-146-133.7-371.3-133.7-517.2 0-6.4 5.9-16.2 5.7-22.4-.4l-34.2-34-.5-.5c-6-6.4-5.6-16.5.9-22.5C182.2-8.9 457.7-9 634.9 154.9c.2.2.4.3.5.5 6.2 6.3 6.1 16.3-.1 22.5z"/>
         <path style={{opacity: 1}} d="M320 352c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zm203.5-82.8l-.8-.8c-115.3-101.9-290.2-101.8-405.3 0-6.5 5.8-7.1 15.8-1.4 22.3.3.3.5.6.8.8l34.4 34c6 5.9 15.6 6.3 22 .8 84-72.6 209.7-72.4 293.5 0 6.4 5.5 16 5.2 22-.8l34.4-34c6.4-6 6.5-16 .4-22.3z"/>
     </svg>;
 };
 
-export const WifiFull = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const WifiFull = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path style={{opacity: 1}} d="M320 352c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zm202.7-83.6c-115.3-101.9-290.2-101.8-405.3 0-6.5 5.8-7.1 15.8-1.4 22.3.3.3.5.6.8.8l34.4 34c6 5.9 15.6 6.3 22 .8 84-72.6 209.7-72.4 293.5 0 6.4 5.5 16 5.2 22-.8l34.4-34c6.2-6.1 6.4-16.1.3-22.4l-.7-.7zm112.7-113c-.2-.2-.4-.3-.5-.5C457.7-9 182.2-8.9 5.1 154.9c-6.4 6-6.8 16-.9 22.5.2.2.3.4.5.5l34.2 34c6.2 6.1 16 6.2 22.4.4 145.9-133.7 371.3-133.7 517.2 0 6.4 5.9 16.2 5.7 22.4-.4l34.2-34c6.4-6.2 6.5-16.2.3-22.5z"/>
     </svg>;
 };
 
-export const Thermometer = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
+export const Thermometer = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
         <path d="M192 384c0 35.346-28.654 64-64 64s-64-28.654-64-64c0-23.685 12.876-44.349 32-55.417V224c0-17.673 14.327-32 32-32s32 14.327 32 32v104.583c19.124 11.068 32 31.732 32 55.417zm32-84.653c19.912 22.563 32 52.194 32 84.653 0 70.696-57.303 128-128 128-.299 0-.609-.001-.909-.003C56.789 511.509-.357 453.636.002 383.333.166 351.135 12.225 321.755 32 299.347V96c0-53.019 42.981-96 96-96s96 42.981 96 96v203.347zM208 384c0-34.339-19.37-52.19-32-66.502V96c0-26.467-21.533-48-48-48S80 69.533 80 96v221.498c-12.732 14.428-31.825 32.1-31.999 66.08-.224 43.876 35.563 80.116 79.423 80.42L128 464c44.112 0 80-35.888 80-80z"/>
     </svg>;
 };
 
-export const Check = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const Check = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path
             d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"/>
     </svg>;
 };
 
-export const WebSocket = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const WebSocket = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M216 104C202.8 104 192 114.8 192 128s10.75 24 24 24c79.41 0 144 64.59 144 144C360 309.3 370.8 320 384 320s24-10.75 24-24C408 190.1 321.9 104 216 104zM224 0C206.3 0 192 14.31 192 32s14.33 32 32 32c123.5 0 224 100.5 224 224c0 17.69 14.33 32 32 32s32-14.31 32-32C512 129.2 382.8 0 224 0zM188.9 346l27.37-27.37c2.625 .625 5.059 1.506 7.809 1.506c17.75 0 31.99-14.26 31.99-32c0-17.62-14.24-32.01-31.99-32.01c-17.62 0-31.99 14.38-31.99 32.01c0 2.875 .8099 5.25 1.56 7.875L166.2 323.4L49.37 206.5c-7.25-7.25-20.12-6-24.1 3c-41.75 77.88-29.88 176.7 35.75 242.4c65.62 65.62 164.6 77.5 242.4 35.75c9.125-5 10.38-17.75 3-25L188.9 346z"/>
     </svg>;
 };
 
-export const Cloud = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const Cloud = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M96.2 200.1C96.07 197.4 96 194.7 96 192C96 103.6 167.6 32 256 32C315.3 32 367 64.25 394.7 112.2C409.9 101.1 428.3 96 448 96C501 96 544 138.1 544 192C544 204.2 541.7 215.8 537.6 226.6C596 238.4 640 290.1 640 352C640 422.7 582.7 480 512 480H144C64.47 480 0 415.5 0 336C0 273.2 40.17 219.8 96.2 200.1z"/>
     </svg>;
 };
 
-export const CloudSlash = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const CloudSlash = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M138.6 83.31C167.8 51.76 209.6 32 256 32C315.3 32 367 64.25 394.7 112.2C409.9 101.1 428.3 96 448 96C501 96 544 138.1 544 192C544 204.2 541.7 215.8 537.6 226.6C596 238.4 640 290.1 640 352C640 388.6 624.6 421.6 599.1 444.1L630.8 469.1C641.2 477.3 643.1 492.4 634.9 502.8C626.7 513.2 611.6 515.1 601.2 506.9L9.197 42.89C-1.236 34.71-3.064 19.63 5.113 9.196C13.29-1.236 28.37-3.065 38.81 5.112L138.6 83.31zM97.17 172.6L487.4 480H144C64.47 480 0 415.5 0 336C0 273.2 40.17 219.8 96.2 200.1C96.07 197.4 96 194.7 96 192C96 185.4 96.4 178.9 97.17 172.6V172.6z"/>
     </svg>;
 };
 
-export const Menu = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+export const Menu = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
         <path d="M0 96C0 78.33 14.33 64 32 64H416C433.7 64 448 78.33 448 96C448 113.7 433.7 128 416 128H32C14.33 128 0 113.7 0 96zM0 256C0 238.3 14.33 224 32 224H416C433.7 224 448 238.3 448 256C448 273.7 433.7 288 416 288H32C14.33 288 0 273.7 0 256zM416 448H32C14.33 448 0 433.7 0 416C0 398.3 14.33 384 32 384H416C433.7 384 448 398.3 448 416C448 433.7 433.7 448 416 448z"/>
     </svg>;
 };
 
-export const Exclamation = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const Exclamation = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path
             d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/>
     </svg>;
 };
 
-export const ExclamationAlt = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+export const ExclamationAlt = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
         <path d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/>
     </svg>;
 };
 
-export const Error = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const Error = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path
             d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"/>
     </svg>;
 };
 
-export const ErrorAlt = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const ErrorAlt = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zM124 296c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h264c6.6 0 12 5.4 12 12v56c0 6.6-5.4 12-12 12H124z"/>
     </svg>;
 };
 
-export const CheckSimple = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const CheckSimple = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
         <path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"/>
     </svg>;
 };
 
 
-export const ExclamationSimple = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
+export const ExclamationSimple = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
         <path d="M176 432c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80zM25.26 25.199l13.6 272C39.499 309.972 50.041 320 62.83 320h66.34c12.789 0 23.331-10.028 23.97-22.801l13.6-272C167.425 11.49 156.496 0 142.77 0H49.23C35.504 0 24.575 11.49 25.26 25.199z"/>
     </svg>;
 };
 
-export const ErrorSimple = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512">
+export const ErrorSimple = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512">
         <path d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"/>
     </svg>;
 };
 //==============================
 
-export const LocationXmark = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+export const LocationXmark = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
         <path d="M124.1 124.1C130.4 117.9 140.5 117.9 146.7 124.1L192 169.4L237.3 124.1C243.5 117.9 253.6 117.9 259.9 124.1C266.1 130.4 266.1 140.5 259.9 146.7L214.6 192L259.9 237.3C266.1 243.5 266.1 253.6 259.9 259.9C253.6 266.1 243.5 266.1 237.3 259.9L192 214.6L146.7 259.9C140.5 266.1 130.4 266.1 124.1 259.9C117.9 253.6 117.9 243.5 124.1 237.3L169.4 192L124.1 146.7C117.9 140.5 117.9 130.4 124.1 124.1V124.1zM384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192H384zM192 32C103.6 32 32 103.6 32 192C32 207.6 37.43 229 48.56 255.4C59.47 281.3 74.8 309.4 92.14 337.5C126.2 392.8 166.6 445.7 192 477.6C217.4 445.7 257.8 392.8 291.9 337.5C309.2 309.4 324.5 281.3 335.4 255.4C346.6 229 352 207.6 352 192C352 103.6 280.4 32 192 32z"/>
     </svg>;
 };
-export const LocationExclamation = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+export const LocationExclamation = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
         <path d="M192 96C200.8 96 208 103.2 208 112V240C208 248.8 200.8 256 192 256C183.2 256 176 248.8 176 240V112C176 103.2 183.2 96 192 96zM216 320C216 333.3 205.3 344 192 344C178.7 344 168 333.3 168 320C168 306.7 178.7 296 192 296C205.3 296 216 306.7 216 320zM384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192H384zM192 32C103.6 32 32 103.6 32 192C32 207.6 37.43 229 48.56 255.4C59.47 281.3 74.8 309.4 92.14 337.5C126.2 392.8 166.6 445.7 192 477.6C217.4 445.7 257.8 392.8 291.9 337.5C309.2 309.4 324.5 281.3 335.4 255.4C346.6 229 352 207.6 352 192C352 103.6 280.4 32 192 32z"/>
     </svg>;
 };
-export const LocationCheck = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+export const LocationCheck = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
         <path d="M171.3 267.3C165.1 273.6 154.9 273.6 148.7 267.3L92.69 211.3C86.44 205.1 86.44 194.9 92.69 188.7C98.93 182.4 109.1 182.4 115.3 188.7L160 233.4L260.7 132.7C266.9 126.4 277.1 126.4 283.3 132.7C289.6 138.9 289.6 149.1 283.3 155.3L171.3 267.3zM384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192H384zM192 32C103.6 32 32 103.6 32 192C32 207.6 37.43 229 48.56 255.4C59.47 281.3 74.8 309.4 92.14 337.5C126.2 392.8 166.6 445.7 192 477.6C217.4 445.7 257.8 392.8 291.9 337.5C309.2 309.4 324.5 281.3 335.4 255.4C346.6 229 352 207.6 352 192C352 103.6 280.4 32 192 32z"/>
     </svg>;
 };
 
-export const HouseXmark = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const HouseXmark = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M277.4 4.002C283.5-1.334 292.5-1.334 298.6 4.002L512.5 192.8C507.1 192.3 501.6 192 496 192C485.8 192 475.8 192.9 466.1 194.5L288 37.34L95.1 206.7V432C95.1 458.5 117.5 480 143.1 480H207.1V320C207.1 302.3 222.3 288 239.1 288H336C337 288 338.1 288.1 339.1 288.1C333.1 298.2 329.8 308.9 326.6 320H239.1V480H360.2C370.3 492.1 381.9 502.9 394.8 512H144C99.82 512 64 476.2 64 432V234.1L26.59 267.1C19.96 273.8 9.849 273.2 4.003 266.6C-1.844 259.1-1.212 249.8 5.414 244L277.4 4.002zM555.3 404.7C561.6 410.9 561.6 421.1 555.3 427.3C549.1 433.6 538.9 433.6 532.7 427.3L496 390.6L459.3 427.3C453.1 433.6 442.9 433.6 436.7 427.3C430.4 421.1 430.4 410.9 436.7 404.7L473.4 368L436.7 331.3C430.4 325.1 430.4 314.9 436.7 308.7C442.9 302.4 453.1 302.4 459.3 308.7L496 345.4L532.7 308.7C538.9 302.4 549.1 302.4 555.3 308.7C561.6 314.9 561.6 325.1 555.3 331.3L518.6 368L555.3 404.7zM640 368C640 447.5 575.5 512 496 512C416.5 512 352 447.5 352 368C352 288.5 416.5 224 496 224C575.5 224 640 288.5 640 368zM496 256C434.1 256 384 306.1 384 368C384 429.9 434.1 480 496 480C557.9 480 608 429.9 608 368C608 306.1 557.9 256 496 256z"/>
     </svg>;
 };
-export const HouseExclamation = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const HouseExclamation = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M277.4 4.002C283.5-1.334 292.5-1.334 298.6 4.002L512.5 192.8C507.1 192.3 501.6 192 496 192C485.8 192 475.8 192.9 466.1 194.5L288 37.34L95.1 206.7V432C95.1 458.5 117.5 480 143.1 480H207.1V320C207.1 302.3 222.3 288 239.1 288H336C337 288 338.1 288.1 339.1 288.1C333.1 298.2 329.8 308.9 326.6 320H239.1V480H360.2C370.3 492.1 381.9 502.9 394.8 512H144C99.82 512 64 476.2 64 432V234.1L26.59 267.1C19.96 273.8 9.849 273.2 4.003 266.6C-1.844 259.1-1.212 249.8 5.414 244L277.4 4.002zM472 424C472 410.7 482.7 400 496 400C509.3 400 520 410.7 520 424C520 437.3 509.3 448 496 448C482.7 448 472 437.3 472 424zM495.1 288C504.8 288 511.1 295.2 511.1 304V368C511.1 376.8 504.8 384 495.1 384C487.2 384 479.1 376.8 479.1 368V304C479.1 295.2 487.2 288 495.1 288zM640 368C640 447.5 575.5 512 496 512C416.5 512 352 447.5 352 368C352 288.5 416.5 224 496 224C575.5 224 640 288.5 640 368zM496 256C434.1 256 384 306.1 384 368C384 429.9 434.1 480 496 480C557.9 480 608 429.9 608 368C608 306.1 557.9 256 496 256z"/>
     </svg>;
 };
-export const HouseCheck = ({className = null, size = 16, color = '#000'}) => {
-    return <svg className={className} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+export const HouseCheck = ({className = null, size = 16, color = '#000'}: {className?: string|null, size?: number, color?: string}) => {
+    return <svg className={className ?? ""} width={size} height={size} fill={color} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
         <path d="M277.4 4.002C283.5-1.334 292.5-1.334 298.6 4.002L512.5 192.8C507.1 192.3 501.6 192 496 192C485.8 192 475.8 192.9 466.1 194.5L288 37.34L95.1 206.7V432C95.1 458.5 117.5 480 143.1 480H207.1V320C207.1 302.3 222.3 288 239.1 288H336C337 288 338.1 288.1 339.1 288.1C333.1 298.2 329.8 308.9 326.6 320H239.1V480H360.2C370.3 492.1 381.9 502.9 394.8 512H144C99.82 512 64 476.2 64 432V234.1L26.59 267.1C19.96 273.8 9.849 273.2 4.003 266.6C-1.844 259.1-1.212 249.8 5.414 244L277.4 4.002zM563.3 324.7C569.6 330.9 569.6 341.1 563.3 347.3L491.3 419.3C485.1 425.6 474.9 425.6 468.7 419.3L428.7 379.3C422.4 373.1 422.4 362.9 428.7 356.7C434.9 350.4 445.1 350.4 451.3 356.7L480 385.4L540.7 324.7C546.9 318.4 557.1 318.4 563.3 324.7H563.3zM352 368C352 288.5 416.5 224 496 224C575.5 224 640 288.5 640 368C640 447.5 575.5 512 496 512C416.5 512 352 447.5 352 368zM496 480C557.9 480 608 429.9 608 368C608 306.1 557.9 256 496 256C434.1 256 384 306.1 384 368C384 429.9 434.1 480 496 480z"/>
     </svg>;
 };

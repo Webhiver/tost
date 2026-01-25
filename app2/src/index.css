@@ -9,8 +9,7 @@
 }
 
 @theme {
-  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+  --font-sans: "Kanit", sans-serif;
 }
 
 * {
@@ -24,7 +23,8 @@ html, body {
 }
 
 body {
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Kanit', sans-serif;
+  font-weight: 300;
   background: #fff;
   color: #000;
   min-height: 100vh;
