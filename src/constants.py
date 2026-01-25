@@ -19,8 +19,11 @@ PAIRING_LONG_PRESS_MS = 2000
 SHORT_PRESS_MIN_MS = 50      # Minimum press duration (debounce)
 SHORT_PRESS_MAX_MS = 500     # Maximum press duration for short press
 
-# Load overrides from env.py if it exists
+# Load overrides from .env/env.py if it exists
+import sys
 try:
+    sys.path.insert(0, ".env")
     from env import *
+    sys.path.pop(0)
 except ImportError:
     pass

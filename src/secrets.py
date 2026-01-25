@@ -1,6 +1,6 @@
 import json
 
-SECRETS_FILE = "secrets.json"
+SECRETS_FILE = ".env/secrets.json"
 
 
 def load():

@@ -62,7 +62,7 @@ NUMERIC_KEYS = {
     "max_flame_duration", "sensor_temperature_offset", "sensor_humidity_offset"
 }
 
-CONFIG_FILE = "config.json"
+CONFIG_FILE = ".env/config.json"
 
 
 def _sanitize_config(config):

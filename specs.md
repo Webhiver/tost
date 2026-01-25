@@ -94,11 +94,11 @@ The RGB LED provides immediate visual feedback. The status is prioritized; the s
         
     - User connects and provisions WiFi credentials via a simple web page.
         
-    - Credentials saved to `secrets.json`.
+    - Credentials saved to `.env/secrets.json`.
         
 - **Normal Operation**:
     
-    - Connects to saved WiFi with credentials from `secrets.json`.
+    - Connects to saved WiFi with credentials from `.env/secrets.json`.
         
 
 ### 4.3 Thermostat Control Algorithm
@@ -175,7 +175,7 @@ The Host decides relay state based on aggregated sensor data.
 
 ### 5.3 Data Structures
 
-**Secrets** (`secrets.json`)
+**Secrets** (`.env/secrets.json`)
 
 ```
 {
@@ -184,7 +184,7 @@ The Host decides relay state based on aggregated sensor data.
 }
 ```
 
-**Config** (`config.json`)
+**Config** (`.env/config.json`)
 
 ```
 {

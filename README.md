@@ -57,7 +57,10 @@ Copy all project files to the Pico using Thonny, rshell, or mpremote:
 ├── pairing_manager.py
 ├── thermostat.py
 ├── web_server.py
-├── config.json
+├── .env/              # Git-ignored config files
+│   ├── config.json
+│   ├── secrets.json
+│   └── env.py
 ├── lib/
 │   ├── microdot.py
 │   └── picozero.py
@@ -142,7 +145,7 @@ A remote temperature sensor that:
 
 ## Configuration
 
-### config.json
+### .env/config.json
 
 ```json
 {
