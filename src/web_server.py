@@ -116,10 +116,9 @@ def create_server(pairing, secrets_module):
     
     @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     async def satellite_proxy(request, ip, path):
-
-        # Check that IP is in configured satellites
-        satellites = config.get("satellites", [])
-        satellite_ips = [sat.get("ip") for sat in satellites]
+        # Check that IP is in state satellites (known satellites)
+        satellites = state.get("satellites", [])
+        satellite_ips = [sat.get("ip") for sat in satellites if sat.get("ip")]
         
         if ip not in satellite_ips:
             return {"error": "Satellite not found"}, 404

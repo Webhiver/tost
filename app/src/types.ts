@@ -6,7 +6,7 @@ export interface SensorData {
 }
 
 export interface SatelliteConfig {
-  ip: string
+  mac: string
   name: string
 }
 
@@ -16,8 +16,8 @@ export interface SatelliteState {
 }
 
 export interface Satellite {
+  mac: string
   ip: string
-  name: string
   state: SatelliteState | null
   last_updated: number
   online: boolean
@@ -36,7 +36,7 @@ export interface Config {
   satellite_grace_period: number
   led_brightness: number
   flame_mode: FlameMode
-  flame_mode_sensor: string  // 'local' or satellite IP
+  flame_mode_sensor: string  // 'local' or satellite MAC
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
   sensor_temperature_offset: number

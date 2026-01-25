@@ -4,6 +4,7 @@ from time import ticks_ms
 from constants import SATELLITE_POLLING_INTERVAL
 from state import state
 from config import config
+from discovery import discovery
 
 
 class SatelliteManager:
@@ -19,24 +20,47 @@ class SatelliteManager:
             self._sync_satellites_from_config()
     
     def _sync_satellites_from_config(self):
-        """Sync config.satellites (objects with ip/name) to state.satellites (full objects)"""
+        """Sync config.satellites (objects with mac/name) to state.satellites.
+        
+        Config stores: mac, name
+        State stores: mac, ip, state, last_updated, online
+        
+        Uses discovery to find IPs for MACs.
+        """
         config_sats = config.get("satellites", [])
         current_satellites = state.get("satellites", [])
-        current_by_ip = {sat["ip"]: sat for sat in current_satellites}
+        current_by_mac = {sat["mac"]: sat for sat in current_satellites}
+        
+        # Collect MACs that need discovery (not already in state with IP)
+        macs_to_discover = []
+        for sat_config in config_sats:
+            mac = sat_config.get("mac", "").lower()
+            existing = current_by_mac.get(mac)
+            if not existing or not existing.get("ip"):
+                macs_to_discover.append(mac)
+        
+        # Discover IPs for new/unknown satellites
+        discovered = {}
+        if macs_to_discover:
+            print("Satellite: discovering", len(macs_to_discover), "device(s)")
+            discovered = discovery.discover(macs_to_discover)
         
         updated_satellites = []
         for sat_config in config_sats:
-            ip = sat_config.get("ip", "")
-            name = sat_config.get("name", "")
+            mac = sat_config.get("mac", "").lower()
             
-            if ip in current_by_ip:
-                existing = current_by_ip[ip]
-                existing["name"] = name  # Always update name from config
+            if mac in current_by_mac:
+                existing = current_by_mac[mac]
+                # If we didn't have an IP and now discovered one, update it
+                if not existing.get("ip") and mac in discovered:
+                    existing["ip"] = discovered[mac]
                 updated_satellites.append(existing)
             else:
+                # New satellite
+                ip = discovered.get(mac, "")
                 updated_satellites.append({
+                    "mac": mac,
                     "ip": ip,
-                    "name": name,
                     "state": None,
                     "last_updated": None,
                     "online": False
@@ -149,51 +173,72 @@ class SatelliteManager:
         current_tick = ticks_ms()
         grace_period_ms = config.get("satellite_grace_period", 120) * 1000
         
-        # Poll all satellites concurrently
-        tasks = [self.poll_satellite_async(sat["ip"]) for sat in satellites]
+        # Only poll satellites that have IPs
+        sats_with_ip = [sat for sat in satellites if sat.get("ip")]
+        
+        if not sats_with_ip:
+            return
+        
+        tasks = [self.poll_satellite_async(sat["ip"]) for sat in sats_with_ip]
         results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Create lookup for poll results by MAC
+        poll_results = {}
+        for sat, result in zip(sats_with_ip, results):
+            poll_results[sat["mac"]] = result
         
         updated_satellites = []
         online_ips = []
         
-        for sat, result in zip(satellites, results):
-            ip = sat["ip"]
-            name = sat.get("name", "")
+        for sat in satellites:
+            mac = sat.get("mac", "")
+            ip = sat.get("ip", "")
             
-            # Handle exceptions from gather
-            if isinstance(result, Exception):
-                success, result = False, "Connection failed"
-            else:
-                success, result = result
-            
-            if success:
-                # Poll succeeded - satellite is online, store full state from satellite
-                updated_satellites.append({
-                    "ip": ip,
-                    "name": name,
-                    "state": result,  # full state dict from satellite
-                    "last_updated": current_tick,
-                    "online": True
-                })
-                online_ips.append(ip)
-            else:
-                # Poll failed - check grace period for online status
-                last_updated = sat.get("last_updated")
-                online = False
+            if mac in poll_results:
+                result = poll_results[mac]
                 
-                if last_updated is not None:
-                    elapsed = current_tick - last_updated
-                    if elapsed < 0:
-                        elapsed = current_tick + (0xFFFFFFFF - last_updated)
-                    online = elapsed <= grace_period_ms
+                # Handle exceptions from gather
+                if isinstance(result, Exception):
+                    success, data = False, "Connection failed"
+                else:
+                    success, data = result
                 
-                # Keep existing state as-is
+                if success:
+                    # Poll succeeded - satellite is online
+                    updated_satellites.append({
+                        "mac": mac,
+                        "ip": ip,
+                        "state": data,
+                        "last_updated": current_tick,
+                        "online": True
+                    })
+                    online_ips.append(ip)
+                else:
+                    # Poll failed - check grace period for online status
+                    last_updated = sat.get("last_updated")
+                    online = False
+                    
+                    if last_updated is not None:
+                        elapsed = current_tick - last_updated
+                        if elapsed < 0:
+                            elapsed = current_tick + (0xFFFFFFFF - last_updated)
+                        online = elapsed <= grace_period_ms
+                    
+                    updated_satellites.append({
+                        "mac": mac,
+                        "ip": ip,
+                        "state": sat.get("state"),
+                        "last_updated": last_updated,
+                        "online": online
+                    })
+            else:
+                # No IP - keep as-is, mark offline
                 updated_satellites.append({
+                    "mac": mac,
                     "ip": ip,
-                    "name": name,
                     "state": sat.get("state"),
-                    "last_updated": last_updated,
-                    "online": online
+                    "last_updated": sat.get("last_updated"),
+                    "online": False
                 })
         
         state.set("satellites", updated_satellites)

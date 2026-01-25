@@ -18,33 +18,41 @@ DEFAULT_CONFIG = {
 }
 
 
-def is_valid_ip(ip):
-    """Validate IPv4 address format."""
-    if not ip or not isinstance(ip, str):
+def is_valid_mac(mac):
+    """Validate MAC address format (xx:xx:xx:xx:xx:xx or xxxxxxxxxxxx)."""
+    if not mac or not isinstance(mac, str):
         return False
-    parts = ip.split(".")
-    if len(parts) != 4:
+    # Normalize: remove colons/dashes and convert to lowercase
+    clean = mac.lower().replace(":", "").replace("-", "")
+    if len(clean) != 12:
         return False
-    for part in parts:
-        try:
-            num = int(part)
-            if num < 0 or num > 255:
-                return False
-            # Reject leading zeros (e.g., "01" or "001")
-            if part != str(num):
-                return False
-        except ValueError:
-            return False
-    return True
+    # Check all characters are hex
+    try:
+        int(clean, 16)
+        return True
+    except ValueError:
+        return False
+
+
+def normalize_mac(mac):
+    """Normalize MAC address to lowercase with colon separators (aa:bb:cc:dd:ee:ff)."""
+    if not mac:
+        return ""
+    # Remove existing separators and convert to lowercase
+    clean = mac.lower().replace(":", "").replace("-", "")
+    # Insert colons every 2 characters
+    return ":".join(clean[i:i+2] for i in range(0, 12, 2))
 
 
 def _sanitize_satellites(satellites):
-    """Filter out satellites with invalid IPs."""
+    """Filter out satellites with invalid MACs."""
     if not isinstance(satellites, list):
         return []
     valid = []
     for sat in satellites:
-        if isinstance(sat, dict) and is_valid_ip(sat.get("ip", "")):
+        if isinstance(sat, dict) and is_valid_mac(sat.get("mac", "")):
+            # Normalize the MAC address
+            sat["mac"] = normalize_mac(sat["mac"])
             valid.append(sat)
     return valid
 
