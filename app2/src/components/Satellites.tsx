@@ -26,7 +26,7 @@ const Satellites = () => {
                     initialSlide={0}
                     slidesPerView={1}
                     spaceBetween={0}
-                    loop={devices.length > 1}
+                    loop={devices.length > 10}
                     slideToClickedSlide={false}
                     touchEventsTarget={'container'}
                     mousewheel={true}
@@ -55,7 +55,7 @@ const Satellites = () => {
                         return (
                             <SwiperSlide className="w-full" key={`device-${device.id}-${index}`}>
                                 <div
-                                    className="w-full flex flex-col items-stretch justify-start gap-2 px-10 py-6 cursor-grab active:cursor-grabbing">
+                                    className="w-full flex flex-col items-stretch justify-start gap-6 px-10 py-10 cursor-grab active:cursor-grabbing">
                                     <div className="flex justify-stretch items-center">
                                         {ActiveIcon}
                                         <div className="flex-1 flex flex-col justify-start items-center">

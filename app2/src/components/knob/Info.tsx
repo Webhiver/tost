@@ -81,7 +81,7 @@ export const Info = () => {
 
             <text
                 x={'50%'}
-                y={190}
+                y={210}
                 textAnchor={'middle'}
                 className="fill-amber-600 font-light text-md users-select-none"
             >
@@ -90,7 +90,7 @@ export const Info = () => {
 
             <text
                 x={'50%'}
-                y={210}
+                y={230}
                 textAnchor={'middle'}
                 className="fill-slate-500 font-normal text-lg users-select-none"
             >

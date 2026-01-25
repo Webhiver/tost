@@ -23,7 +23,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [hostTemperature, setHostTemperature] = useState<number | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
 
-    const [knobSize] = useState(320);
+    const [knobSize] = useState(340);
     const [knobWidth] = useState(50);
     const [knobAngleRange] = useState(290);
     const [knobAngleOffset] = useState(215);
