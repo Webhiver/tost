@@ -10,7 +10,7 @@ const App = () => {
 
     return (
         <div className="w-screen h-screen bg-slate-200 flex items-center justify-center">
-            <div className="overflow-hidden bg-slate-100 w-screen h-screen lg:w-md lg:h-auto lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
+            <div className="overflow-hidden bg-slate-100 w-screen h-screen lg:w-104 lg:h-auto lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
                 <Header/>
                 <div className="flex justify-center items-center gap-6 pb-5">
                     <div className="text-slate-400 font-medium">OFF</div>
