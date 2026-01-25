@@ -14,7 +14,7 @@ class SensorManager:
     MAX_HUMIDITY = 100.0
     
     def __init__(self):
-        self._sensor = dht.DHT22(Pin(constants.PIN_DHT))
+        self._sensor = dht.DHT22(Pin(constants.PIN_DHT, Pin.IN))
         self._last_temp = None
         self._last_humidity = None
     
