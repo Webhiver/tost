@@ -87,12 +87,12 @@ const Satellites = () => {
                     })}
                 </Swiper>
             </div>
-            <div className="flex justify-center items-center gap-6 py-5">
+            <div className="flex justify-center items-center pt-5 pb-8 relative">
                 {devices.map((device: Device, index: number) => {
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer"
+                            className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer"
                             onClick={event => swiperRef.current.swiper.slideToLoop(index, 300)}
                         >
                             {device.id === "host" ? <GrHomeRounded className="size-4 stroke-slate-500"/> : <GrSatellite className="size-4 stroke-slate-500"/>}
@@ -100,6 +100,9 @@ const Satellites = () => {
                         </div>
                     );
                 })}
+                <div className="w-[15%] absolute flex justify-center bottom-4.5 transition-all" style={{left: `${15 * slideIndex + ((100 - devices.length * 15) / 2)}%`}}>
+                    <div className="w-8 h-1.5 bg-orange-300 rounded-full"></div>
+                </div>
             </div>
         </div>
     );

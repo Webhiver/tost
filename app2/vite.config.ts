@@ -17,9 +17,9 @@ export default defineConfig(({ mode }) => {
           registerType: 'autoUpdate',
           includeAssets: ['icon-192.svg', 'icon-512.svg', 'apple-touch-icon.svg'],
           manifest: {
-            name: 'PicoThermostat',
-            short_name: 'PicoThermostat',
-            description: 'Smart thermostat control app for Pico W',
+            name: 'TOST',
+            short_name: 'TOST',
+            description: 'TOST smart thermostat control app',
             theme_color: '#0d1117',
             background_color: '#0d1117',
             display: 'standalone',
