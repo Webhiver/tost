@@ -17,7 +17,7 @@ export interface SatelliteState {
 
 export interface Satellite {
   mac: string
-  ip: string
+  ip: string | null
   state: SatelliteState | null
   last_updated: number
   online: boolean

@@ -16,7 +16,7 @@ export interface SatelliteState {
 }
 
 export interface Satellite {
-  ip: string
+  ip: string | null
   name: string
   state: SatelliteState | null
   last_updated: number

@@ -219,7 +219,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                     <>
                       <WifiIcon strength={sat.state?.wifi_strength} className="w-4 h-4 text-text-muted" />
                       <button
-                        onClick={() => onOpenSatelliteSettings({ mac: sat.mac, ip: sat.ip, name: satName })}
+                        onClick={() => onOpenSatelliteSettings({ mac: sat.mac, ip: sat.ip!, name: satName })}
                         className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
                         title="Satellite settings"
                       >

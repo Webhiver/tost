@@ -14,10 +14,15 @@ class SatelliteManager:
     def __init__(self):
         self._sync_satellites_from_config()
         config.subscribe("satellites", self._on_satellites_config_change)
+        state.subscribe("wifi_connected", self._on_wifi_connected_change)
     
     def _on_satellites_config_change(self, new_sats, old_sats):
         if new_sats != old_sats:
             self._sync_satellites_from_config()
+    
+    def _on_wifi_connected_change(self, connected, was_connected):
+        if connected and not was_connected:
+            self._discover_satellites()
     
     def _sync_satellites_from_config(self):
         """Sync config.satellites (objects with mac/name) to state.satellites.
@@ -25,46 +30,63 @@ class SatelliteManager:
         Config stores: mac, name
         State stores: mac, ip, state, last_updated, online
         
-        Uses discovery to find IPs for MACs.
+        Only syncs config to state, does not perform discovery.
+        Discovery is triggered separately when wifi is connected.
         """
         config_sats = config.get("satellites", [])
         current_satellites = state.get("satellites", [])
         current_by_mac = {sat["mac"]: sat for sat in current_satellites}
-        
-        # Collect MACs that need discovery (not already in state with IP)
-        macs_to_discover = []
-        for sat_config in config_sats:
-            mac = sat_config.get("mac", "").lower()
-            existing = current_by_mac.get(mac)
-            if not existing or not existing.get("ip"):
-                macs_to_discover.append(mac)
-        
-        # Discover IPs for new/unknown satellites
-        discovered = {}
-        if macs_to_discover:
-            print("Satellite: discovering", len(macs_to_discover), "device(s)")
-            discovered = discovery.discover(macs_to_discover)
         
         updated_satellites = []
         for sat_config in config_sats:
             mac = sat_config.get("mac", "").lower()
             
             if mac in current_by_mac:
-                existing = current_by_mac[mac]
-                # If we didn't have an IP and now discovered one, update it
-                if not existing.get("ip") and mac in discovered:
-                    existing["ip"] = discovered[mac]
-                updated_satellites.append(existing)
+                # Keep existing satellite data
+                updated_satellites.append(current_by_mac[mac])
             else:
-                # New satellite
-                ip = discovered.get(mac, "")
+                # New satellite - no IP yet
                 updated_satellites.append({
                     "mac": mac,
-                    "ip": ip,
+                    "ip": None,
                     "state": None,
                     "last_updated": None,
                     "online": False
                 })
+        
+        state.set("satellites", updated_satellites)
+        
+        # Trigger discovery if wifi is already connected
+        if state.get("wifi_connected"):
+            self._discover_satellites()
+    
+    def _discover_satellites(self):
+        """Discover IPs for satellites in state that don't have IPs."""
+        satellites = state.get("satellites", [])
+        
+        # Collect MACs that need discovery
+        macs_to_discover = [
+            sat["mac"] for sat in satellites
+            if sat.get("mac") and not sat.get("ip")
+        ]
+        
+        if not macs_to_discover:
+            return
+        
+        print("Satellite: discovering", len(macs_to_discover), "device(s)")
+        discovered = discovery.discover(macs_to_discover)
+        
+        if not discovered:
+            return
+        
+        # Update satellites with discovered IPs
+        updated_satellites = []
+        for sat in satellites:
+            mac = sat.get("mac", "")
+            if mac in discovered:
+                sat = sat.copy()
+                sat["ip"] = discovered[mac]
+            updated_satellites.append(sat)
         
         state.set("satellites", updated_satellites)
     
@@ -192,7 +214,7 @@ class SatelliteManager:
         
         for sat in satellites:
             mac = sat.get("mac", "")
-            ip = sat.get("ip", "")
+            ip = sat.get("ip")
             
             if mac in poll_results:
                 result = poll_results[mac]
