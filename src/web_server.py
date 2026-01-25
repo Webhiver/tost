@@ -96,7 +96,9 @@ def create_server(pairing, secrets_module):
     
     @app.route('/api/discover', methods=['GET'])
     async def api_discover(request):
-        devices = discovery.discover()
+        macs_param = request.args.get('macs')
+        macs = macs_param.split(',') if macs_param else None
+        devices = discovery.discover(macs)
         return {"status": "ok", "devices": devices}
     
     @app.route('/api/sync', methods=['POST'])

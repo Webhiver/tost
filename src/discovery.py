@@ -56,16 +56,26 @@ class DiscoveryManager:
                 pass
             self._socket = None
     
-    def discover(self):
-        """Discover all devices on the network.
+    def discover(self, macs=None):
+        """Discover devices on the network.
         
-        Sends a DISCOVER broadcast and collects all IAM responses.
+        Sends a DISCOVER broadcast and collects IAM responses.
+        
+        Args:
+            macs: Optional list of MAC addresses to find. If provided,
+                  returns immediately when all are found.
         
         Returns:
             Dict mapping MAC addresses to IP addresses
         """
         devices = {}
         sock = None
+        
+        # Normalize target MACs to lowercase set for fast lookup
+        target_macs = None
+        if macs:
+            target_macs = set(mac.lower() for mac in macs)
+            print("Discovery: searching for", len(target_macs), "device(s)")
         
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -77,7 +87,7 @@ class DiscoveryManager:
             print("Discovery: broadcasting...")
             sock.sendto(DISCOVERY_MSG.encode(), ('255.255.255.255', DISCOVERY_PORT))
             
-            # Collect responses until timeout
+            # Collect responses until timeout or all targets found
             start_time = ticks_ms()
             
             while True:
@@ -97,6 +107,11 @@ class DiscoveryManager:
                             resp_mac = parts[2].lower()
                             devices[resp_mac] = resp_ip
                             print("Discovery: found", resp_mac, "at", resp_ip)
+                            
+                            # Check if all targets found
+                            if target_macs and target_macs.issubset(devices.keys()):
+                                print("Discovery: all targets found")
+                                break
                             
                 except OSError:
                     # No data available, continue polling
