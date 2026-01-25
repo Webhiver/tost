@@ -6,6 +6,7 @@ import urequests
 import debug
 from state import state
 from config import config
+from discovery import discovery
 
 app = Microdot()
 
@@ -92,6 +93,11 @@ def create_server(pairing, secrets_module):
     async def get_mem_info(request):
         micropython.mem_info(1)
         return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
+    
+    @app.route('/api/discover', methods=['GET'])
+    async def api_discover(request):
+        devices = discovery.discover()
+        return {"status": "ok", "devices": devices}
     
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):

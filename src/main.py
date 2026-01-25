@@ -15,6 +15,7 @@ from temperature import temperature
 from web_server import create_server, app
 from dns_server import dns_server
 from wifi import wifi
+from discovery import discovery
 
 
 wdt = None
@@ -58,6 +59,7 @@ async def main():
         asyncio.create_task(dns_server.loop()),
         asyncio.create_task(wifi.loop()),
         asyncio.create_task(satellite.loop()),
+        asyncio.create_task(discovery.loop()),
     ]
     
     print("Starting web server on port 80...")

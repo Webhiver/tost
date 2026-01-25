@@ -25,6 +25,9 @@ class WifiManager:
     
     def init(self):
         """Initialize WiFi - connect or enter pairing mode."""
+        # Set MAC address in state
+        state.set("mac", self.get_mac())
+        
         if secrets.has_wifi_credentials():
             print("Attempting WiFi connection...")
             if self.connect():
@@ -71,6 +74,15 @@ class WifiManager:
         if self._sta and self._sta.isconnected():
             return self._sta.ifconfig()[0]
         return None
+    
+    def get_mac(self):
+        """Get the device's MAC address as a hex string."""
+        try:
+            wlan = network.WLAN(network.STA_IF)
+            mac_bytes = wlan.config('mac')
+            return ':'.join('{:02x}'.format(b) for b in mac_bytes)
+        except Exception:
+            return None
     
     def get_rssi(self):
         """Get current WiFi signal strength (RSSI)."""
