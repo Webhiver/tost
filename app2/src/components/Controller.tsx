@@ -74,7 +74,7 @@ const Controller = () => {
 
     return (
         <div
-            className="flex justify-center items-center py-2 px-6 outline-none"
+            className="flex justify-center items-center pt-7 pb-2 px-6 outline-none"
             data-active={flame ? "true" : undefined}
             tabIndex={0}
             onKeyDown={handleKeyDown}

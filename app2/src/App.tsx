@@ -10,20 +10,17 @@ const App = () => {
 
     return (
         <div className="w-screen h-screen bg-slate-200 flex items-center justify-center">
-            <div className="overflow-hidden bg-linear-to-b from-white to-slate-100 w-screen h-screen lg:w-md lg:h-auto lg:rounded-3xl lg:shadow-xl">
-                <Spacer/>
+            <div className="overflow-hidden bg-slate-100 w-screen h-screen lg:w-md lg:h-auto lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
                 <Header/>
-                <Spacer/>
-                <div className="flex justify-center items-center">
-                    <div className="w-25 text-center text-slate-500 border border-slate-300 bg-slate-100 px-2 py-2 rounded-s-lg">OFF</div>
-                    <div className="w-25 text-center text-lime-700 border border-slate-300 bg-lime-200 px-2 py-2">MANUAL</div>
-                    <div className="w-25 text-center text-slate-500 border border-slate-300 bg-slate-100 px-2 py-2 rounded-e-lg">SCHEDULE</div>
+                <div className="flex justify-center items-center gap-6 pb-5">
+                    <div className="text-slate-400 font-medium">OFF</div>
+                    <div className="text-lime-600 font-medium">MANUAL</div>
+                    <div className="text-slate-400 font-medium">SCHEDULE</div>
                 </div>
-                <Spacer/>
-                <Controller/>
-                {/*SCHEDULER*/}
-                <Satellites/>
-                {/*SATELLITES*/}
+                <div className="flex-1 overflow-hidden bg-linear-to-b from-white to-slate-100 rounded-t-3xl shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+                    <Controller/>
+                    <Satellites/>
+                </div>
             </div>
         </div>
     );
