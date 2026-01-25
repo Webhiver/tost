@@ -1,6 +1,9 @@
 import {useState, useRef} from "react";
 import {Thermometer, WifiEmpty, WifiLow, WifiMedium, WifiFull, HouseCheck, LocationCheck, WebSocket} from "./Icons";
+import { FaExclamationTriangle } from "react-icons/fa";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
+import { BsExclamationTriangle } from "react-icons/bs";
+import { LiaTimesCircle } from "react-icons/lia";
 import {PiThermometerSimpleDuotone} from "react-icons/pi";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel} from 'swiper/modules';
@@ -89,14 +92,26 @@ const Satellites = () => {
             </div>
             <div className="flex justify-center items-center pt-5 pb-8 relative">
                 {devices.map((device: Device, index: number) => {
+                    let deviceIcon = null;
+                    if(device.active){
+                        deviceIcon = <PiThermometerSimpleDuotone className="fill-amber-600 size-4 absolute -top-1 left-2"/>;
+                    }
+                    if(!device.healthy){
+                        deviceIcon = <BsExclamationTriangle className="fill-yellow-600 size-4 absolute -top-1 left-2"/>;
+                    }
+                    if(!device.online){
+                        deviceIcon = <LiaTimesCircle className="fill-red-600 size-4 absolute -top-1 left-2"/>;
+                    }
+
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer"
+                            className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer relative"
                             onClick={event => swiperRef.current.swiper.slideToLoop(index, 300)}
                         >
-                            {device.id === "host" ? <GrHomeRounded className="size-4 stroke-slate-500"/> : <GrSatellite className="size-4 stroke-slate-500"/>}
+                            {device.id === "host" ? <GrHomeRounded className="size-5 stroke-slate-500"/> : <GrSatellite className="size-5 stroke-slate-500"/>}
                             <span className="font-normal text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                            {deviceIcon}
                         </div>
                     );
                 })}
