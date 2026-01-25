@@ -6,20 +6,25 @@ import { useTheme, type Theme } from '../hooks/useTheme'
 const DEBOUNCE_MS = 750
 const RESULT_DISPLAY_MS = 5000
 
-function isValidIp(ip: string): boolean {
-  if (!ip) return false
-  const parts = ip.split('.')
-  if (parts.length !== 4) return false
-  for (const part of parts) {
-    const num = parseInt(part, 10)
-    if (isNaN(num) || num < 0 || num > 255) return false
-    // Reject leading zeros (e.g., "01" or "001")
-    if (part !== String(num)) return false
-  }
-  return true
+function isValidMac(mac: string): boolean {
+  if (!mac) return false
+  // Normalize: remove colons/dashes and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  if (clean.length !== 12) return false
+  // Check all characters are hex
+  return /^[0-9a-f]{12}$/.test(clean)
+}
+
+function normalizeMac(mac: string): string {
+  if (!mac) return ''
+  // Remove separators and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  // Format with colons: aa:bb:cc:dd:ee:ff
+  return clean.match(/.{1,2}/g)?.join(':') || ''
 }
 
 export interface SatelliteTarget {
+  mac: string
   ip: string
   name: string
 }
@@ -168,7 +173,7 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     queueUpdate({ [key]: value } as Partial<Config>)
   }
 
-  const handleSatelliteChange = (index: number, field: 'ip' | 'name', value: string) => {
+  const handleSatelliteChange = (index: number, field: 'mac' | 'name', value: string) => {
     if (!localConfig) return
     const satellites = [...localConfig.satellites]
     satellites[index] = { ...satellites[index], [field]: value }
@@ -176,8 +181,10 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     // Update local state immediately for responsive UI
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
     
-    // Only queue update to server with valid satellites
-    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    // Only queue update to server with valid satellites (normalize MAC)
+    const validSatellites = satellites
+      .filter(sat => isValidMac(sat.mac))
+      .map(sat => ({ ...sat, mac: normalizeMac(sat.mac) }))
     
     // Clear any existing debounce timer and schedule new one
     if (debounceTimerRef.current) {
@@ -192,8 +199,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
 
   const handleAddSatellite = () => {
     if (!localConfig) return
-    // Only update local state - empty IP won't be sent to server
-    const satellites = [...localConfig.satellites, { ip: '', name: '' }]
+    // Only update local state - empty MAC won't be sent to server
+    const satellites = [...localConfig.satellites, { mac: '', name: '' }]
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
   }
 
@@ -204,8 +211,10 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
     // Update local state immediately
     setLocalConfig(prev => prev ? { ...prev, satellites } : null)
     
-    // Send only valid satellites to the server
-    const validSatellites = satellites.filter(sat => isValidIp(sat.ip))
+    // Send only valid satellites to the server (normalize MAC)
+    const validSatellites = satellites
+      .filter(sat => isValidMac(sat.mac))
+      .map(sat => ({ ...sat, mac: normalizeMac(sat.mac) }))
     
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current)
@@ -219,7 +228,7 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
 
   const getTitle = () => {
     if (satellite) {
-      return satellite.name ? `${satellite.name} (${satellite.ip})` : satellite.ip
+      return satellite.name ? `${satellite.name}` : satellite.mac
     }
     return 'Settings'
   }
@@ -363,8 +372,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
                   >
                     <option value="local">Local</option>
                     {localConfig.satellites.map((sat) => (
-                      <option key={sat.ip} value={sat.ip}>
-                        {sat.name || sat.ip}
+                      <option key={sat.mac} value={sat.mac}>
+                        {sat.name || sat.mac}
                       </option>
                     ))}
                   </select>
@@ -487,8 +496,8 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
             </h3>
             
             {localConfig.satellites.map((sat, idx) => {
-              const ipValid = isValidIp(sat.ip)
-              const showError = sat.ip.length > 0 && !ipValid
+              const macValid = isValidMac(sat.mac)
+              const showError = sat.mac.length > 0 && !macValid
               return (
                 <div key={idx} className="flex flex-col gap-1 py-3.5 border-b border-border-subtle last:border-b-0">
                   <div className="flex items-center gap-2">
@@ -501,10 +510,10 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
                     />
                     <input
                       type="text"
-                      value={sat.ip}
-                      onChange={(e) => handleSatelliteChange(idx, 'ip', e.target.value)}
-                      placeholder="192.168.1.x"
-                      className={`w-[130px] px-3 py-2 bg-tertiary border rounded-sm text-text-primary font-mono text-sm ${
+                      value={sat.mac}
+                      onChange={(e) => handleSatelliteChange(idx, 'mac', e.target.value)}
+                      placeholder="aa:bb:cc:dd:ee:ff"
+                      className={`w-[150px] px-3 py-2 bg-tertiary border rounded-sm text-text-primary font-mono text-sm ${
                         showError ? 'border-flame' : 'border-border-subtle'
                       }`}
                     />
@@ -516,7 +525,7 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
                     </button>
                   </div>
                   {showError && (
-                    <span className="text-xs text-flame ml-auto mr-12">Invalid IP address</span>
+                    <span className="text-xs text-flame ml-auto mr-12">Invalid MAC address</span>
                   )}
                 </div>
               )

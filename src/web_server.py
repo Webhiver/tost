@@ -1,10 +1,12 @@
 import asyncio
 import machine
+import micropython
 from lib.microdot import Microdot, Response, redirect
 import urequests
 import debug
 from state import state
 from config import config
+from discovery import discovery
 
 app = Microdot()
 
@@ -87,6 +89,18 @@ def create_server(pairing, secrets_module):
     async def get_debug(request):
         return debug.get_debug_info()
     
+    @app.route('/api/mem-info', methods=['GET'])
+    async def get_mem_info(request):
+        micropython.mem_info(1)
+        return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
+    
+    @app.route('/api/discover', methods=['GET'])
+    async def api_discover(request):
+        macs_param = request.args.get('macs')
+        macs = macs_param.split(',') if macs_param else None
+        devices = discovery.discover(macs)
+        return {"status": "ok", "devices": devices}
+    
     @app.route('/api/sync', methods=['POST'])
     async def sync(request):
         if config.get("mode") != "satellite":
@@ -102,10 +116,9 @@ def create_server(pairing, secrets_module):
     
     @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     async def satellite_proxy(request, ip, path):
-
-        # Check that IP is in configured satellites
-        satellites = config.get("satellites", [])
-        satellite_ips = [sat.get("ip") for sat in satellites]
+        # Check that IP is in state satellites (known satellites)
+        satellites = state.get("satellites", [])
+        satellite_ips = [sat.get("ip") for sat in satellites if sat.get("ip")]
         
         if ip not in satellite_ips:
             return {"error": "Satellite not found"}, 404

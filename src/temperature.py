@@ -69,12 +69,13 @@ class TemperatureCalculator:
         
         return temps
     
-    def _get_sensor_by_ip(self, ip):
-        """Get temperature from a specific satellite by IP."""
+    def _get_sensor_by_mac(self, mac):
+        """Get temperature from a specific satellite by MAC."""
         satellites = state.get("satellites", [])
+        mac_lower = mac.lower() if mac else ""
         
         for sat in satellites:
-            if sat.get("ip") == ip:
+            if sat.get("mac", "").lower() == mac_lower:
                 if not sat.get("online", False):
                     return None
                 
@@ -125,8 +126,8 @@ class TemperatureCalculator:
             if sensor_id == "local":
                 return self._get_local_temperature()
             else:
-                # Try satellite, fallback to local if unavailable
-                sat_temp = self._get_sensor_by_ip(sensor_id)
+                # sensor_id is a MAC address - try satellite, fallback to local if unavailable
+                sat_temp = self._get_sensor_by_mac(sensor_id)
                 if sat_temp is not None:
                     return sat_temp
                 return self._get_local_temperature()

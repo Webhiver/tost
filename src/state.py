@@ -63,12 +63,22 @@ class StateManager:
             "sensor": self._state.get("sensor"),
             "wifi_strength": self._state.get("wifi_strength")
         }
+    
+    def get_satellite_by_mac(self, mac):
+        """Find a satellite in state by its MAC address."""
+        satellites = self._state.get("satellites", [])
+        mac_lower = mac.lower() if mac else ""
+        for sat in satellites:
+            if sat.get("mac", "").lower() == mac_lower:
+                return sat
+        return None
 
 
 state = StateManager({
     "is_pairing": False,
     "wifi_connected": False,
     "wifi_strength": None,
+    "mac": None,
     "sensor": {
         "temperature": None,
         "humidity": None,

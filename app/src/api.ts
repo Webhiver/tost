@@ -52,7 +52,7 @@ export async function exitPairing(): Promise<{ status: string; message: string }
   })
 }
 
-// Satellite proxy functions
+// Satellite proxy functions (use IP for routing, mac is the satellite identifier)
 export async function fetchSatelliteConfig(ip: string): Promise<Config> {
   return api<Config>(`/satellite-proxy/${ip}/config`)
 }

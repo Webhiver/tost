@@ -196,18 +196,22 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
             const satSensor = sat.state?.sensor
             const satHealthy = satSensor?.healthy
             const satError = satSensor?.message
+            // Look up name from config by MAC
+            const configSat = status.config.satellites.find(s => s.mac === sat.mac)
+            const satName = configSat?.name || ''
+            const displayName = satName || sat.mac
             return (
               <div 
-                key={sat.ip} 
+                key={sat.mac} 
                 className={`flex justify-between items-center py-3.5 ${idx > 0 ? 'border-t border-border-subtle' : ''}`}
               >
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm text-text-primary">{sat.name || sat.ip}</span>
+                  <span className="text-sm text-text-primary">{displayName}</span>
                   <span className={`text-[0.7rem] ${sat.online ? (satHealthy ? 'text-cool' : 'text-amber-400') : 'text-text-muted'}`}>
                     {sat.online 
                       ? (satHealthy ? '● Online' : '⚠ ' + (satError || 'Sensor issue'))
                       : '○ Offline'}
-                    {sat.name && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
+                    {satName && sat.ip && <span className="text-text-muted ml-1.5">· {sat.ip}</span>}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -215,7 +219,7 @@ export function Dashboard({ status, onOpenSettings, onOpenSatelliteSettings, onC
                     <>
                       <WifiIcon strength={sat.state?.wifi_strength} className="w-4 h-4 text-text-muted" />
                       <button
-                        onClick={() => onOpenSatelliteSettings({ ip: sat.ip, name: sat.name })}
+                        onClick={() => onOpenSatelliteSettings({ mac: sat.mac, ip: sat.ip, name: satName })}
                         className="w-8 h-8 rounded-full bg-tertiary border border-border-subtle text-text-secondary text-sm flex items-center justify-center transition-all hover:bg-elevated hover:text-text-primary"
                         title="Satellite settings"
                       >
