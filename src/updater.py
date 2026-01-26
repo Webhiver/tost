@@ -304,6 +304,17 @@ def apply_pending_update():
     Check for and apply any pending firmware update.
     Called from boot.py to run with minimal memory usage.
     """
+    # Set LED to teal during update (direct control, no state dependency)
+    import constants
+    from lib.picozero import RGBLED
+    led = RGBLED(
+        red=constants.PIN_LED_RED,
+        green=constants.PIN_LED_GREEN,
+        blue=constants.PIN_LED_BLUE,
+        active_high=True
+    )
+    led.value = (0, 1, 1)  # Teal (green + blue)
+    
     # Get file size for logging
     try:
         file_size = os.stat(UPDATE_FILE)[6]
