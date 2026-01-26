@@ -1,9 +1,10 @@
 import {useState, useRef} from "react";
 import {Thermometer, WifiEmpty, WifiLow, WifiMedium, WifiFull, HouseCheck, LocationCheck, WebSocket} from "./Icons";
-import { FaExclamationTriangle } from "react-icons/fa";
+import {FaExclamationTriangle, FaTimesCircle} from "react-icons/fa";
+import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
-import { BsExclamationTriangle } from "react-icons/bs";
-import { LiaTimesCircle } from "react-icons/lia";
+import {BsExclamationTriangle} from "react-icons/bs";
+import {LiaTimesCircle} from "react-icons/lia";
 import {PiThermometerSimpleDuotone} from "react-icons/pi";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel} from 'swiper/modules';
@@ -51,8 +52,22 @@ const Satellites = () => {
                         }
 
                         let ActiveIcon = <PiThermometerSimpleDuotone className="fill-slate-300 size-6"/>;
-                        if(device.active){
+                        if (device.active) {
                             ActiveIcon = <PiThermometerSimpleDuotone className="fill-slate-600 size-6"/>;
+                        }
+
+                        let status = (
+                            <div className="flex items-center gap-1 text-base font-light text-lime-700"><FaCircleCheck className="size-3.5"/>Operational</div>
+                        );
+                        if (!device.healthy) {
+                            status = (
+                                <div className="flex items-center gap-1 text-base font-light text-amber-500"><FaTriangleExclamation className="size-3.5"/>{device.error}</div>
+                            );
+                        }
+                        if (!device.online) {
+                            status = (
+                                <div className="flex items-center gap-1 text-base font-light text-red-600"><FaTimesCircle className="size-3.5"/>Offline</div>
+                            );
                         }
 
                         return (
@@ -64,9 +79,7 @@ const Satellites = () => {
                                         <div className="flex-1 flex flex-col justify-start items-center">
                                             <div
                                                 className="text-xl text-slate-500 font-light leading-6">{device.name}</div>
-                                            <div className="text-base font-extralight text-orange-700">Device is
-                                                offline
-                                            </div>
+                                            {status}
                                         </div>
                                         <WifiIcon className="stroke-slate-600 size-7"/>
                                     </div>
@@ -93,13 +106,14 @@ const Satellites = () => {
             <div className="flex justify-center items-center pt-5 pb-8 relative">
                 {devices.map((device: Device, index: number) => {
                     let deviceIcon = null;
-                    if(device.active){
-                        deviceIcon = <PiThermometerSimpleDuotone className="fill-amber-600 size-4 absolute -top-1 left-2"/>;
+                    if (device.active) {
+                        deviceIcon =
+                            <PiThermometerSimpleDuotone className="fill-lime-600 size-4 absolute -top-1 left-2"/>;
                     }
-                    if(!device.healthy){
-                        deviceIcon = <BsExclamationTriangle className="fill-yellow-600 size-4 absolute -top-1 left-2"/>;
+                    if (!device.healthy) {
+                        deviceIcon = <BsExclamationTriangle className="fill-amber-500 size-4 absolute -top-1 left-2"/>;
                     }
-                    if(!device.online){
+                    if (!device.online) {
                         deviceIcon = <LiaTimesCircle className="fill-red-600 size-4 absolute -top-1 left-2"/>;
                     }
 
@@ -109,13 +123,16 @@ const Satellites = () => {
                             className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer relative"
                             onClick={event => swiperRef.current.swiper.slideToLoop(index, 300)}
                         >
-                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500"/> : <GrSatellite className="size-5 stroke-slate-500"/>}
-                            <span className="font-normal text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500"/> :
+                                <GrSatellite className="size-5 stroke-slate-500"/>}
+                            <span
+                                className="font-normal text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C</span>
                             {deviceIcon}
                         </div>
                     );
                 })}
-                <div className="w-[15%] absolute flex justify-center bottom-4.5 transition-all" style={{left: `${15 * slideIndex + ((100 - devices.length * 15) / 2)}%`}}>
+                <div className="w-[15%] absolute flex justify-center bottom-4.5 transition-all"
+                     style={{left: `${15 * slideIndex + ((100 - devices.length * 15) / 2)}%`}}>
                     <div className="w-8 h-1.5 bg-orange-300 rounded-full"></div>
                 </div>
             </div>
