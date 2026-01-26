@@ -109,7 +109,7 @@ const Satellites = () => {
                             className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer relative"
                             onClick={event => swiperRef.current.swiper.slideToLoop(index, 300)}
                         >
-                            {device.id === "host" ? <GrHomeRounded className="size-5 stroke-slate-500"/> : <GrSatellite className="size-5 stroke-slate-500"/>}
+                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500"/> : <GrSatellite className="size-5 stroke-slate-500"/>}
                             <span className="font-normal text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C</span>
                             {deviceIcon}
                         </div>

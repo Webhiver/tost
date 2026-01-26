@@ -10,6 +10,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     const abortControllerRef = useRef<AbortController | null>(null);
     const getStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [config, setConfig] = useState<Config | null>(null);
     const [state, setState] = useState<State | null>(null);
     const [_error, setError] = useState<any>(null);
@@ -41,6 +42,9 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             setError('Connection failed');
             console.error('Failed to fetch status:', err);
         } finally {
+            if (!controller.signal.aborted) {
+                setIsLoading(false);
+            }
             if (abortControllerRef.current === controller) {
                 abortControllerRef.current = null;
             }
@@ -109,6 +113,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
 
     return (
         <ApiContext.Provider value={{
+            isLoading,
             config,
             state,
             submitConfig,

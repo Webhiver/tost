@@ -63,7 +63,8 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     useEffect(() => {
         const devices: Device[] = [];
         devices.push({
-            id: "host",
+            id: state?.mac ?? `satellite-0`,
+            satellite: false,
             name: config?.name ?? 'Host',
             online: true,
             healthy: state?.sensor?.healthy ?? false,
@@ -77,7 +78,8 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             const satelliteState: Satellite | undefined = state?.satellites?.[index];
 
             devices.push({
-                id: satellite?.ip ?? `satellite-${index + 1}`,
+                id: satellite?.mac ?? `satellite-${index + 1}`,
+                satellite: true,
                 name: satellite?.name ?? 'Host',
                 online: satelliteState?.online ?? false,
                 healthy: satelliteState?.state?.sensor?.healthy ?? false,
@@ -85,7 +87,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
                 wifiStrength: satelliteState?.state?.wifi_strength ?? 0,
                 temperature: satelliteState?.state?.sensor?.temperature ?? null,
                 humidity: satelliteState?.state?.sensor?.humidity ?? null,
-                active: config?.flame_mode === "average" || config?.flame_mode === "all" || config?.flame_mode === "any" || config?.flame_mode === "one" && config?.flame_mode_sensor === satellite?.ip,
+                active: config?.flame_mode === "average" || config?.flame_mode === "all" || config?.flame_mode === "any" || config?.flame_mode === "one" && config?.flame_mode_sensor === satellite?.mac,
             });
         });
 

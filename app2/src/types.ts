@@ -6,7 +6,7 @@ export interface SensorData {
 }
 
 export interface SatelliteConfig {
-  ip: string
+  mac: string
   name: string
 }
 
@@ -16,8 +16,8 @@ export interface SatelliteState {
 }
 
 export interface Satellite {
-  ip: string | null
-  name: string
+  mac: string
+  ip: string
   state: SatelliteState | null
   last_updated: number
   online: boolean
@@ -36,7 +36,7 @@ export interface Config {
   satellite_grace_period: number
   led_brightness: number
   flame_mode: FlameMode
-  flame_mode_sensor: string  // 'local' or satellite IP
+  flame_mode_sensor: string  // 'local' or satellite MAC
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
   sensor_temperature_offset: number
@@ -45,6 +45,7 @@ export interface Config {
 
 export interface State {
   is_pairing: boolean
+  mac: string,
   wifi_connected: boolean
   wifi_strength: number | null
   sensor: SensorData
@@ -111,6 +112,7 @@ export interface DebugInfo {
 
 export interface Device {
   id: string,
+  satellite: boolean,
   name: string,
   online: boolean,
   healthy: boolean,
@@ -151,6 +153,7 @@ export interface LocalProviderProps {
 }
 
 export interface ApiProviderProps {
+  isLoading: boolean,
   config: Config | null,
   state: State | null,
   submitConfig: (targetTemp: number) => void;
