@@ -110,6 +110,11 @@ class WifiManager:
     
     async def loop(self):
         while True:
+            # Sync wifi_connected state with actual connection status
+            is_connected = self._sta is not None and self._sta.isconnected()
+            if is_connected != state.get("wifi_connected", False):
+                state.set("wifi_connected", is_connected)
+            
             rssi = self.get_rssi()
             strength = self.rssi_to_strength(rssi)
             state.set("wifi_strength", strength)
