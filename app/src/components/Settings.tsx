@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Config, FlameMode, OperatingMode } from '../types'
 import { fetchConfig, updateConfig, fetchSatelliteConfig, updateSatelliteConfig } from '../api'
 import { useTheme, type Theme } from '../hooks/useTheme'
+import { FirmwareUpdate } from './FirmwareUpdate'
 
 const DEBOUNCE_MS = 750
 const RESULT_DISPLAY_MS = 5000
@@ -569,6 +570,16 @@ export function Settings({ isOpen, onClose, onConfigUpdate, satellite }: Setting
                 <option value="satellite">Satellite</option>
               </select>
             </SettingRow>
+          </section>
+        )}
+
+        {/* Firmware Update - Not shown when editing satellite remotely */}
+        {!satellite && (
+          <section className="mb-6">
+            <h3 className="text-[0.7rem] uppercase tracking-[0.12em] text-text-muted mb-3 font-medium">
+              Firmware Update
+            </h3>
+            <FirmwareUpdate />
           </section>
         )}
       </div>

@@ -1,7 +1,8 @@
 import asyncio
 import machine
 import micropython
-from lib.microdot import Microdot, Response, redirect
+import os
+from lib.microdot import Microdot, Response, redirect, Request
 import urequests
 import debug
 from state import state
@@ -9,6 +10,12 @@ from config import config
 from discovery import discovery
 
 app = Microdot()
+
+# Allow firmware updates up to 256KB
+# max_body_length = 16KB: requests smaller than this are buffered in memory
+# Larger requests (like firmware updates) are streamed via request.stream
+Request.max_content_length = 256 * 1024
+Request.max_body_length = 16 * 1024
 
 
 async def delayed_reset():
@@ -113,6 +120,75 @@ def create_server(pairing, secrets_module):
             return {"status": "ok"}
         except Exception as e:
             return {"error": str(e)}, 400
+    
+    @app.route('/api/update', methods=['POST'])
+    async def firmware_update(request):
+        """
+        Handle firmware update upload.
+        Streams the upload directly to flash to avoid memory issues.
+        The actual update is applied on next boot via boot.py.
+        """
+        upload_path = '/update.tar.gz'
+        
+        try:
+            # Validate content type
+            content_type = request.content_type or ''
+            if 'application/gzip' not in content_type and 'application/octet-stream' not in content_type:
+                return {"error": "Invalid content type: {}".format(content_type)}, 400
+            
+            # Check content length
+            content_length = request.content_length
+            if content_length == 0:
+                return {"error": "No data received (content_length=0)"}, 400
+            
+            print("Update: receiving {} bytes".format(content_length))
+            
+            # Check if body was buffered (small file) or needs streaming (large file)
+            # Large uploads (> max_body_length) are streamed to avoid memory issues
+            if request.body:
+                # Small file was buffered - just write it
+                print("Update: writing buffered body")
+                with open(upload_path, 'wb') as f:
+                    f.write(request.body)
+            else:
+                # Large file - stream directly to flash in chunks
+                print("Update: streaming to flash")
+                chunk_size = 4096
+                
+                with open(upload_path, 'wb') as f:
+                    remaining = content_length
+                    while remaining > 0:
+                        to_read = min(chunk_size, remaining)
+                        chunk = await request.stream.readexactly(to_read)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        remaining -= len(chunk)
+            
+            # Verify file was written
+            try:
+                size = os.stat(upload_path)[6]
+                print("Update: wrote {} bytes to {}".format(size, upload_path))
+                if size == 0:
+                    return {"error": "Upload failed - empty file"}, 400
+                if size != content_length:
+                    return {"error": "Upload incomplete: {} of {} bytes".format(size, content_length)}, 400
+            except OSError as e:
+                return {"error": "Upload failed - stat error: {}".format(str(e))}, 400
+            
+            # Schedule a delayed reset to allow response to be sent
+            # The update will be applied by boot.py on restart
+            asyncio.create_task(delayed_reset())
+            
+            return {"status": "ok", "message": "Update received. Device will restart and apply update."}
+            
+        except Exception as e:
+            # Clean up on error
+            try:
+                os.remove(upload_path)
+            except OSError:
+                pass
+            return {"error": str(e)}, 500
     
     @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
     async def satellite_proxy(request, ip, path):
