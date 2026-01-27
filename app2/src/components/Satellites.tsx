@@ -1,6 +1,5 @@
 import {useState, useRef} from "react";
-import {Thermometer, WifiEmpty, WifiLow, WifiMedium, WifiFull, HouseCheck, LocationCheck, WebSocket} from "./Icons";
-import {FaExclamationTriangle, FaTimesCircle} from "react-icons/fa";
+import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
 import {BsExclamationTriangle} from "react-icons/bs";
@@ -11,7 +10,7 @@ import {Mousewheel} from 'swiper/modules';
 import 'swiper/css';
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext} from "../_context";
-import {Satellite, SensorData, Device} from "../types";
+import {Device} from "../types";
 
 const Satellites = () => {
 
@@ -108,7 +107,7 @@ const Satellites = () => {
                     let deviceIcon = null;
                     if (device.active) {
                         deviceIcon =
-                            <PiThermometerSimpleDuotone className="fill-lime-600 size-4 absolute -top-1 left-2"/>;
+                            <PiThermometerSimpleDuotone className="fill-lime-700 size-4 absolute -top-1 left-2"/>;
                     }
                     if (!device.healthy) {
                         deviceIcon = <BsExclamationTriangle className="fill-amber-500 size-4 absolute -top-1 left-2"/>;
@@ -121,7 +120,7 @@ const Satellites = () => {
                         <div
                             key={`device-icon-${device.id}-${index}`}
                             className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer relative"
-                            onClick={event => swiperRef.current.swiper.slideToLoop(index, 300)}
+                            onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
                             {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500"/> :
                                 <GrSatellite className="size-5 stroke-slate-500"/>}

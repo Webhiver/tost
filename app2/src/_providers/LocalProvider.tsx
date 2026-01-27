@@ -8,8 +8,9 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const state = useContextSelector(ApiContext, c => c.state);
     const config = useContextSelector(ApiContext, c => c.config);
 
-    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [flame, setFlame] = useState<boolean>(false);
+    const [flameMode, setFlameMode] = useState<string>('average');
+    const [flameModeSensor, setFlameModeSensor] = useState<string|null>(null);
     const [flameDuration, setFlameDuration] = useState<number>(0);
     const [isPairing, setIsPairing] = useState<boolean>(false);
     const [wifiConnected, setWifiConnected] = useState<boolean>(false);
@@ -44,9 +45,12 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setHostHealthy(state?.sensor?.healthy ?? true);
         setHostHumidity(state?.sensor?.humidity ?? null);
         setHostTemperature(state?.sensor?.temperature ?? null);
+        setIsPairing(state?.is_pairing ?? false);
     }, [state]);
 
     useEffect(() => {
+        setFlameMode(config?.flame_mode ?? 'average');
+        setFlameModeSensor(config?.flame_mode === 'one' ? config?.flame_mode_sensor : null);
         setTargetTemp(config?.target_temperature ?? 0);
         setHostName(config?.name ?? 'Host');
     }, [config]);
@@ -96,12 +100,13 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
 
     return (
         <LocalContext.Provider value={{
-            isLoading,
             hostName,
             hostHealthy,
             hostHumidity,
             hostTemperature,
             flame,
+            flameMode,
+            flameModeSensor,
             flameDuration,
             isPairing,
             wifiConnected,

@@ -124,8 +124,9 @@ export interface Device {
 }
 
 export interface LocalProviderProps {
-  isLoading: boolean,
   flame: boolean,
+  flameMode: string,
+  flameModeSensor: string | null,
   flameDuration: number,
   isPairing: boolean,
   hostName: string,
