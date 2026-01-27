@@ -2,9 +2,9 @@ import {useState, useRef} from "react";
 import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
+import { MdThermostat } from "react-icons/md";
 import {BsExclamationTriangle} from "react-icons/bs";
 import {LiaTimesCircle} from "react-icons/lia";
-import {PiThermometerSimpleDuotone} from "react-icons/pi";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel} from 'swiper/modules';
 import 'swiper/css';
@@ -23,7 +23,7 @@ const Satellites = () => {
     return (
         <div className="w-full">
             <div
-                className="bg-linear-to-r from-slate-200 via-slate-50 to-slate-200 inset-shadow-[0_0_10px] inset-shadow-slate-300 -mx-3 px-3">
+                className="border-y border-slate-300 -mx-3 px-3 inset-shadow-[0_0_10px] inset-shadow-slate-200">
                 <Swiper
                     ref={swiperRef}
                     initialSlide={0}
@@ -50,13 +50,8 @@ const Satellites = () => {
                             WifiIcon = GrWifi;
                         }
 
-                        let ActiveIcon = <PiThermometerSimpleDuotone className="fill-slate-300 size-6"/>;
-                        if (device.active) {
-                            ActiveIcon = <PiThermometerSimpleDuotone className="fill-slate-600 size-6"/>;
-                        }
-
                         let status = (
-                            <div className="flex items-center gap-1 text-base font-light text-lime-700"><FaCircleCheck className="size-3.5"/>Operational</div>
+                            <div className="flex items-center gap-1 text-base font-light text-slate-400"><FaCircleCheck className="size-3.5"/>Operational</div>
                         );
                         if (!device.healthy) {
                             status = (
@@ -71,30 +66,29 @@ const Satellites = () => {
 
                         return (
                             <SwiperSlide className="w-full" key={`device-${device.id}-${index}`}>
-                                <div
-                                    className="w-full flex flex-col items-stretch justify-start gap-6 px-10 py-10 cursor-grab active:cursor-grabbing">
-                                    <div className="flex justify-stretch items-center">
-                                        {ActiveIcon}
-                                        <div className="flex-1 flex flex-col justify-start items-center">
-                                            <div
-                                                className="text-xl text-slate-500 font-light leading-6">{device.name}</div>
-                                            {status}
-                                        </div>
-                                        <WifiIcon className="stroke-slate-600 size-7"/>
+                                <div className="relative w-full flex flex-col items-stretch justify-start gap-3 py-4 px-12 cursor-grab active:cursor-grabbing">
+                                    {/*<PiThermometerSimpleDuotone className="fill-slate-400 absolute top-6 right-14 size-5"/>*/}
+                                    <WifiIcon className="stroke-slate-400 absolute top-5 right-5 size-6"/>
+
+                                    <div className="flex justify-center items-center gap-3">
+                                        <div className="text-2xl text-slate-500 font-normal">{device.name}</div>
                                     </div>
-                                    <div className="flex justify-around items-start">
+                                    <div className="flex justify-around items-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-400">Temperature</div>
+                                            <div className="text-lg font-extralight text-slate-500">Temperature</div>
                                             <div
-                                                className="text-4xl font-light text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C
+                                                className="text-4xl font-mono text-slate-400">{device.temperature?.toFixed(1) ?? "--"}°C
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-400">Humidity</div>
+                                            <div className="text-lg font-extralight text-slate-500">Humidity</div>
                                             <div
-                                                className="text-4xl font-light text-slate-500">{device.humidity?.toFixed(1) ?? "--"}%
+                                                className="text-4xl font-mono text-slate-400">{device.humidity?.toFixed(1) ?? "--"}%
                                             </div>
                                         </div>
+                                    </div>
+                                    <div className="flex justify-center items-center">
+                                        {status}
                                     </div>
                                 </div>
                             </SwiperSlide>
@@ -107,7 +101,15 @@ const Satellites = () => {
                     let deviceIcon = null;
                     if (device.active) {
                         deviceIcon =
-                            <PiThermometerSimpleDuotone className="fill-lime-700 size-4 absolute -top-1 left-2"/>;
+                            <MdThermostat className="fill-red-600 size-4 absolute -top-1 left-2"/>;
+                    }
+                    if(!device.active && !device.satellite){
+                        deviceIcon =
+                            <MdThermostat className="fill-indigo-500 size-4 absolute -top-1 left-2"/>;
+                    }
+                    if(!device.active && device.satellite){
+                        deviceIcon =
+                            <MdThermostat className="fill-stone-400 size-4 absolute -top-1 left-2"/>;
                     }
                     if (!device.healthy) {
                         deviceIcon = <BsExclamationTriangle className="fill-amber-500 size-4 absolute -top-1 left-2"/>;
@@ -119,13 +121,15 @@ const Satellites = () => {
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="w-[15%] rounded-sm flex flex-col items-center text-sm gap-1 cursor-pointer relative"
+                            className="w-[15%] rounded-sm flex flex-col items-center gap-1 text-sm cursor-pointer relative"
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
-                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500"/> :
-                                <GrSatellite className="size-5 stroke-slate-500"/>}
+                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500 mb-2"/> :
+                                <GrSatellite className="size-5 stroke-slate-500 mb-2"/>}
                             <span
-                                className="font-normal text-slate-500">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                                className="font-mono text-slate-500 leading-3">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                            <span
+                                className="font-mono text-slate-400 leading-3">{device.humidity?.toFixed(1) ?? "--"}%</span>
                             {deviceIcon}
                         </div>
                     );

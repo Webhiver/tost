@@ -76,7 +76,9 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             wifiStrength: state?.wifi_strength ?? 0,
             temperature: state?.sensor?.temperature ?? null,
             humidity: state?.sensor?.humidity ?? null,
-            active: config?.flame_mode === "average" || config?.flame_mode === "all" || config?.flame_mode === "any" || config?.flame_mode === "one" && config?.flame_mode_sensor === "local",
+            active:
+                ((config?.flame_mode === "average" || config?.flame_mode === "all" || config?.flame_mode === "any") && config?.local_sensor === "included") ||
+                (config?.flame_mode === "one" && config?.flame_mode_sensor === "local"),
         });
         config?.satellites.forEach((satellite: SatelliteConfig, index: number) => {
             const satelliteState: Satellite | undefined = state?.satellites?.[index];

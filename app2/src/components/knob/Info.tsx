@@ -42,7 +42,7 @@ export const Info = () => {
                 x={'50%'}
                 y={labelSize + valueSize + 5}
                 textAnchor={'middle'}
-                className="fill-slate-400 font-normal text-5xl users-select-none"
+                className="fill-slate-400 font-mono text-5xl users-select-none"
             >
                 {targetTemp.toFixed(decimalPlace)}°C
             </text>
@@ -92,7 +92,7 @@ export const Info = () => {
                 x={'50%'}
                 y={230}
                 textAnchor={'middle'}
-                className="fill-slate-500 font-normal text-lg users-select-none"
+                className="fill-slate-500 font-mono text-lg users-select-none"
             >
                 {effectiveTemp.toFixed(decimalPlace)}°C
             </text>
