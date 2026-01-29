@@ -24,7 +24,7 @@ export interface Satellite {
 }
 
 export type FlameMode = 'average' | 'all' | 'any' | 'one'
-export type OperatingMode = 'off' | 'manual'
+export type OperatingMode = 'off' | 'manual' | "schedule"
 
 export interface Config {
   mode: 'host' | 'satellite'
@@ -124,6 +124,7 @@ export interface Device {
 }
 
 export interface LocalProviderProps {
+  mode: string,
   flame: boolean,
   flameMode: string,
   flameModeSensor: string | null,
@@ -149,6 +150,7 @@ export interface LocalProviderProps {
   effectiveTemp: number,
   satellites: Satellite[],
   devices: Device[],
+  setMode: (mode: OperatingMode) => void,
   setTargetTemp: (temp: number) => void,
   setKnobPercentage: (percentage: number) => void,
 }
@@ -157,7 +159,7 @@ export interface ApiProviderProps {
   isLoading: boolean,
   config: Config | null,
   state: State | null,
-  submitConfig: (targetTemp: number) => void;
+  submitConfig: (config: Partial<Config>) => void;
   startGettingStatus: () => void,
   stopGettingStatus: () => void,
   resetAndStartGettingStatus: () => void,

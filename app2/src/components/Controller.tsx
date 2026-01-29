@@ -20,6 +20,7 @@ export const stepsToSnapTo = (steps: number, snap: boolean): number[] | undefine
 
 const Controller = () => {
 
+    const mode = useContextSelector(LocalContext, c => c.mode);
     const flame = useContextSelector(LocalContext, c => c.flame);
     const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
     const knobSize = useContextSelector(LocalContext, c => c.knobSize);
@@ -46,7 +47,7 @@ const Controller = () => {
         const newTargetTemp = clamp(knobMinTemp, knobMaxTemp, targetTemp + ((knobMaxTemp - knobMinTemp) / knobSteps) * direction);
         setTargetTemp(newTargetTemp);
 
-        submitConfig(newTargetTemp);
+        submitConfig({target_temperature: newTargetTemp});
 
     }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp, submitConfig]);
 
@@ -64,7 +65,7 @@ const Controller = () => {
         const newTargetTemp = clamp(knobMinTemp, knobMaxTemp, targetTemp + ((knobMaxTemp - knobMinTemp) / knobSteps) * direction);
         setTargetTemp(newTargetTemp);
 
-        submitConfig(newTargetTemp);
+        submitConfig({target_temperature: newTargetTemp});
 
     }, [knobSteps, knobMinTemp, knobMaxTemp, targetTemp, submitConfig]);
 
@@ -73,9 +74,9 @@ const Controller = () => {
             className="flex-1 flex justify-center items-center pt-7 pb-2 px-6 outline-none"
             data-active={flame ? "true" : undefined}
             tabIndex={0}
-            onKeyDown={handleKeyDown}
-            onKeyUp={handleKeyUp}
-            onWheel={handleMouseWheel}
+            onKeyDown={mode !== "off" ? handleKeyDown : undefined}
+            onKeyUp={mode !== "off" ? handleKeyUp : undefined}
+            onWheel={mode !== "off" ? handleMouseWheel : undefined}
         >
             <div ref={rootRef}>
                 <svg ref={svgRef} width={knobSize} height={knobSize}>

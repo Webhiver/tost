@@ -2,6 +2,7 @@ import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext} from "../../_context";
 
 export const ScaleProgress = () => {
+    const mode = useContextSelector(LocalContext, c => c.mode);
     const knobWidth = useContextSelector(LocalContext, c => c.knobWidth);
     const knobSize = useContextSelector(LocalContext, c => c.knobSize);
     const knobAngleRange = useContextSelector(LocalContext, c => c.knobAngleRange);
@@ -24,7 +25,7 @@ export const ScaleProgress = () => {
             {Array.from({length}).map((_, index) => {
                 return (
                     <rect
-                        data-active={active === index ? 'true' : undefined}
+                        data-active={active === index && mode !== "off" ? 'true' : undefined}
                         className="fill-black/7 data-active:fill-white"
                         key={`scale-${index}`}
                         stroke={'none'}

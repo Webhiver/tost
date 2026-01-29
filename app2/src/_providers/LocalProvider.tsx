@@ -2,12 +2,13 @@ import {ReactNode, useEffect, useState} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
 import {findClosest, getPercentageFromValue, stepsToSnapTo} from "../components/knob/utils.ts";
-import {Satellite, Device, SatelliteConfig} from "../types.ts";
+import {Satellite, Device, SatelliteConfig, OperatingMode} from "../types.ts";
 
 const LocalProvider = ({children}: { children: ReactNode }) => {
     const state = useContextSelector(ApiContext, c => c.state);
     const config = useContextSelector(ApiContext, c => c.config);
 
+    const [mode, setMode] = useState<OperatingMode>('off');
     const [flame, setFlame] = useState<boolean>(false);
     const [flameMode, setFlameMode] = useState<string>('average');
     const [flameModeSensor, setFlameModeSensor] = useState<string|null>(null);
@@ -49,6 +50,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     }, [state]);
 
     useEffect(() => {
+        setMode(config?.operating_mode ?? 'off');
         setFlameMode(config?.flame_mode ?? 'average');
         setFlameModeSensor(config?.flame_mode === 'one' ? config?.flame_mode_sensor : null);
         setTargetTemp(config?.target_temperature ?? 0);
@@ -106,6 +108,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             hostHealthy,
             hostHumidity,
             hostTemperature,
+            mode,
             flame,
             flameMode,
             flameModeSensor,
@@ -127,6 +130,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             knobPercentage,
             satellites,
             devices,
+            setMode,
             setTargetTemp,
             setKnobPercentage,
         }}>

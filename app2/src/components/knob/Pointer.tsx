@@ -14,6 +14,7 @@ interface PointerProps {
 }
 
 export const Pointer = (props: PointerProps) => {
+    const mode = useContextSelector(LocalContext, c => c.mode);
     const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
     const knobWidth = useContextSelector(LocalContext, c => c.knobWidth);
     const knobSize = useContextSelector(LocalContext, c => c.knobSize);
@@ -26,7 +27,6 @@ export const Pointer = (props: PointerProps) => {
     const setTargetTemp = useContextSelector(LocalContext, c => c.setTargetTemp);
     const setKnobPercentage = useContextSelector(LocalContext, c => c.setKnobPercentage);
     const cancelPendingGetStatus = useContextSelector(ApiContext, c => c.cancelPendingGetStatus);
-    const startGettingStatus = useContextSelector(ApiContext, c => c.startGettingStatus);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
     const knobRadius = knobSize / 2 - knobWidth + 8;
@@ -57,8 +57,8 @@ export const Pointer = (props: PointerProps) => {
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
         startXY.current = {startX: 0, startY: 0};
-        submitConfig(targetTemp);
-    }, [targetTemp]);
+        submitConfig({target_temperature: targetTemp});
+    }, [targetTemp, submitConfig]);
 
     const handleMove = useCallback((event: MouseEvent | TouchEvent) => {
         event.stopPropagation();
@@ -116,6 +116,10 @@ export const Pointer = (props: PointerProps) => {
             };
         }
     }, [trackingActive, handleMove, stopTracking]);
+
+    if(mode === "off"){
+        return null;
+    }
 
     return (
         <g

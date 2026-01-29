@@ -4,6 +4,7 @@ import {LocalContext} from "../../_context";
 import {calcKnobArcPathRounded} from "./utils";
 
 export const ArcProgress = () => {
+    const mode = useContextSelector(LocalContext, c => c.mode);
     const knobWidth = useContextSelector(LocalContext, c => c.knobWidth);
     const knobSize = useContextSelector(LocalContext, c => c.knobSize);
     const knobAngleRange = useContextSelector(LocalContext, c => c.knobAngleRange);
@@ -30,7 +31,7 @@ export const ArcProgress = () => {
                         style={{
                             width: knobSize,
                             height: knobSize,
-                            background: "conic-gradient(from 180deg, var(--temp-color-1) 20%, var(--temp-color-2) 35%, var(--temp-color-3) 50%, var(--temp-color-4) 65%, var(--temp-color-5) 80%)"
+                            background: mode === "off" ? "rgba(0,0,0,0.15)" : "conic-gradient(from 180deg, var(--temp-color-1) 20%, var(--temp-color-2) 35%, var(--temp-color-3) 50%, var(--temp-color-4) 65%, var(--temp-color-5) 80%)"
                         }}
                     />
                 </foreignObject>

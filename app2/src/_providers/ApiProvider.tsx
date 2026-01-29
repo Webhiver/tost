@@ -70,7 +70,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         startGettingStatus();
     }, [cancelPendingGetStatus, getStatus, startGettingStatus]);
 
-    const submitConfig = useCallback((targetTemp: number) => {
+    const submitConfig = useCallback((config: Partial<Config>) => {
         stopGettingStatus();
         cancelPendingGetStatus();
 
@@ -81,7 +81,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         submitConfigDebounceRef.current = setTimeout(async () => {
             submitConfigDebounceRef.current = null
             try {
-                await updateConfig({target_temperature: targetTemp})
+                await updateConfig(config)
             } catch (err) {
                 console.error('Failed to update target temp:', err)
             } finally {
