@@ -9,68 +9,6 @@ import {
     findClosest
 } from "./utils";
 
-let audioCtx: AudioContext | null = null;
-
-const triggerFeedback = (muted: boolean = false) => {
-    // Try Native Haptics (Android)
-    if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate(20); // Very short tick
-        // return; // Uncomment if you don't want sound on Android
-    }
-
-    // iOS Fallback: Procedural 'Click' Sound
-    try {
-        if (!audioCtx) {
-            // @ts-ignore - Handle WebKit prefix for older Safari if needed
-            const Ctx = window.AudioContext || window.webkitAudioContext;
-            if (Ctx) audioCtx = new Ctx();
-        }
-
-        if (audioCtx) {
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(() => {});
-            }
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            if (muted) {
-                // Muted sound: lower pitch (thud), lower volume
-                oscillator.type = 'triangle';
-                oscillator.frequency.setValueAtTime(80, audioCtx.currentTime);
-
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.001);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            } else {
-                // Regular sharp click: high pitch, higher volume
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.001);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            }
-
-            // A short, high-frequency 'click'
-            // oscillator.type = 'sine';
-            // oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            //
-            // // Very short envelope for a crisp click
-            // gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            // gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.001);
-            // gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-
-            oscillator.start(audioCtx.currentTime);
-            oscillator.stop(audioCtx.currentTime + 0.04);
-        }
-    } catch (e) {
-        // Audio not supported or blocked
-    }
-};
-
 interface PointerProps {
     rootRef: RefObject<HTMLDivElement>;
 }
@@ -95,8 +33,6 @@ export const Pointer = (props: PointerProps) => {
     const knobCenter = knobSize / 2;
     const [trackingActive, setTrackingActive] = useState(false);
 
-    const lastFeedbackValue = useRef<number | null>(null);
-
     const {
         rootRef,
     } = props;
@@ -117,14 +53,11 @@ export const Pointer = (props: PointerProps) => {
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
 
-        triggerFeedback(true);
     }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus]);
 
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
         startXY.current = {startX: 0, startY: 0};
-
-        lastFeedbackValue.current = null; // Reset for next drag
 
         submitConfig({target_temperature: targetTemp});
     }, [targetTemp, submitConfig]);
@@ -162,11 +95,6 @@ export const Pointer = (props: PointerProps) => {
 
         let newTargetTemp = getValueFromPercentage(knobMinTemp, knobMaxTemp, percentage);
         newTargetTemp = parseFloat(newTargetTemp.toFixed(2));
-
-        if (lastFeedbackValue.current !== newTargetTemp) {
-            triggerFeedback();
-            lastFeedbackValue.current = newTargetTemp;
-        }
 
         setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
