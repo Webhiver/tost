@@ -23,6 +23,7 @@ html, body {
   padding: 0;
   background: var(--color-slate-100);
   overscroll-behavior: none;
+  user-select: none;
 }
 
 body {

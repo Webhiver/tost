@@ -88,7 +88,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
                 getStatus();
                 startGettingStatus();
             }
-        }, 500);
+        }, 1000);
     }, [cancelPendingGetStatus, getStatus, startGettingStatus, stopGettingStatus]);
 
     useEffect(() => {

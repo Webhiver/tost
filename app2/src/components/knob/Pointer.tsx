@@ -11,7 +11,7 @@ import {
 
 let audioCtx: AudioContext | null = null;
 
-const triggerFeedback = () => {
+const triggerFeedback = (muted: boolean = false) => {
     // Try Native Haptics (Android)
     if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate(20); // Very short tick
@@ -36,14 +36,32 @@ const triggerFeedback = () => {
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
 
-            // A short, high-frequency 'click'
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            if (muted) {
+                // Muted sound: lower pitch (thud), lower volume
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(80, audioCtx.currentTime);
 
-            // Very short envelope for a crisp click
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.001);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.05, audioCtx.currentTime + 0.001);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+            } else {
+                // Regular sharp click: high pitch, higher volume
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.001);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+            }
+
+            // A short, high-frequency 'click'
+            // oscillator.type = 'sine';
+            // oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+            //
+            // // Very short envelope for a crisp click
+            // gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+            // gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.001);
+            // gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
 
             oscillator.start(audioCtx.currentTime);
             oscillator.stop(audioCtx.currentTime + 0.04);
@@ -99,7 +117,7 @@ export const Pointer = (props: PointerProps) => {
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
 
-        triggerFeedback();
+        triggerFeedback(true);
     }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus]);
 
     const stopTracking = useCallback(() => {
