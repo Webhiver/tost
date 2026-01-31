@@ -21,10 +21,11 @@ export async function fetchConfig(): Promise<Config> {
   return api<Config>('/config')
 }
 
-export async function updateConfig(updates: Partial<Config>): Promise<{ status: string; config: Config }> {
+export async function updateConfig(updates: Partial<Config>, signal?: AbortSignal): Promise<{ status: string; config: Config }> {
   return api<{ status: string; config: Config }>('/config', {
     method: 'PATCH',
     body: JSON.stringify(updates),
+    signal,
   })
 }
 

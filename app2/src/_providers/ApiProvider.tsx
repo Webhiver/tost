@@ -7,7 +7,8 @@ const refreshInterval = 4000;
 
 const ApiProvider = ({children}: { children: ReactNode }) => {
     const submitConfigDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const abortControllerRef = useRef<AbortController | null>(null);
+    const getStatusAbortControllerRef = useRef<AbortController | null>(null);
+    const submitConfigAbortControllerRef = useRef<AbortController | null>(null);
     const getStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -16,9 +17,16 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     const [_error, setError] = useState<any>(null);
 
     const cancelPendingGetStatus = useCallback(() => {
-        if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-            abortControllerRef.current = null;
+        if (getStatusAbortControllerRef.current) {
+            getStatusAbortControllerRef.current.abort();
+            getStatusAbortControllerRef.current = null;
+        }
+    }, []);
+
+    const cancelPendingSubmitConfig = useCallback(() => {
+        if (submitConfigAbortControllerRef.current) {
+            submitConfigAbortControllerRef.current.abort();
+            submitConfigAbortControllerRef.current = null;
         }
     }, []);
 
@@ -26,7 +34,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         cancelPendingGetStatus();
 
         const controller = new AbortController();
-        abortControllerRef.current = controller;
+        getStatusAbortControllerRef.current = controller;
 
         try {
             const data = await fetchStatus(controller.signal);
@@ -45,8 +53,8 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             if (!controller.signal.aborted) {
                 setIsLoading(false);
             }
-            if (abortControllerRef.current === controller) {
-                abortControllerRef.current = null;
+            if (getStatusAbortControllerRef.current === controller) {
+                getStatusAbortControllerRef.current = null;
             }
         }
     }, [cancelPendingGetStatus]);
@@ -71,6 +79,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     }, [cancelPendingGetStatus, getStatus, startGettingStatus]);
 
     const submitConfig = useCallback((config: Partial<Config>) => {
+        cancelPendingSubmitConfig();
         stopGettingStatus();
         cancelPendingGetStatus();
 
@@ -78,18 +87,31 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             clearTimeout(submitConfigDebounceRef.current)
         }
 
+        const controller = new AbortController();
+        submitConfigAbortControllerRef.current = controller;
+
         submitConfigDebounceRef.current = setTimeout(async () => {
             submitConfigDebounceRef.current = null
             try {
-                await updateConfig(config)
-            } catch (err) {
-                console.error('Failed to update target temp:', err)
-            } finally {
+                await updateConfig(config, controller.signal)
+
                 getStatus();
                 startGettingStatus();
+            } catch (err) {
+                if (err instanceof Error && err.name === 'AbortError') {
+                    return;
+                }
+                console.error('Failed to update config:', err)
+
+                getStatus();
+                startGettingStatus();
+            } finally {
+                if (submitConfigDebounceRef.current === controller) {
+                    submitConfigAbortControllerRef.current = null;
+                }
             }
         }, 1000);
-    }, [cancelPendingGetStatus, getStatus, startGettingStatus, stopGettingStatus]);
+    }, [cancelPendingGetStatus, getStatus, startGettingStatus, stopGettingStatus, cancelPendingSubmitConfig]);
 
     useEffect(() => {
         return () => {
@@ -121,6 +143,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             stopGettingStatus,
             resetAndStartGettingStatus,
             cancelPendingGetStatus,
+            cancelPendingSubmitConfig,
         }}>
             {children}
         </ApiContext.Provider>

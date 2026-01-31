@@ -164,4 +164,5 @@ export interface ApiProviderProps {
   stopGettingStatus: () => void,
   resetAndStartGettingStatus: () => void,
   cancelPendingGetStatus: () => void,
+  cancelPendingSubmitConfig: () => void,
 }

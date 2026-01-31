@@ -27,6 +27,7 @@ export const Pointer = (props: PointerProps) => {
     const setTargetTemp = useContextSelector(LocalContext, c => c.setTargetTemp);
     const setKnobPercentage = useContextSelector(LocalContext, c => c.setKnobPercentage);
     const cancelPendingGetStatus = useContextSelector(ApiContext, c => c.cancelPendingGetStatus);
+    const cancelPendingSubmitConfig = useContextSelector(ApiContext, c => c.cancelPendingSubmitConfig);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
     const knobRadius = knobSize / 2 - knobWidth + 8;
@@ -49,11 +50,12 @@ export const Pointer = (props: PointerProps) => {
         event?.stopPropagation();
         event?.preventDefault();
         cancelPendingGetStatus();
+        cancelPendingSubmitConfig();
         stopGettingStatus();
         setTrackingActive(true);
         startXY.current = getStartXY(rootRef, knobSize);
 
-    }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus]);
+    }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus, cancelPendingSubmitConfig]);
 
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
