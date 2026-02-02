@@ -3,10 +3,10 @@ import {useCallback, useRef, KeyboardEvent, WheelEvent} from "react";
 import {TostLogo, Menu} from "./Icons.jsx"
 import {ArcBackground} from './knob/ArcBackground';
 import {ArcProgress} from './knob/ArcProgress.tsx';
+import {ArcButtons} from './knob/ArcButtons';
 import {ScaleBackground} from './knob/ScaleBackground';
 import {ScaleProgress} from './knob/ScaleProgress';
 import {Pointer} from './knob/Pointer';
-import {Info} from './knob/Info';
 import {InfoHtml} from './knob/InfoHtml';
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
@@ -86,7 +86,7 @@ const Controller = () => {
                     <ArcProgress/>
                     <ScaleProgress/>
                     <Pointer rootRef={rootRef}/>
-                    {/*<Info/>*/}
+                    <ArcButtons/>
                 </svg>
                 <InfoHtml/>
             </div>

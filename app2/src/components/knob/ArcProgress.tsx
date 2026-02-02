@@ -20,6 +20,10 @@ export const ArcProgress = () => {
         radius: knobSize / 2,
     });
 
+    if(mode !== "manual"){
+        return null;
+    }
+
     return (
         <g>
             <Fragment>
@@ -31,7 +35,7 @@ export const ArcProgress = () => {
                         style={{
                             width: knobSize,
                             height: knobSize,
-                            background: mode === "off" ? "rgba(0,0,0,0.15)" : "conic-gradient(from 180deg, var(--temp-color-1) 20%, var(--temp-color-2) 35%, var(--temp-color-3) 50%, var(--temp-color-4) 65%, var(--temp-color-5) 80%)"
+                            background: "conic-gradient(from 180deg, var(--temp-color-1) 20%, var(--temp-color-2) 35%, var(--temp-color-3) 50%, var(--temp-color-4) 65%, var(--temp-color-5) 80%)"
                         }}
                     />
                 </foreignObject>

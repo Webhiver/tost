@@ -22,7 +22,7 @@ export const ScaleBackground = () => {
             {Array.from({length}).map((_, index) => {
                 return (
                     <rect
-                        className="fill-slate-400/40 dark:fill-slate-500"
+                        className="fill-black/20 dark:fill-slate-500"
                         key={`scale-${index}`}
                         stroke={'none'}
                         width={knobTickWidth}

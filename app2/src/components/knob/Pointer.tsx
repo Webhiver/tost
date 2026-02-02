@@ -127,8 +127,8 @@ export const Pointer = (props: PointerProps) => {
 
     return (
         <g
-            onMouseDown={startTracking}
-            onTouchStart={startTracking}
+            onMouseDown={mode === "manual" ? startTracking : undefined}
+            onTouchStart={mode === "manual" ? startTracking : undefined}
             fill={'none'}
             transform={`rotate(${knobAngleOffset + knobAngleRange * knobPercentage} ${knobCenter} ${knobCenter}) translate( ${knobCenter - width / 2} ${knobCenter - knobRadius - height})`}
         >
@@ -136,13 +136,13 @@ export const Pointer = (props: PointerProps) => {
                 width={width}
                 height={height}
                 fill={color}
-                className="fill-white dark:fill-black"
+                data-active={mode === "manual" ? "true" : undefined}
+                className="cursor-not-allowed fill-sky-600 dark:fill-sky-400 data-active:fill-white data-active:cursor-move"
                 rx={width / 2}
                 ry={width / 2}
                 style={{
                     strokeWidth: heatZoneSize,
                     stroke: heatZoneColor,
-                    cursor: "move",
                     paintOrder: "stroke",
                     touchAction: "none",
                 }}

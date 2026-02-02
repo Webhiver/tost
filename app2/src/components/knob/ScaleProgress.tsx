@@ -20,13 +20,18 @@ export const ScaleProgress = () => {
     const translateY = knobCenter - knobRadius + (knobWidth / 2 - knobTickHeight / 2);
     const active = Math.round((length - 1) * knobPercentage);
 
+    if(mode !== "manual"){
+        return null;
+    }
+
     return (
         <g>
             {Array.from({length}).map((_, index) => {
                 return (
                     <rect
-                        data-active={active === index && mode !== "off" ? 'true' : undefined}
-                        className="fill-black/7 data-active:fill-white"
+                        data-active={active === index && mode === "manual" ? 'true' : undefined}
+                        data-hidden={active <= index ? 'true' : undefined}
+                        className="fill-black/10 data-active:fill-white"
                         key={`scale-${index}`}
                         stroke={'none'}
                         width={knobTickWidth}
