@@ -136,6 +136,7 @@ export const Pointer = (props: PointerProps) => {
                 width={width}
                 height={height}
                 fill={color}
+                className="fill-white dark:fill-black"
                 rx={width / 2}
                 ry={width / 2}
                 style={{

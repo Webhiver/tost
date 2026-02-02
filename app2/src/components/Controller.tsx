@@ -7,6 +7,7 @@ import {ScaleBackground} from './knob/ScaleBackground';
 import {ScaleProgress} from './knob/ScaleProgress';
 import {Pointer} from './knob/Pointer';
 import {Info} from './knob/Info';
+import {InfoHtml} from './knob/InfoHtml';
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
 import {clamp} from "./knob/utils";
@@ -78,15 +79,16 @@ const Controller = () => {
             onKeyUp={mode !== "off" ? handleKeyUp : undefined}
             onWheel={mode !== "off" ? handleMouseWheel : undefined}
         >
-            <div ref={rootRef}>
+            <div ref={rootRef} className="relative">
                 <svg ref={svgRef} width={knobSize} height={knobSize}>
                     <ArcBackground/>
                     <ScaleBackground/>
                     <ArcProgress/>
                     <ScaleProgress/>
                     <Pointer rootRef={rootRef}/>
-                    <Info/>
+                    {/*<Info/>*/}
                 </svg>
+                <InfoHtml/>
             </div>
         </div>
     )

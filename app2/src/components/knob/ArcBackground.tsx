@@ -21,7 +21,7 @@ export const ArcBackground = () => {
     return (
         <g>
             <path
-                className="fill-slate-300"
+                className="fill-slate-300 dark:fill-slate-700"
                 d={path}
             />
         </g>

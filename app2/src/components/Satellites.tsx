@@ -23,7 +23,7 @@ const Satellites = () => {
     return (
         <div className="w-full">
             <div
-                className="border-y border-slate-300 -mx-3 px-3 inset-shadow-[0_0_10px] inset-shadow-slate-200">
+                className="border-y border-slate-300 dark:border-slate-950 -mx-3 px-3 inset-shadow-[0_0_10px] inset-shadow-slate-200 dark:inset-shadow-slate-950">
                 <Swiper
                     ref={swiperRef}
                     initialSlide={0}
