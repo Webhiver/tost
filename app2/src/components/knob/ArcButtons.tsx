@@ -129,7 +129,7 @@ export const ArcButtons = () => {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(${-leftLabelAngleDeg} ${minusPoint.x} ${minusPoint.y})`}
-                    className="font-mono text-3xl users-select-none pointer-events-none fill-black/20 dark:fill-slate-500"
+                    className="font-mono text-3xl users-select-none pointer-events-none fill-black/30 dark:fill-slate-500"
                 >
                     -
                 </text>
@@ -139,7 +139,7 @@ export const ArcButtons = () => {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(${-rightLabelAngleDeg} ${plusPoint.x} ${plusPoint.y})`}
-                    className="font-mono text-3xl users-select-none pointer-events-none fill-black/20 dark:fill-slate-500"
+                    className="font-mono text-3xl users-select-none pointer-events-none fill-black/30 dark:fill-slate-500"
                 >
                     +
                 </text>
