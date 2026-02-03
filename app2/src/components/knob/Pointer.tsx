@@ -2,7 +2,6 @@ import {RefObject, useCallback, useRef, useState, useEffect, MouseEvent as React
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext, ApiContext} from "../../_context";
 import {
-    getStartXY,
     calculatePercentage,
     getValueFromPercentage,
     stepsToSnapTo,
@@ -39,6 +38,7 @@ export const Pointer = (props: PointerProps) => {
     } = props;
 
     const startXY = useRef<{ startX: number, startY: number }>({startX: 0, startY: 0});
+    const rootRect = useRef<DOMRect | null>(null);
 
     const heatZoneSize = 20;
     const heatZoneColor = 'transparent';
@@ -53,13 +53,21 @@ export const Pointer = (props: PointerProps) => {
         cancelPendingSubmitConfig();
         stopGettingStatus();
         setTrackingActive(true);
-        startXY.current = getStartXY(rootRef, knobSize);
+        const rect = rootRef.current?.getBoundingClientRect() ?? null;
+        rootRect.current = rect;
+        if (rect) {
+            startXY.current = {
+                startX: rect.width / 2,
+                startY: rect.height / 2,
+            };
+        }
 
     }, [rootRef, knobSize, cancelPendingGetStatus, stopGettingStatus, cancelPendingSubmitConfig]);
 
     const stopTracking = useCallback(() => {
         setTrackingActive(false);
         startXY.current = {startX: 0, startY: 0};
+        rootRect.current = null;
 
         submitConfig({target_temperature: targetTemp});
     }, [targetTemp, submitConfig]);
@@ -73,12 +81,20 @@ export const Pointer = (props: PointerProps) => {
         let pageX = 0;
         let pageY = 0;
         if (event && "touches" in event) {
-            pageX = event.changedTouches[0].pageX;
-            pageY = event.changedTouches[0].pageY;
+            const touch = event.touches[0] ?? event.changedTouches[0];
+            if (touch) {
+                pageX = touch.clientX;
+                pageY = touch.clientY;
+            }
         }
-        if (event && "pageX" in event) {
-            pageX = event.pageX;
-            pageY = event.pageY;
+        if (event && "clientX" in event) {
+            pageX = event.clientX;
+            pageY = event.clientY;
+        }
+        const rect = rootRect.current ?? rootRef.current?.getBoundingClientRect() ?? null;
+        if (rect) {
+            pageX -= rect.left;
+            pageY -= rect.top;
         }
 
         let percentage = calculatePercentage({
@@ -101,7 +117,7 @@ export const Pointer = (props: PointerProps) => {
         setKnobPercentage(percentage);
         setTargetTemp(newTargetTemp);
 
-    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps]);
+    }, [knobAngleRange, knobAngleOffset, knobMinTemp, knobMaxTemp, knobSteps, rootRef]);
 
     useEffect(() => {
         if (trackingActive) {

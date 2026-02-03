@@ -7,7 +7,7 @@ const Layout = () => {
     // Host mode (default)
     return (
         <div className="w-screen h-screen bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-            <div className="overflow-hidden bg-slate-100 dark:bg-slate-800 w-screen h-screen lg:w-104 lg:h-auto lg:min-h-200 lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
+            <div className="relative overflow-hidden bg-slate-100 dark:bg-slate-800 w-screen h-screen lg:w-104 lg:h-auto lg:min-h-200 lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
                 <ApiProvider>
                     <LocalProvider>
                         <App/>
