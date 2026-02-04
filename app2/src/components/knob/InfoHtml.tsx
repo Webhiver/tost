@@ -49,7 +49,7 @@ export const InfoHtml = () => {
     }
 
     return (
-        <div className="pointer-events-none user-select-none flex flex-col justify-start items-center absolute top-0 bottom-0 left-0 right-0">
+        <div className="pointer-events-none select-none flex flex-col justify-start items-center absolute top-0 bottom-0 left-0 right-0">
             <div className="h-16"/>
             <div className="text-sm text-orange-500">{effectiveTempLabel}</div>
             <div className="font-mono text-2xl text-slate-500/70">{effectiveTemp.toFixed(1)}°C</div>

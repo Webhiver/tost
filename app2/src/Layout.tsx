@@ -1,6 +1,8 @@
 import LocalProvider from './_providers/LocalProvider'
 import ApiProvider from './_providers/ApiProvider'
+import PanelsProvider from './_providers/PanelsProvider'
 import App from './App.tsx'
+import MainPanel from "./components/panels/MainPanel";
 
 const Layout = () => {
 
@@ -10,7 +12,10 @@ const Layout = () => {
             <div className="relative overflow-hidden bg-slate-100 dark:bg-slate-800 w-screen h-screen lg:w-104 lg:h-auto lg:min-h-200 lg:rounded-3xl lg:shadow-xl flex flex-col justify-stretch">
                 <ApiProvider>
                     <LocalProvider>
-                        <App/>
+                        <PanelsProvider>
+                            <App/>
+                            <MainPanel/>
+                        </PanelsProvider>
                     </LocalProvider>
                 </ApiProvider>
             </div>

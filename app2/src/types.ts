@@ -166,3 +166,16 @@ export interface ApiProviderProps {
   cancelPendingGetStatus: () => void,
   cancelPendingSubmitConfig: () => void,
 }
+
+export type PanelType = 'main' | 'settings' | 'satellites' | 'statistics' | 'monitoring' | 'updates'
+
+export interface PanelsProviderProps {
+  panelsAnimationSpeed: number,
+  mainPanelOpen: boolean,
+  settingsPanelOpen: boolean,
+  satellitesPanelOpen: boolean,
+  statisticsPanelOpen: boolean,
+  monitoringPanelOpen: boolean,
+  updatesPanelOpen: boolean,
+  togglePanel: (panel: PanelType, isOpen?: boolean | undefined) => void,
+}
