@@ -8,6 +8,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const state = useContextSelector(ApiContext, c => c.state);
     const config = useContextSelector(ApiContext, c => c.config);
 
+    const [type, setType] = useState<'host' | 'satellite'>('host');
     const [mode, setMode] = useState<OperatingMode>('off');
     const [flame, setFlame] = useState<boolean>(false);
     const [flameMode, setFlameMode] = useState<string>('average');
@@ -50,6 +51,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     }, [state]);
 
     useEffect(() => {
+        setType(config?.mode ?? 'host');
         setMode(config?.operating_mode ?? 'off');
         setFlameMode(config?.flame_mode ?? 'average');
         setFlameModeSensor(config?.flame_mode === 'one' ? config?.flame_mode_sensor : null);
@@ -104,6 +106,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
 
     return (
         <LocalContext.Provider value={{
+            type,
             hostName,
             hostHealthy,
             hostHumidity,

@@ -3,6 +3,7 @@ import ApiProvider from './_providers/ApiProvider'
 import PanelsProvider from './_providers/PanelsProvider'
 import App from './App.tsx'
 import MainPanel from "./components/panels/MainPanel";
+import SettingsPanel from "./components/panels/SettingsPanel";
 
 const Layout = () => {
 
@@ -15,6 +16,7 @@ const Layout = () => {
                         <PanelsProvider>
                             <App/>
                             <MainPanel/>
+                            <SettingsPanel/>
                         </PanelsProvider>
                     </LocalProvider>
                 </ApiProvider>

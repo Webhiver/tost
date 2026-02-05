@@ -124,6 +124,7 @@ export interface Device {
 }
 
 export interface LocalProviderProps {
+  type: 'host' | 'satellite',
   mode: string,
   flame: boolean,
   flameMode: string,
