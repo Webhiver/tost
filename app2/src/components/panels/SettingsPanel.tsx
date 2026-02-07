@@ -1,24 +1,196 @@
+import {Fragment} from "react";
 import WrapperPanel from "./WrapperPanel";
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {PanelsContext} from "../../_context";
+import {LocalContext, PanelsContext} from "../../_context";
+import {} from "../../types.ts";
+import {GrSatellite, GrHomeRounded} from "react-icons/gr";
+import Field from "./Field";
+
+interface SelectOption {
+    value: string | number;
+    label: string;
+}
+
+type Option = SelectOption | string | "-";
 
 const SettingsPanel = () => {
 
+    const devices = useContextSelector(LocalContext, c => c.devices);
     const configs = useContextSelector(PanelsContext, c => c.configs);
-    const onConfigChange = useContextSelector(PanelsContext, c => c.onConfigChange);
+
+    const singleSensors: Option[] = [];
+    devices.forEach(device => {
+        singleSensors.push({value: `one_${device.id}`, label: device.name});
+    });
 
     return (
         <WrapperPanel type="settings">
-            <div className="grid grid-cols-10">
-                <div className="col-span-6">Name:</div>
-                <div className="col-span-4">
-                    <input
-                        type="text"
-                        value={configs["2c:cf:67:bb:fe:78"]?.name || ""}
-                        className="w-full border border-slate-300 rounded-md px-2 py-1"
-                        onChange={e => onConfigChange("name", e.target.value, "2c:cf:67:bb:fe:78")}
-                    />
-                </div>
+            <div className="py-4">
+                {devices.map((device, index) => {
+                    const mac = device.id;
+                    const ip = device.ip;
+                    const satellite = device.satellite;
+                    const name = device.name;
+
+                    return (
+                        <Fragment key={`deice-config-${mac}-${index}`}>
+                            <div className="text-slate-600 bg-slate-300 rounded-b-md px-2 py-1 sticky -top-px flex justify-start items-center gap-2">
+                                {!satellite ? <GrHomeRounded/> : <GrSatellite/>}
+                                <div className="text-lg">{name}</div>
+                                <div className="flex-1"/>
+                                <div className="text-sm text-slate-400">{satellite ? ip : "this device"}</div>
+                            </div>
+                            <div className="py-3 flex flex-col items-stretch justify-start gap-3">
+                                {!satellite &&
+                                    <>
+                                        <Field
+                                            type="text"
+                                            label="Device Name"
+                                            value={configs[mac]?.name || ""}
+                                            configName="name"
+                                            mac={mac}
+                                        />
+                                        <div className="font-light text-slate-800">TEMPERATURE CONTROL</div>
+                                        <Field
+                                            type="select"
+                                            label="Operating Mode"
+                                            value={configs[mac]?.operating_mode || ""}
+                                            configName="operating_mode"
+                                            mac={mac}
+                                            options={[{value: "off", label: "Off"}, {value: "manual", label: "Manual"}, {value: "schedule", label: "Schedule"}]}
+                                        />
+                                        <Field
+                                            type="number"
+                                            label="Hysteresis"
+                                            value={configs[mac]?.hysteresis || ""}
+                                            configName="hysteresis"
+                                            mac={mac}
+                                            addon="°C"
+                                            step="0.1"
+                                            min="0.1"
+                                            max="5"
+                                        />
+                                        <Field
+                                            type="select"
+                                            label="Flame Mode"
+                                            value={`${configs[mac]?.flame_mode}_${configs[mac]?.flame_mode === "one" ? configs[mac]?.flame_mode_sensor : ""}` || ""}
+                                            configName="flame_mode"
+                                            mac={mac}
+                                            options={[
+                                                "Combined Sensors",
+                                                {value: "average_", label: "Average"},
+                                                {value: "all_", label: "All Sensors"},
+                                                {value: "any_", label: "Any Sensor"},
+                                                "Single Sensors",
+                                                ...singleSensors
+                                            ]}
+                                        />
+                                        <Field
+                                            type="select"
+                                            label="Local Sensor"
+                                            value={configs[mac]?.local_sensor || ""}
+                                            configName="local_sensor"
+                                            mac={mac}
+                                            options={[{value: "included", label: "Always Included"}, {value: "fallback", label: "Fallback Only"}]}
+                                        />
+                                        <div className="font-light text-slate-800">SENSOR CALIBRATION</div>
+                                        <Field
+                                            type="number"
+                                            label="Temperature Offset"
+                                            value={configs[mac]?.sensor_temperature_offset ?? ""}
+                                            configName="sensor_temperature_offset"
+                                            mac={mac}
+                                            addon="°C"
+                                            step="0.1"
+                                            min="-10"
+                                            max="10"
+                                        />
+                                        <Field
+                                            type="number"
+                                            label="Humidity Offset"
+                                            value={configs[mac]?.sensor_humidity_offset ?? ""}
+                                            configName="sensor_humidity_offset"
+                                            mac={mac}
+                                            addon="%"
+                                            step="0.1"
+                                            min="-10"
+                                            max="10"
+                                        />
+                                        <div className="font-light text-slate-800">TIMING</div>
+                                        <Field
+                                            type="number"
+                                            label="Satellite Grace Period"
+                                            value={configs[mac]?.satellite_grace_period ?? ""}
+                                            configName="satellite_grace_period"
+                                            mac={mac}
+                                            addon="sec"
+                                            step="10"
+                                            min="30"
+                                            max="600"
+                                        />
+                                        <Field
+                                            type="number"
+                                            label="Max Flame Duration"
+                                            value={configs[mac]?.max_flame_duration ? Math.round(configs[mac].max_flame_duration / 3600) : ""}
+                                            configName="sensor_temperature_offset"
+                                            mac={mac}
+                                            addon="hours"
+                                            step="1"
+                                            min="1"
+                                            max="24"
+                                        />
+                                        <div className="font-light text-slate-800">MISCELLANEOUS</div>
+                                        <Field
+                                            type="range"
+                                            label="LED Brightness"
+                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
+                                            configName="led_brightness"
+                                            mac={mac}
+                                            min="0"
+                                            max="100"
+                                        />
+                                    </>
+                                }
+                                {satellite &&
+                                    <>
+                                        <div className="font-light text-slate-800">SENSOR CALIBRATION</div>
+                                        <Field
+                                            type="number"
+                                            label="Temperature Offset"
+                                            value={configs[mac]?.sensor_temperature_offset ?? ""}
+                                            configName="sensor_temperature_offset"
+                                            mac={mac}
+                                            addon="°C"
+                                            step="0.1"
+                                            min="-10"
+                                            max="10"
+                                        />
+                                        <Field
+                                            type="number"
+                                            label="Humidity Offset"
+                                            value={configs[mac]?.sensor_humidity_offset ?? ""}
+                                            configName="sensor_humidity_offset"
+                                            mac={mac}
+                                            addon="%"
+                                            step="0.1"
+                                            min="-10"
+                                            max="10"
+                                        />
+                                        <div className="font-light text-slate-800">MISCELLANEOUS</div>
+                                        <Field
+                                            type="range"
+                                            label="LED Brightness"
+                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
+                                            configName="led_brightness"
+                                            mac={mac}
+                                            min="0"
+                                            max="100"
+                                        />
+                                    </>}
+                            </div>
+                        </Fragment>
+                    );
+                })}
             </div>
         </WrapperPanel>
     );

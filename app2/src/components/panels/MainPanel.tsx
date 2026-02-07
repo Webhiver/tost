@@ -17,7 +17,7 @@ const MainPanel = () => {
 
     return (
         <WrapperPanel type="main">
-            <div className="h-full flex flex-col justify-center items-stretch px-20">
+            <div className="h-full flex flex-col justify-center items-stretch px-20 -mt-6">
                 <div className="flex flex-col justify-center items-center gap-2 px-4 pb-8 text-center text-xl text-slate-500">
                     <div className="text-md font-extralight">Operating mode</div>
                     <div className="flex justify-center items-center gap-2">

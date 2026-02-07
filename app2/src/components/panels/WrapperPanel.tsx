@@ -110,14 +110,14 @@ const WrapperPanel = (props: Props) => {
     }, [open]);
 
     let title = (
-        <div className="flex justify-start items-center gap-4 px-6 py-4 text-slate-500 text-xl">
+        <div className="flex justify-start items-center gap-4 px-4 py-4 text-slate-500 text-xl">
             <div className="flex-1"/>
             <MdClose className="fill-slate-500 size-8 cursor-pointer" onClick={onClose}/>
         </div>
     );
     if(type !== "main") {
         title = (
-            <div className="flex justify-start items-center gap-2 px-6 py-4 text-slate-500 text-xl border-b border-slate-300">
+            <div className="flex justify-start items-center gap-2 px-4 py-4 text-slate-500 text-xl border-b border-slate-300">
                 {type === "settings" && <TbSettings className="size-6"/>}
                 {type === "schedule" && <TbCalendarClock className="size-6"/>}
                 {type === "satellites" && <GrSatellite className="size-5"/>}
@@ -175,7 +175,7 @@ const WrapperPanel = (props: Props) => {
             onTouchEnd={onTouchEnd}
         >
             {title}
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex-1 overflow-y-auto px-4 relative">
                 {renderContent && children}
             </div>
             {type === "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
