@@ -1,19 +1,25 @@
 import WrapperPanel from "./WrapperPanel";
-import { TbSettings } from "react-icons/tb";
-import {PiHandSwipeRight} from "react-icons/pi";
+import {useContextSelector} from "@fluentui/react-context-selector";
+import {PanelsContext} from "../../_context";
 
 const SettingsPanel = () => {
 
+    const configs = useContextSelector(PanelsContext, c => c.configs);
+    const onConfigChange = useContextSelector(PanelsContext, c => c.onConfigChange);
+
     return (
         <WrapperPanel type="settings">
-            <div className="flex justify-start items-center gap-2 px-6 py-4 text-slate-500 text-xl border-b border-slate-300">
-                <TbSettings className="size-6"/>
-                SETTINGS
+            <div className="grid grid-cols-10">
+                <div className="col-span-6">Name:</div>
+                <div className="col-span-4">
+                    <input
+                        type="text"
+                        value={configs["2c:cf:67:bb:fe:78"]?.name || ""}
+                        className="w-full border border-slate-300 rounded-md px-2 py-1"
+                        onChange={e => onConfigChange("name", e.target.value, "2c:cf:67:bb:fe:78")}
+                    />
+                </div>
             </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-                CONTENT
-            </div>
-            <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>
         </WrapperPanel>
     );
 }

@@ -50,6 +50,27 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setIsPairing(state?.is_pairing ?? false);
     }, [state]);
 
+
+    // flame_mode: "one"
+    // flame_mode_sensor: "2c:cf:67:bb:f5:af"
+    //         flame_off_mode: "average"
+    //         flame_on_mode: "average"
+    // hysteresis: 0.3
+    // led_brightness: 1
+    // local_sensor: "fallback"
+    // max_flame_duration: 14400
+    // mode: "host"
+    // name: "Kitchen"
+    // operating_mode: "manual"
+    // satellite_grace_period: 120
+    // satellites: [{mac: "2c:cf:67:ba:f0:c5", name: "Bedroom"}, {mac: "2c:cf:67:bb:f5:af", name: "Living"}]
+    // sensor_humidity_offset: 0
+    // sensor_temperature_offset: 0
+    // target_temp: 32
+    // target_temperature: 22.5
+    // update_interval: 4
+
+
     useEffect(() => {
         setType(config?.mode ?? 'host');
         setMode(config?.operating_mode ?? 'off');
@@ -72,6 +93,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         const devices: Device[] = [];
         devices.push({
             id: state?.mac ?? `satellite-0`,
+            ip: undefined,
             satellite: false,
             name: config?.name ?? 'Host',
             online: true,
@@ -89,6 +111,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
 
             devices.push({
                 id: satellite?.mac ?? `satellite-${index + 1}`,
+                ip:satelliteState?.ip ?? undefined,
                 satellite: true,
                 name: satellite?.name ?? 'Host',
                 online: satelliteState?.online ?? false,

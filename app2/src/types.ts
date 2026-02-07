@@ -43,6 +43,14 @@ export interface Config {
   sensor_humidity_offset: number
 }
 
+export interface Configs {
+  [key: string]: Config | undefined
+}
+
+export interface PendingConfigs {
+  [key: string]: Partial<Config> | undefined
+}
+
 export interface State {
   is_pairing: boolean
   mac: string,
@@ -112,6 +120,7 @@ export interface DebugInfo {
 
 export interface Device {
   id: string,
+  ip: string | undefined,
   satellite: boolean,
   name: string,
   online: boolean,
@@ -168,15 +177,21 @@ export interface ApiProviderProps {
   cancelPendingSubmitConfig: () => void,
 }
 
-export type PanelType = 'main' | 'settings' | 'satellites' | 'statistics' | 'monitoring' | 'updates'
+export type PanelType = 'main' | 'settings' | 'schedule' | 'satellites' | 'statistics' | 'monitoring' | 'updates';
 
 export interface PanelsProviderProps {
+  loading: boolean,
+  saving: boolean,
+  saveResult: 'success' | 'error' | null,
   panelsAnimationSpeed: number,
   mainPanelOpen: boolean,
   settingsPanelOpen: boolean,
+  schedulePanelOpen: boolean,
   satellitesPanelOpen: boolean,
   statisticsPanelOpen: boolean,
   monitoringPanelOpen: boolean,
   updatesPanelOpen: boolean,
-  togglePanel: (panel: PanelType, isOpen?: boolean | undefined) => void,
+  configs: Configs,
+  togglePanel: (panel: PanelType, isOpen: boolean) => void,
+  onConfigChange: (key: keyof Config, value: Config[keyof Config], mac: string) => void,
 }

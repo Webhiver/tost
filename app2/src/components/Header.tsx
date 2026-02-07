@@ -12,7 +12,7 @@ const Header = () => {
     const togglePanel = useContextSelector(PanelsContext, c => c.togglePanel);
 
     const onOpen = useCallback((_event: MouseEvent) => {
-        togglePanel("main");
+        togglePanel("main", true);
     }, [togglePanel]);
 
     return (
