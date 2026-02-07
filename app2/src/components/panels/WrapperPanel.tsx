@@ -182,7 +182,7 @@ const WrapperPanel = (props: Props) => {
             {type !== "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
             {Boolean(loading && type !== "main") &&
                 <div
-                    className="absolute inset-0 backdrop-blur-xs z-102 flex flex-col gap-2 justify-center items-center">
+                    className="absolute inset-0 backdrop-blur-sm z-102 flex flex-col gap-2 justify-center items-center">
                     <div className="size-10 border-3 border-slate-300 rounded-full relative">
                         <AiOutlineLoading
                             className="text-sky-500 animate-spin size-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
