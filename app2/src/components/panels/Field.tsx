@@ -37,6 +37,10 @@ const Field = (props: FieldProps) => {
 
     const onConfigChange = useContextSelector(PanelsContext, c => c.onConfigChange);
 
+    const stopPropagation = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+        e.stopPropagation();
+    }, []);
+
     const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         if(configName === "flame_mode") {
             const flameMode = e.target.value.split("_")[0];
@@ -89,6 +93,8 @@ const Field = (props: FieldProps) => {
                 value={value}
                 {...rest}
                 onChange={onChange}
+                onTouchStart={stopPropagation}
+                onTouchMove={stopPropagation}
             />
         );
     }

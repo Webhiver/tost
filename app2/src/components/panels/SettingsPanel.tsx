@@ -142,7 +142,7 @@ const SettingsPanel = () => {
                                         <div className="font-light text-slate-800">MISCELLANEOUS</div>
                                         <Field
                                             type="range"
-                                            label="LED Brightness"
+                                            label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
                                             value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
                                             configName="led_brightness"
                                             mac={mac}
@@ -179,7 +179,7 @@ const SettingsPanel = () => {
                                         <div className="font-light text-slate-800">MISCELLANEOUS</div>
                                         <Field
                                             type="range"
-                                            label="LED Brightness"
+                                            label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
                                             value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
                                             configName="led_brightness"
                                             mac={mac}
