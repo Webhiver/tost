@@ -20,6 +20,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [targetTemp, setTargetTemp] = useState<number>(0);
     const [effectiveTemp, setEffectiveTemp] = useState<number>(0);
     const [satellites, setSatellites] = useState<Satellite[]>([]);
+    const [hostMac, setHostMac] = useState<string>('');
     const [hostName, setHostName] = useState<string>('Host');
     const [hostHealthy, setHostHealthy] = useState<boolean>(true);
     const [hostHumidity, setHostHumidity] = useState<number | null>(null);
@@ -48,6 +49,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setHostHumidity(state?.sensor?.humidity ?? null);
         setHostTemperature(state?.sensor?.temperature ?? null);
         setIsPairing(state?.is_pairing ?? false);
+        setHostMac(state?.mac ?? '');
     }, [state]);
 
 
@@ -130,6 +132,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     return (
         <LocalContext.Provider value={{
             type,
+            hostMac,
             hostName,
             hostHealthy,
             hostHumidity,

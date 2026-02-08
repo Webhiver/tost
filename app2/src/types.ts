@@ -28,6 +28,7 @@ export type OperatingMode = 'off' | 'manual' | "schedule"
 
 export interface Config {
   mode: 'host' | 'satellite'
+  mac: 'string'
   name: string
   operating_mode: OperatingMode
   target_temperature: number
@@ -119,79 +120,83 @@ export interface DebugInfo {
 // APP2 Types
 
 export interface Device {
-  id: string,
-  ip: string | undefined,
-  satellite: boolean,
-  name: string,
-  online: boolean,
-  healthy: boolean,
-  error: string | null,
-  wifiStrength: number | null,
-  temperature: number | null,
-  humidity: number | null,
-  active: boolean,
+  id: string
+  ip: string | undefined
+  satellite: boolean
+  name: string
+  online: boolean
+  healthy: boolean
+  error: string | null
+  wifiStrength: number | null
+  temperature: number | null
+  humidity: number | null
+  active: boolean
 }
 
 export interface LocalProviderProps {
-  type: 'host' | 'satellite',
-  mode: string,
-  flame: boolean,
-  flameMode: string,
-  flameModeSensor: string | null,
-  flameDuration: number,
-  isPairing: boolean,
-  hostName: string,
-  hostHealthy: boolean,
-  hostTemperature: number | null,
-  hostHumidity: number | null,
-  wifiConnected: boolean,
-  wifiStrength: number | null,
-  knobSize: number,
-  knobWidth: number,
-  knobAngleRange: number,
-  knobAngleOffset: number,
-  knobMinTemp: number,
-  knobMaxTemp: number,
-  knobTickWidth: number,
-  knobTickHeight: number,
-  knobSteps: number,
-  knobPercentage: number,
-  targetTemp: number,
-  effectiveTemp: number,
-  satellites: Satellite[],
-  devices: Device[],
-  setMode: (mode: OperatingMode) => void,
-  setTargetTemp: (temp: number) => void,
-  setKnobPercentage: (percentage: number) => void,
+  type: 'host' | 'satellite'
+  mode: string
+  flame: boolean
+  flameMode: string
+  flameModeSensor: string | null
+  flameDuration: number
+  isPairing: boolean
+  hostMac: string
+  hostName: string
+  hostHealthy: boolean
+  hostTemperature: number | null
+  hostHumidity: number | null
+  wifiConnected: boolean
+  wifiStrength: number | null
+  knobSize: number
+  knobWidth: number
+  knobAngleRange: number
+  knobAngleOffset: number
+  knobMinTemp: number
+  knobMaxTemp: number
+  knobTickWidth: number
+  knobTickHeight: number
+  knobSteps: number
+  knobPercentage: number
+  targetTemp: number
+  effectiveTemp: number
+  satellites: Satellite[]
+  devices: Device[]
+  setMode: (mode: OperatingMode) => void
+  setTargetTemp: (temp: number) => void
+  setKnobPercentage: (percentage: number) => void
 }
 
 export interface ApiProviderProps {
-  isLoading: boolean,
-  config: Config | null,
-  state: State | null,
+  isLoading: boolean
+  config: Config | null
+  state: State | null
   submitConfig: (config: Partial<Config>) => void;
-  startGettingStatus: () => void,
-  stopGettingStatus: () => void,
-  resetAndStartGettingStatus: () => void,
-  cancelPendingGetStatus: () => void,
-  cancelPendingSubmitConfig: () => void,
+  startGettingStatus: () => void
+  stopGettingStatus: () => void
+  resetAndStartGettingStatus: () => void
+  cancelPendingGetStatus: () => void
+  cancelPendingSubmitConfig: () => void
 }
 
-export type PanelType = 'main' | 'settings' | 'schedule' | 'satellites' | 'statistics' | 'monitoring' | 'updates';
+export type PanelType = 'main' | 'settings' | 'schedule' | 'satellites' | 'statistics' | 'monitoring' | 'updates'
 
 export interface PanelsProviderProps {
-  loading: boolean,
-  saving: boolean,
-  saveResult: 'success' | 'error' | null,
-  panelsAnimationSpeed: number,
-  mainPanelOpen: boolean,
-  settingsPanelOpen: boolean,
-  schedulePanelOpen: boolean,
-  satellitesPanelOpen: boolean,
-  statisticsPanelOpen: boolean,
-  monitoringPanelOpen: boolean,
-  updatesPanelOpen: boolean,
-  configs: Configs,
-  togglePanel: (panel: PanelType, isOpen: boolean) => void,
-  onConfigChange: (key: keyof Config, value: Config[keyof Config], mac: string) => void,
+  loading: boolean
+  saving: boolean
+  saveResult: 'success' | 'error' | null
+  panelsAnimationSpeed: number
+  mainPanelOpen: boolean
+  settingsPanelOpen: boolean
+  schedulePanelOpen: boolean
+  satellitesPanelOpen: boolean
+  statisticsPanelOpen: boolean
+  monitoringPanelOpen: boolean
+  updatesPanelOpen: boolean
+  configs: Configs
+  togglePanel: (panel: PanelType, isOpen: boolean) => void
+  onConfigChange: (key: keyof Config, value: Config[keyof Config], mac: string) => void
+  onSatelliteConfigChange: (index: number, key: keyof SatelliteConfig, value: SatelliteConfig[keyof SatelliteConfig]) => void
+  onAddSatellite: () => void
+  onRemoveSatellite: (index: number) => void
 }

@@ -2,6 +2,8 @@ import {useCallback} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {PanelsContext} from "../../_context";
 import {Config} from "../../types.ts";
+import clsx from "clsx";
+import {FieldClasses, FieldSelectClasses, FieldRangeClasses, FieldAddonClasses} from "../../styles.ts";
 
 interface SelectOption {
     value: string | number;
@@ -62,8 +64,9 @@ const Field = (props: FieldProps) => {
 
     let input = (
         <input
+            id={`field-${configName}-${mac}`}
             data-has-addon={addon ? "true" : undefined}
-            className="w-full flex-1 border border-slate-300 rounded-md px-2 py-1 bg-white text-slate-500 data-has-addon:rounded-r-none"
+            className={clsx(FieldClasses)}
             type="text"
             value={value}
             {...rest}
@@ -74,8 +77,9 @@ const Field = (props: FieldProps) => {
     if(type === "number"){
         input = (
             <input
+                id={`field-${configName}-${mac}`}
                 data-has-addon={addon ? "true" : undefined}
-                className="w-full flex-1 border border-slate-300 rounded-md px-2 py-1 bg-white text-slate-500 data-has-addon:rounded-r-none"
+                className={clsx(FieldClasses)}
                 type="number"
                 value={value}
                 {...rest}
@@ -87,8 +91,9 @@ const Field = (props: FieldProps) => {
     if(type === "range"){
         input = (
             <input
+                id={`field-${configName}-${mac}`}
                 data-has-addon={addon ? "true" : undefined}
-                className="w-full bg-white text-slate-500"
+                className={clsx(FieldRangeClasses)}
                 type="range"
                 value={value}
                 {...rest}
@@ -102,8 +107,9 @@ const Field = (props: FieldProps) => {
     if(type === "select"){
         input = (
             <select
+                id={`field-${configName}-${mac}`}
                 data-has-addon={addon ? "true" : undefined}
-                className="w-full flex-1 border border-slate-300 rounded-md px-2 py-1 bg-white text-slate-500 data-has-addon:rounded-r-none"
+                className={clsx(FieldClasses, FieldSelectClasses)}
                 value={value}
                 {...rest}
                 onChange={onChange}
@@ -123,10 +129,10 @@ const Field = (props: FieldProps) => {
 
     return (
         <div className="grid grid-cols-10">
-            <div className="col-span-6 text-slate-500 flex items-center">{label}</div>
+            <label htmlFor={`field-${configName}-${mac}`} className="col-span-6 text-slate-500 flex items-center">{label}</label>
             <div className="col-span-4 flex justify-stretch items-stretch">
                 {input}
-                {addon && <div className="flex items-center bg-slate-300 text-sm font-medium text-slate-500 px-2 rounded-r-md">{addon}</div>}
+                {addon && <div className={clsx(FieldAddonClasses)}>{addon}</div>}
             </div>
         </div>
     );

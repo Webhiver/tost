@@ -124,7 +124,14 @@ const WrapperPanel = (props: Props) => {
                 {type === "statistics" && <TbChartHistogram className="size-6"/>}
                 {type === "monitoring" && <TbHeartRateMonitor className="size-6"/>}
                 {type === "updates" && <TbCloudDownload className="size-6"/>}
-                <h1 className="mr-2">SETTINGS</h1>
+
+                {type === "settings" && <h1 className="mr-2">SETTINGS</h1>}
+                {type === "schedule" && <h1 className="mr-2">SCHEDULE</h1>}
+                {type === "satellites" && <h1 className="mr-2">SATELLITES</h1>}
+                {type === "statistics" && <h1 className="mr-2">STATISTICS</h1>}
+                {type === "monitoring" && <h1 className="mr-2">MONITORING</h1>}
+                {type === "updates" && <h1 className="mr-2">UPDATES</h1>}
+
                 {saving &&
                     <div className="flex justify-start items-center gap-1 text-green-500">
                         <div className="size-3 border border-green-700/15 rounded-full relative">

@@ -1,11 +1,28 @@
 import {ReactNode, useState, useRef, useCallback, useEffect} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, PanelsContext, LocalContext} from "../_context";
-import {PendingConfigs, Configs, Config, PanelType} from "../types.ts";
+import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig} from "../types.ts";
 import {fetchConfig, fetchSatelliteConfig, updateConfig, updateSatelliteConfig} from "../api.ts";
 
 const DEBOUNCE_MS = 750;
 const RESULT_DISPLAY_MS = 5000;
+
+function isValidMac(mac: string): boolean {
+  if (!mac) return false
+  // Normalize: remove colons/dashes and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  if (clean.length !== 12) return false
+  // Check all characters are hex
+  return /^[0-9a-f]{12}$/.test(clean)
+}
+
+function normalizeMac(mac: string): string {
+  if (!mac) return ''
+  // Remove separators and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  // Format with colons: aa:bb:cc:dd:ee:ff
+  return clean.match(/.{1,2}/g)?.join(':') || ''
+}
 
 const PanelsProvider = ({children}: { children: ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(false);
@@ -25,6 +42,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     const scheduleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const responseSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    const hostMac = useContextSelector(LocalContext, c => c.hostMac);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const resetAndStartGettingStatus = useContextSelector(ApiContext, c => c.resetAndStartGettingStatus);
     const devices = useContextSelector(LocalContext, c => c.devices);
@@ -48,7 +66,8 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
                         const data = await fetchSatelliteConfig(ip);
                         configs[mac] = data;
                     }
-                } else {
+                }
+                if (!satellite) {
                     const data = await fetchConfig();
                     configs[mac] = data;
                 }
@@ -126,13 +145,6 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             if (typeof value === 'number' && Number.isNaN(value)) return
         }
 
-        // Update local state immediately
-        setConfigs(currentConfigs => {
-            const newConfigs = {...currentConfigs};
-            newConfigs[mac] = {...newConfigs[mac] as Config, ...updates};
-            return newConfigs;
-        });
-
         // Notify parent for optimistic UI updates
         // !!!MAYBE NOT REQUIRED ANYMORE
         // if (!satellite) {
@@ -147,8 +159,71 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     }, [configs]);
 
     const onConfigChange = useCallback((key: keyof Config, value: Config[keyof Config], mac: string) => {
-        queueUpdate({[key]: value} as Partial<Config>, mac);
+        const updates = {[key]: value} as Partial<Config>;
+
+        setConfigs(currentConfigs => {
+            const newConfigs = {...currentConfigs};
+            newConfigs[mac] = {...newConfigs[mac] as Config, ...updates};
+            return newConfigs;
+        });
+
+        queueUpdate(updates, mac);
     }, [queueUpdate]);
+
+    const onSatelliteConfigChange = useCallback((index: number, key: keyof SatelliteConfig, value: SatelliteConfig[keyof SatelliteConfig]) => {
+        let satellites = [] as SatelliteConfig[];
+        if(configs[hostMac]?.satellites){
+            satellites = [...configs[hostMac]?.satellites];
+        }
+        satellites[index][key] = value;
+
+        const updates = {satellites: satellites} as Partial<Config>;
+
+        setConfigs(currentConfigs => {
+            const newConfigs = {...currentConfigs};
+            newConfigs[hostMac] = {...newConfigs[hostMac] as Config, ...updates};
+            return newConfigs;
+        });
+
+        updates.satellites = (updates.satellites || [] as SatelliteConfig[])
+            .filter(sat => isValidMac(sat.mac))
+            .map(sat => ({ ...sat, mac: normalizeMac(sat.mac) }));
+
+        queueUpdate(updates, hostMac);
+    }, [queueUpdate, hostMac, configs]);
+
+    const onAddSatellite = useCallback(() => {
+        setConfigs(currentConfigs => {
+            const newConfigs = {...currentConfigs};
+            if (!newConfigs[hostMac]) {
+                newConfigs[hostMac] = {} as Config;
+            }
+            newConfigs[hostMac].satellites = [...newConfigs[hostMac]?.satellites as SatelliteConfig[], {mac: '', name: ''}];
+            return newConfigs;
+        });
+    }, [hostMac]);
+
+    const onRemoveSatellite = useCallback((index: number) => {
+        let satellites = [] as SatelliteConfig[];
+        if(configs[hostMac]?.satellites){
+            satellites = [...configs[hostMac]?.satellites];
+        }
+        satellites = satellites.filter((_, i) => i !== index);
+
+        const updates = {satellites: satellites} as Partial<Config>;
+
+        setConfigs(currentConfigs => {
+            const newConfigs = {...currentConfigs};
+            newConfigs[hostMac] = {...newConfigs[hostMac] as Config, ...updates};
+            return newConfigs;
+        });
+
+        updates.satellites = (updates.satellites || [] as SatelliteConfig[])
+            .filter(sat => isValidMac(sat.mac))
+            .map(sat => ({ ...sat, mac: normalizeMac(sat.mac) }));
+
+        queueUpdate(updates, hostMac);
+    }, [hostMac, configs]);
 
     const togglePanel = useCallback((panel: PanelType, isOpen: boolean) => {
         if (isOpen && panel === "main") {
@@ -191,6 +266,9 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         if (settingsPanelOpen) {
             getConfigs(true);
         }
+        if (satellitesPanelOpen) {
+            getConfigs(false);
+        }
     }, [mainPanelOpen, settingsPanelOpen, satellitesPanelOpen, statisticsPanelOpen, monitoringPanelOpen, updatesPanelOpen, getConfigs]);
 
     return (
@@ -209,6 +287,9 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             configs,
             togglePanel,
             onConfigChange,
+            onSatelliteConfigChange,
+            onAddSatellite,
+            onRemoveSatellite,
         }}>
             {children}
         </PanelsContext.Provider>
