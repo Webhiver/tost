@@ -32,7 +32,7 @@ const MainPanel = () => {
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 to-transparent"/>
                 {type !== "satellite" &&
                     <>
-                        <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500" onClick={onOpenPanel("satellites")}>
+                        <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 line-through" onClick={onOpenPanel("schedule")}>
                             <TbCalendarClock className="size-6"/>
                             SCHEDULE
                         </div>
@@ -44,17 +44,17 @@ const MainPanel = () => {
                         <div className="h-px bg-linear-to-r from-transparent via-slate-300 to-transparent"/>
                     </>
                 }
-                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500" onClick={onOpenPanel("statistics")}>
+                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 line-through" onClick={onOpenPanel("statistics")}>
                     <TbChartHistogram className="size-6"/>
                     STATISTICS
                 </div>
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 to-transparent"/>
-                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500" onClick={onOpenPanel("monitoring")}>
+                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 line-through" onClick={onOpenPanel("monitoring")}>
                     <TbHeartRateMonitor className="size-6"/>
                     MONITORING
                 </div>
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 to-transparent"/>
-                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500" onClick={onOpenPanel("updates")}>
+                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 line-through" onClick={onOpenPanel("updates")}>
                     <TbCloudDownload className="size-6"/>
                     UPDATES
                 </div>
