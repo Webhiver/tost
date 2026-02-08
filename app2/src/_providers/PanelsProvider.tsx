@@ -198,7 +198,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             if (!newConfigs[hostMac]) {
                 newConfigs[hostMac] = {} as Config;
             }
-            newConfigs[hostMac].satellites = [...newConfigs[hostMac]?.satellites as SatelliteConfig[], {mac: '', name: ''}];
+            newConfigs[hostMac].satellites = [...newConfigs[hostMac]?.satellites as SatelliteConfig[], {mac: '', name: `Satellite ${newConfigs[hostMac]?.satellites.length + 1}`}];
             return newConfigs;
         });
     }, [hostMac]);
