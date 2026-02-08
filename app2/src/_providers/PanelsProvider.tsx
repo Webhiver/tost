@@ -3,26 +3,10 @@ import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, PanelsContext, LocalContext} from "../_context";
 import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig} from "../types.ts";
 import {fetchConfig, fetchSatelliteConfig, updateConfig, updateSatelliteConfig} from "../api.ts";
+import {isValidMac, normalizeMac} from "../utils.ts";
 
 const DEBOUNCE_MS = 750;
 const RESULT_DISPLAY_MS = 5000;
-
-function isValidMac(mac: string): boolean {
-  if (!mac) return false
-  // Normalize: remove colons/dashes and convert to lowercase
-  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
-  if (clean.length !== 12) return false
-  // Check all characters are hex
-  return /^[0-9a-f]{12}$/.test(clean)
-}
-
-function normalizeMac(mac: string): string {
-  if (!mac) return ''
-  // Remove separators and convert to lowercase
-  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
-  // Format with colons: aa:bb:cc:dd:ee:ff
-  return clean.match(/.{1,2}/g)?.join(':') || ''
-}
 
 const PanelsProvider = ({children}: { children: ReactNode }) => {
     const [loading, setLoading] = useState<boolean>(false);

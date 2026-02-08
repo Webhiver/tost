@@ -19,3 +19,20 @@ export function formatDuration(seconds: number | null | undefined): string {
   }
   return `${minutes}m`
 }
+
+export function isValidMac(mac: string): boolean {
+  if (!mac) return false
+  // Normalize: remove colons/dashes and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  if (clean.length !== 12) return false
+  // Check all characters are hex
+  return /^[0-9a-f]{12}$/.test(clean)
+}
+
+export function normalizeMac(mac: string): string {
+  if (!mac) return ''
+  // Remove separators and convert to lowercase
+  const clean = mac.toLowerCase().replace(/[:\-]/g, '')
+  // Format with colons: aa:bb:cc:dd:ee:ff
+  return clean.match(/.{1,2}/g)?.join(':') || ''
+}

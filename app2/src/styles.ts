@@ -14,6 +14,7 @@ export const FieldClasses = [
     "data-has-addon:rounded-r-none",
     "disabled:border-slate-200",
     "disabled:bg-slate-100",
+    "data-invalid:border-red-500",
 ];
 
 export const FieldSelectClasses = [

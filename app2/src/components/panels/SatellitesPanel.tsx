@@ -6,6 +6,7 @@ import {SatelliteConfig} from "../../types.ts";
 import SatelliteField from "./SatelliteField";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
+import {isValidMac} from "../../utils.ts";
 
 const SatellitesPanel = () => {
 
@@ -35,6 +36,9 @@ const SatellitesPanel = () => {
         <WrapperPanel type="satellites">
             <div className="py-4 flex flex-col justify-start items-stretch gap-4">
                 {configs[hostMac]?.satellites.map((satellite: SatelliteConfig, index: number) => {
+                    const macValid = isValidMac(satellite.mac);
+                    const showError = satellite.mac.length > 0 && !macValid;
+
                     return (
                         <div className="flex-1 flex flex-col items-stretch justify-start gap-2 border border-slate-300 bg-white/30 rounded-md p-4" key={`satellite-${index}-${satellite.mac}`}>
                             <SatelliteField
@@ -50,6 +54,7 @@ const SatellitesPanel = () => {
                                 value={satellite.mac || ""}
                                 configName="mac"
                                 placeholder="aa:bb:cc:dd:ee:ff"
+                                invalid={showError ? "Invalid MAC address" : false}
                             />
                             <div className="grid grid-cols-10">
                                 <div className="col-span-6 text-slate-400 text-sm flex items-center gap-1">Satellite IP: {getSatelliteIpByMac(satellite.mac)}</div>
