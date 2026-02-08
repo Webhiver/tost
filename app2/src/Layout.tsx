@@ -4,7 +4,8 @@ import PanelsProvider from './_providers/PanelsProvider'
 import App from './App.tsx'
 import MainPanel from "./components/panels/MainPanel";
 import SettingsPanel from "./components/panels/SettingsPanel";
-import SatellitesPanel from "./components/panels/SatellitesPanel.tsx";
+import SatellitesPanel from "./components/panels/SatellitesPanel";
+import UpdatesPanel from "./components/panels/UpdatesPanel";
 
 const Layout = () => {
 
@@ -19,6 +20,7 @@ const Layout = () => {
                             <MainPanel/>
                             <SettingsPanel/>
                             <SatellitesPanel/>
+                            <UpdatesPanel/>
                         </PanelsProvider>
                     </LocalProvider>
                 </ApiProvider>

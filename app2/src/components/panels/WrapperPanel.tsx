@@ -1,4 +1,4 @@
-import {useCallback, MouseEvent, TouchEvent, useRef, useState, useEffect} from 'react'
+import {Fragment, useCallback, MouseEvent, TouchEvent, useRef, useState, useEffect} from 'react'
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {MdClose, MdOutlineKeyboardArrowLeft} from "react-icons/md";
 import {AiOutlineLoading} from "react-icons/ai";
@@ -19,6 +19,8 @@ const WrapperPanel = (props: Props) => {
         type,
         children,
     } = props;
+
+    const touchAvailable = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
     const loading = useContextSelector(PanelsContext, c => c.loading);
     const saving = useContextSelector(PanelsContext, c => c.saving);
@@ -185,8 +187,17 @@ const WrapperPanel = (props: Props) => {
             <div className="flex-1 overflow-y-auto px-4 relative">
                 {renderContent && children}
             </div>
-            {type === "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
-            {type !== "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
+            {touchAvailable &&
+                <Fragment>
+                    {type === "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                    {type !== "main" && (
+                        <Fragment>
+                            {mainPanelOpen && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
+                            {!mainPanelOpen && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                        </Fragment>
+                    )}
+                </Fragment>
+            }
             {Boolean(loading && type !== "main") &&
                 <div
                     className="absolute inset-0 backdrop-blur-sm z-102 flex flex-col gap-2 justify-center items-center">
