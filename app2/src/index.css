@@ -29,6 +29,11 @@ html, body {
   overscroll-behavior: none;
   user-select: none;
 }
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background: var(--color-slate-800);
+  }
+}
 
 body {
   font-family: 'Kanit', sans-serif;
