@@ -2,9 +2,6 @@ import {useState, useRef} from "react";
 import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
-import { MdThermostat } from "react-icons/md";
-import {BsExclamationTriangle} from "react-icons/bs";
-import {LiaTimesCircle} from "react-icons/lia";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel} from 'swiper/modules';
 import 'swiper/css';
@@ -21,9 +18,8 @@ const Satellites = () => {
     const [slideIndex, setSlideIndex] = useState<number>(0);
 
     return (
-        <div className="w-full">
-            <div
-                className="border-y border-slate-300 dark:border-slate-950 -mx-3 px-3 inset-shadow-[0_0_10px] inset-shadow-slate-200 dark:inset-shadow-slate-950">
+        <div className="w-full pb-8">
+            <div className="border-y border-slate-300 dark:border-slate-950 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100">
                 <Swiper
                     ref={swiperRef}
                     initialSlide={0}
@@ -96,48 +92,36 @@ const Satellites = () => {
                     })}
                 </Swiper>
             </div>
-            <div className="flex justify-center items-center pt-5 pb-8 relative">
+            <div className="flex justify-center items-center relative">
+                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
                 {devices.map((device: Device, index: number) => {
-                    let deviceIcon = null;
+                    let deviceStatus = null;
                     if (device.active) {
-                        deviceIcon =
-                            <MdThermostat className="fill-red-600 size-4 absolute -top-1 left-2"/>;
+                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">active</span>
                     }
                     if(!device.active && !device.satellite){
-                        deviceIcon =
-                            <MdThermostat className="fill-indigo-500 size-4 absolute -top-1 left-2"/>;
+                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">fallback</span>
                     }
                     if(!device.active && device.satellite){
-                        deviceIcon =
-                            <MdThermostat className="fill-stone-400 size-4 absolute -top-1 left-2"/>;
-                    }
-                    if (!device.healthy) {
-                        deviceIcon = <BsExclamationTriangle className="fill-amber-500 size-4 absolute -top-1 left-2"/>;
-                    }
-                    if (!device.online) {
-                        deviceIcon = <LiaTimesCircle className="fill-red-600 size-4 absolute -top-1 left-2"/>;
+                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">ignored</span>
                     }
 
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="w-[15%] rounded-sm flex flex-col items-center gap-1 text-sm cursor-pointer relative"
+                            className="w-[20%] rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
-                            {!device.satellite ? <GrHomeRounded className="size-5 stroke-slate-500 mb-2"/> :
-                                <GrSatellite className="size-5 stroke-slate-500 mb-2"/>}
-                            <span
-                                className="font-mono text-slate-500 leading-3">{device.temperature?.toFixed(1) ?? "--"}°C</span>
-                            <span
-                                className="font-mono text-slate-400 leading-3">{device.humidity?.toFixed(1) ?? "--"}%</span>
-                            {deviceIcon}
+                            {!device.satellite ?
+                                <GrHomeRounded data-unhealthy={!device.healthy ? "true" : undefined} data-offline={!device.online ? "true" : undefined} className="size-5 stroke-slate-500 mb-1 data-unhealthy:stroke-amber-500 data-offline:stroke-red-600"/> :
+                                <GrSatellite data-unhealthy={!device.healthy ? "true" : undefined} data-offline={!device.online ? "true" : undefined} className="size-5 stroke-slate-500 mb-1 data-unhealthy:stroke-amber-500 data-offline:stroke-red-600"/>
+                            }
+                            <span className="font-mono text-slate-500 leading-3">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                            <span className="font-mono text-slate-400 leading-3">{device.humidity?.toFixed(1) ?? "--"}%</span>
+                            {deviceStatus}
                         </div>
                     );
                 })}
-                <div className="w-[15%] absolute flex justify-center bottom-4.5 transition-all"
-                     style={{left: `${15 * slideIndex + ((100 - devices.length * 15) / 2)}%`}}>
-                    <div className="w-8 h-1.5 bg-orange-300 rounded-full"></div>
-                </div>
             </div>
         </div>
     );
