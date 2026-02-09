@@ -105,6 +105,12 @@ const Satellites = () => {
                     if(!device.active && device.satellite){
                         deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">ignored</span>
                     }
+                    if(!device.healthy){
+                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">broken</span>
+                    }
+                    if(!device.online){
+                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">offline</span>
+                    }
 
                     return (
                         <div
@@ -113,8 +119,8 @@ const Satellites = () => {
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
                             {!device.satellite ?
-                                <GrHomeRounded data-unhealthy={!device.healthy ? "true" : undefined} data-offline={!device.online ? "true" : undefined} className="size-5 stroke-slate-500 mb-1 data-unhealthy:stroke-amber-500 data-offline:stroke-red-600"/> :
-                                <GrSatellite data-unhealthy={!device.healthy ? "true" : undefined} data-offline={!device.online ? "true" : undefined} className="size-5 stroke-slate-500 mb-1 data-unhealthy:stroke-amber-500 data-offline:stroke-red-600"/>
+                                <GrHomeRounded className="size-5 stroke-slate-500 mb-1"/> :
+                                <GrSatellite className="size-5 stroke-slate-500 mb-1"/>
                             }
                             <span className="font-mono text-slate-500 leading-3">{device.temperature?.toFixed(1) ?? "--"}°C</span>
                             <span className="font-mono text-slate-400 leading-3">{device.humidity?.toFixed(1) ?? "--"}%</span>
