@@ -19,7 +19,7 @@ const Satellites = () => {
 
     return (
         <div className="w-full pb-8">
-            <div className="border-y border-slate-300 dark:border-slate-950 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100">
+            <div className="border-y border-slate-300 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100 dark:border-slate-950 dark:from-slate-800 dark:to-slate-900">
                 <Swiper
                     ref={swiperRef}
                     initialSlide={0}
@@ -67,19 +67,19 @@ const Satellites = () => {
                                     <WifiIcon className="stroke-slate-400 absolute top-5 right-5 size-6"/>
 
                                     <div className="flex justify-center items-center gap-3">
-                                        <div className="text-2xl text-slate-500 font-normal">{device.name}</div>
+                                        <div className="text-2xl text-slate-500 font-normal dark:text-slate-400">{device.name}</div>
                                     </div>
                                     <div className="flex justify-around items-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-500">Temperature</div>
+                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Temperature</div>
                                             <div
-                                                className="text-4xl font-mono text-slate-400">{device.temperature?.toFixed(1) ?? "--"}°C
+                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.temperature?.toFixed(1) ?? "--"}°C
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-500">Humidity</div>
+                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Humidity</div>
                                             <div
-                                                className="text-4xl font-mono text-slate-400">{device.humidity?.toFixed(1) ?? "--"}%
+                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.humidity?.toFixed(1) ?? "--"}%
                                             </div>
                                         </div>
                                     </div>
@@ -93,7 +93,7 @@ const Satellites = () => {
                 </Swiper>
             </div>
             <div className="flex justify-center items-center relative">
-                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
+                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-800 dark:border-slate-950" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
                 {devices.map((device: Device, index: number) => {
                     let deviceStatus = null;
                     if (device.active) {
@@ -119,11 +119,11 @@ const Satellites = () => {
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
                             {!device.satellite ?
-                                <GrHomeRounded className="size-5 stroke-slate-500 mb-1"/> :
-                                <GrSatellite className="size-5 stroke-slate-500 mb-1"/>
+                                <GrHomeRounded className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/> :
+                               <GrSatellite className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
                             }
-                            <span className="font-mono text-slate-500 leading-3">{device.temperature?.toFixed(1) ?? "--"}°C</span>
-                            <span className="font-mono text-slate-400 leading-3">{device.humidity?.toFixed(1) ?? "--"}%</span>
+                            <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.temperature?.toFixed(1) ?? "--"}°C</span>
+                            <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.humidity?.toFixed(1) ?? "--"}%</span>
                             {deviceStatus}
                         </div>
                     );
