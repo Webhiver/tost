@@ -1,13 +1,14 @@
-import {ReactNode, useEffect, useState} from "react";
+import {ReactNode, useEffect, useState, useCallback} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
 import {findClosest, getPercentageFromValue, stepsToSnapTo} from "../components/knob/utils.ts";
-import {Satellite, Device, SatelliteConfig, OperatingMode} from "../types.ts";
+import {Satellite, Device, SatelliteConfig, OperatingMode, Theme} from "../types.ts";
 
 const LocalProvider = ({children}: { children: ReactNode }) => {
     const state = useContextSelector(ApiContext, c => c.state);
     const config = useContextSelector(ApiContext, c => c.config);
 
+    const [theme, setTheme] = useState<Theme>(localStorage.getItem('theme') ? localStorage.getItem('theme') as Theme : undefined);
     const [type, setType] = useState<'host' | 'satellite'>('host');
     const [mode, setMode] = useState<OperatingMode>('off');
     const [flame, setFlame] = useState<boolean>(false);
@@ -38,6 +39,37 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [knobSteps] = useState((knobMaxTemp - knobMinTemp) * 2);
     const [knobPercentage, setKnobPercentage] = useState<number>(0);
 
+    const toggleTheme = useCallback((theme: Theme) => {
+        switch (theme) {
+            case 'light':
+                localStorage.setItem('theme', 'light');
+                break;
+            case 'dark':
+                localStorage.setItem('theme', 'dark');
+                break;
+            default:
+                localStorage.removeItem('theme');
+        }
+        setTheme(theme);
+    }, []);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        const apply = () => {
+            document.documentElement.classList.toggle("dark", theme === "dark" || (theme === undefined && mediaQuery.matches));
+        };
+        apply();
+
+        if (theme !== undefined) return;
+
+        const handler = () => apply();
+        mediaQuery.addEventListener("change", handler);
+
+        return () => {
+            mediaQuery.removeEventListener("change", handler);
+        };
+    }, [theme]);
+
     useEffect(() => {
         setFlame(state?.flame ?? false);
         setFlameDuration(state?.flame_duration ?? 0);
@@ -51,26 +83,6 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setIsPairing(state?.is_pairing ?? false);
         setHostMac(state?.mac ?? '');
     }, [state]);
-
-
-    // flame_mode: "one"
-    // flame_mode_sensor: "2c:cf:67:bb:f5:af"
-    //         flame_off_mode: "average"
-    //         flame_on_mode: "average"
-    // hysteresis: 0.3
-    // led_brightness: 1
-    // local_sensor: "fallback"
-    // max_flame_duration: 14400
-    // mode: "host"
-    // name: "Kitchen"
-    // operating_mode: "manual"
-    // satellite_grace_period: 120
-    // satellites: [{mac: "2c:cf:67:ba:f0:c5", name: "Bedroom"}, {mac: "2c:cf:67:bb:f5:af", name: "Living"}]
-    // sensor_humidity_offset: 0
-    // sensor_temperature_offset: 0
-    // target_temp: 32
-    // target_temperature: 22.5
-    // update_interval: 4
 
 
     useEffect(() => {
@@ -131,6 +143,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
 
     return (
         <LocalContext.Provider value={{
+            theme,
             type,
             hostMac,
             hostName,
@@ -162,6 +175,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             setMode,
             setTargetTemp,
             setKnobPercentage,
+            toggleTheme,
         }}>
             {children}
         </LocalContext.Provider>

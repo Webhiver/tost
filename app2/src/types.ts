@@ -133,7 +133,10 @@ export interface Device {
   active: boolean
 }
 
+export type Theme = 'light' | 'dark' | undefined
+
 export interface LocalProviderProps {
+  theme: 'light' | 'dark' | undefined
   type: 'host' | 'satellite'
   mode: string
   flame: boolean
@@ -165,6 +168,7 @@ export interface LocalProviderProps {
   setMode: (mode: OperatingMode) => void
   setTargetTemp: (temp: number) => void
   setKnobPercentage: (percentage: number) => void
+  toggleTheme: (theme: Theme) => void
 }
 
 export interface ApiProviderProps {
