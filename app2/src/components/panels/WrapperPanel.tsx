@@ -114,12 +114,12 @@ const WrapperPanel = (props: Props) => {
     let title = (
         <div className="flex justify-start items-center gap-4 px-4 py-4 text-slate-500 text-xl">
             <div className="flex-1"/>
-            <MdClose className="fill-slate-500 size-8 cursor-pointer" onClick={onClose}/>
+            <MdClose className="fill-slate-500 dark:fill-slate-200 size-8 cursor-pointer" onClick={onClose}/>
         </div>
     );
     if(type !== "main") {
         title = (
-            <div className="flex justify-start items-center gap-2 px-4 py-4 text-slate-500 text-xl border-b border-slate-300">
+            <div className="flex justify-start items-center gap-2 px-4 py-4 text-slate-500 text-xl border-b border-slate-300 dark:text-slate-300 dark:border-slate-700">
                 {type === "settings" && <TbSettings className="size-6"/>}
                 {type === "schedule" && <TbCalendarClock className="size-6"/>}
                 {type === "satellites" && <GrSatellite className="size-5"/>}
@@ -153,7 +153,7 @@ const WrapperPanel = (props: Props) => {
                     </div>
                 }
                 {!saving && saveResult === 'error' &&
-                    <div className="flex justify-start items-center gap-1 text-red-600">
+                    <div className="flex justify-start items-center gap-1 text-red-600 dark:text-red-500">
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="18" y1="6" x2="6" y2="18"/>
@@ -163,7 +163,7 @@ const WrapperPanel = (props: Props) => {
                     </div>
                 }
                 <div className="flex-1"/>
-                <MdOutlineKeyboardArrowLeft className="fill-slate-500 size-10 cursor-pointer" onClick={onClose}/>
+                <MdOutlineKeyboardArrowLeft className="fill-slate-500 dark:fill-slate-200 size-10 cursor-pointer" onClick={onClose}/>
             </div>
         );
     }
@@ -178,7 +178,7 @@ const WrapperPanel = (props: Props) => {
                 zIndex: type === "main" ? 100 : 101
             }}
             aria-hidden={!open}
-            className="flex flex-col items-stretch justify-stretch absolute inset-0 bg-linear-to-b from-slate-100 to-slate-200 lg:rounded-3xl shadow-none data-content-visible:shadow-lg translate-x-full transition-transform data-[open=true]:translate-x-0 select-none overflow-hidden overflow-y-auto"
+            className="flex flex-col items-stretch justify-stretch absolute inset-0 bg-linear-to-b from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 lg:rounded-3xl shadow-none data-content-visible:shadow-lg translate-x-full transition-transform data-[open=true]:translate-x-0 select-none overflow-hidden overflow-y-auto"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -201,11 +201,11 @@ const WrapperPanel = (props: Props) => {
             {Boolean(loading && type !== "main") &&
                 <div
                     className="absolute inset-0 backdrop-blur-sm z-102 flex flex-col gap-2 justify-center items-center">
-                    <div className="size-10 border-3 border-slate-300 rounded-full relative">
+                    <div className="size-10 border-3 border-slate-300 dark:border-slate-700 rounded-full relative">
                         <AiOutlineLoading
-                            className="text-sky-500 animate-spin size-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
+                            className="text-sky-500 dark:text-sky-400 animate-spin size-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
                     </div>
-                    <div className="text-lg text-slate-500 animate-pulse">
+                    <div className="text-lg text-slate-500 dark:text-slate-400 animate-pulse">
                         Loading
                         <span className="text-3xl">.</span>
                         <span className="text-3xl">.</span>

@@ -37,13 +37,13 @@ const SettingsPanel = () => {
 
                     return (
                         <Fragment key={`deice-config-${mac}-${index}`}>
-                            <div className="text-slate-600 bg-slate-300 rounded-md px-2 py-1 flex justify-start items-center gap-2">
+                            <div className="text-slate-600 bg-slate-300 rounded-md px-2 py-1 flex justify-start items-center gap-2 dark:bg-slate-500 dark:text-slate-900">
                                 {!satellite ? <GrHomeRounded/> : <GrSatellite/>}
                                 <div className="text-lg">{name}</div>
                                 <div className="flex-1"/>
-                                <div className="text-sm text-slate-400">{satellite ? ip : "this device"}</div>
-                                {satellite && online && <IoShieldCheckmarkSharp className="text-green-700"/>}
-                                {satellite && !online && <FaExclamationTriangle className="text-red-700"/>}
+                                <div className="text-sm text-slate-400 dark:text-slate-800">{satellite ? ip : "this device"}</div>
+                                {satellite && online && <IoShieldCheckmarkSharp className="text-green-700 dark:text-green-500"/>}
+                                {satellite && !online && <FaExclamationTriangle className="text-red-700 dark:text-red-400"/>}
                             </div>
                             <div className="py-3 flex flex-col items-stretch justify-start gap-3">
                                 {!satellite &&
@@ -55,7 +55,7 @@ const SettingsPanel = () => {
                                             configName="name"
                                             mac={mac}
                                         />
-                                        <div className="font-light text-slate-400">TEMPERATURE CONTROL</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
                                         <Field
                                             type="select"
                                             label="Operating Mode"
@@ -98,7 +98,7 @@ const SettingsPanel = () => {
                                             mac={mac}
                                             options={[{value: "included", label: "Always Included"}, {value: "fallback", label: "Fallback Only"}]}
                                         />
-                                        <div className="font-light text-slate-400">SENSOR CALIBRATION</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
                                         <Field
                                             type="number"
                                             label="Temperature Offset"
@@ -121,7 +121,7 @@ const SettingsPanel = () => {
                                             min="-10"
                                             max="10"
                                         />
-                                        <div className="font-light text-slate-400">TIMING</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">TIMING</div>
                                         <Field
                                             type="number"
                                             label="Satellite Grace Period"
@@ -144,7 +144,7 @@ const SettingsPanel = () => {
                                             min="1"
                                             max="24"
                                         />
-                                        <div className="font-light text-slate-400">MISCELLANEOUS</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
                                         <Field
                                             type="range"
                                             label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
@@ -158,7 +158,7 @@ const SettingsPanel = () => {
                                 }
                                 {satellite &&
                                     <>
-                                        <div className="font-light text-slate-400">SENSOR CALIBRATION</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
                                         <Field
                                             type="number"
                                             label="Temperature Offset"
@@ -183,7 +183,7 @@ const SettingsPanel = () => {
                                             max="10"
                                             disabled={!online || !ip}
                                         />
-                                        <div className="font-light text-slate-400">MISCELLANEOUS</div>
+                                        <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
                                         <Field
                                             type="range"
                                             label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}

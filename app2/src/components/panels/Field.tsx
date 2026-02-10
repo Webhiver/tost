@@ -116,11 +116,11 @@ const Field = (props: FieldProps) => {
             >
                 {options?.map((option, index) => {
                     if(typeof option === "object"){
-                        return <option key={`option-${configName}-${index}`} className="text-slate-500 font-light" value={option.value}>{option.label}</option>;
+                        return <option key={`option-${configName}-${index}`} className="text-slate-500 font-light dark:text-slate-300 checked:bg-sky-500 checked:text-white hover:bg-sky-500/50" value={option.value}>{option.label}</option>;
                     } else if (option === "-") {
                         return <hr key={`option-${configName}-${index}`}/>;
                     } else {
-                        return <option key={`option-${configName}-${index}`} className="text-slate-400 font-light bg-slate-200" value="" disabled={true}>{option}</option>;
+                        return <option key={`option-${configName}-${index}`} className="text-slate-400 font-light bg-slate-200 dark:bg-slate-800" value="" disabled={true}>{option}</option>;
                     }
                 })}
             </select>
@@ -129,7 +129,7 @@ const Field = (props: FieldProps) => {
 
     return (
         <div className="grid grid-cols-10">
-            <label htmlFor={`field-${configName}-${mac}`} className="col-span-6 text-slate-500 flex items-center">{label}</label>
+            <label htmlFor={`field-${configName}-${mac}`} className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">{label}</label>
             <div className="col-span-4 flex justify-stretch items-stretch">
                 {input}
                 {addon && <div className={clsx(FieldAddonClasses)}>{addon}</div>}
