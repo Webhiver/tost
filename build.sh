@@ -6,10 +6,21 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Parameters
-REVISION="${1:-breadboard-dht}"
-APP="${2:-app}"
+REVISION="$1"
+APP="$2"
 VALID_REVISIONS=("breadboard-dht" "breadboard-sht" "case-dht" "case-sht")
 VALID_APPS=("app" "app2")
+
+# Usage
+if [[ -z "$REVISION" || -z "$APP" ]]; then
+    echo "Usage: $0 <revision> <app>"
+    echo ""
+    echo "  revision: ${VALID_REVISIONS[*]}"
+    echo "  app:      ${VALID_APPS[*]}"
+    echo ""
+    echo "Example: $0 breadboard-dht app"
+    exit 1
+fi
 
 # Validate revision
 valid=false
