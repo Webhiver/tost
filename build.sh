@@ -41,9 +41,6 @@ fi
 
 echo "Building PicoThermostatCO (revision: $REVISION, app: $APP)..."
 
-# Write hw_revision.py
-echo "HW_REVISION = \"$REVISION\"" > "$SCRIPT_DIR/src/hw_revision.py"
-
 # Clean and create dist directory
 rm -rf "$SCRIPT_DIR/dist"
 mkdir -p "$SCRIPT_DIR/dist"
@@ -51,6 +48,9 @@ mkdir -p "$SCRIPT_DIR/dist"
 # Copy src contents to dist
 echo "Copying src to dist..."
 cp -r "$SCRIPT_DIR/src/"* "$SCRIPT_DIR/dist/"
+
+# Write hw_revision.py in dist
+echo "HW_REVISION = \"$REVISION\"" > "$SCRIPT_DIR/dist/hw_revision.py"
 
 # Build the web app
 echo "Building web app ($APP)..."
