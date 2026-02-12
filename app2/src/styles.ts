@@ -65,6 +65,10 @@ export const FieldRangeClasses = [
 export const FieldAddonClasses = [
     "flex",
     "items-center",
+    "border",
+    "border-l-0",
+    "border-slate-300",
+    "dark:border-slate-600",
     "bg-slate-300",
     "dark:bg-slate-600",
     "text-sm",
@@ -73,8 +77,12 @@ export const FieldAddonClasses = [
     "dark:text-slate-800",
     "px-2",
     "rounded-r-md",
+    "peer-focus:border-sky-500",
+    "peer-disabled:border-slate-200",
     "peer-disabled:bg-slate-200",
     "peer-disabled:text-slate-300",
     "dark:peer-disabled:bg-slate-800",
     "dark:peer-disabled:text-slate-900",
+    "peer-data-invalid:border-red-500",
+    "peer-invalid:!border-red-500",
 ];
