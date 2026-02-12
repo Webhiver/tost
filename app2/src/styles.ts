@@ -20,6 +20,7 @@ export const FieldClasses = [
     "dark:disabled:border-slate-800",
     "dark:disabled:bg-slate-900",
     "data-invalid:border-red-500",
+    "invalid:!border-red-500",
 ];
 
 export const FieldSelectClasses = [

@@ -183,12 +183,21 @@ export interface ApiProviderProps {
   cancelPendingSubmitConfig: () => void
 }
 
+export interface DeviceError {
+  [key: string]: string;
+}
+
+export interface PanelProviderErrors {
+  [key: string]: DeviceError;
+}
+
 export type PanelType = 'main' | 'settings' | 'schedule' | 'satellites' | 'statistics' | 'monitoring' | 'updates'
 
 export interface PanelsProviderProps {
   loading: boolean
   saving: boolean
   saveResult: 'success' | 'error' | null
+  validationErrors: PanelProviderErrors,
   panelsAnimationSpeed: number
   mainPanelOpen: boolean
   settingsPanelOpen: boolean

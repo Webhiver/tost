@@ -34,6 +34,7 @@ const SettingsPanel = () => {
                     const satellite = device.satellite;
                     const name = device.name;
                     const online = device.online;
+                    const noConfig = !configs[mac] || configs[mac] === undefined;
 
                     return (
                         <Fragment key={`deice-config-${mac}-${index}`}>
@@ -51,7 +52,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="text"
                                             label="Device Name"
-                                            value={configs[mac]?.name || ""}
+                                            value={configs[mac]?.name ?? ""}
                                             configName="name"
                                             mac={mac}
                                         />
@@ -59,7 +60,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="select"
                                             label="Operating Mode"
-                                            value={configs[mac]?.operating_mode || ""}
+                                            value={configs[mac]?.operating_mode ?? ""}
                                             configName="operating_mode"
                                             mac={mac}
                                             options={[{value: "off", label: "Off"}, {value: "manual", label: "Manual"}, {value: "schedule", label: "Schedule"}]}
@@ -67,7 +68,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="number"
                                             label="Hysteresis"
-                                            value={configs[mac]?.hysteresis || ""}
+                                            value={configs[mac]?.hysteresis ?? ""}
                                             configName="hysteresis"
                                             mac={mac}
                                             addon="°C"
@@ -78,7 +79,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="select"
                                             label="Flame Mode"
-                                            value={`${configs[mac]?.flame_mode}_${configs[mac]?.flame_mode === "one" ? configs[mac]?.flame_mode_sensor : ""}` || ""}
+                                            value={`${configs[mac]?.flame_mode}_${configs[mac]?.flame_mode === "one" ? configs[mac]?.flame_mode_sensor : ""}`}
                                             configName="flame_mode"
                                             mac={mac}
                                             options={[
@@ -93,7 +94,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="select"
                                             label="Local Sensor"
-                                            value={configs[mac]?.local_sensor || ""}
+                                            value={configs[mac]?.local_sensor ?? ""}
                                             configName="local_sensor"
                                             mac={mac}
                                             options={[{value: "included", label: "Always Included"}, {value: "fallback", label: "Fallback Only"}]}
@@ -117,9 +118,9 @@ const SettingsPanel = () => {
                                             configName="sensor_humidity_offset"
                                             mac={mac}
                                             addon="%"
-                                            step="0.1"
-                                            min="-10"
-                                            max="10"
+                                            step="1"
+                                            min="-20"
+                                            max="20"
                                         />
                                         <div className="font-light text-slate-400 dark:text-slate-500">TIMING</div>
                                         <Field
@@ -130,14 +131,14 @@ const SettingsPanel = () => {
                                             mac={mac}
                                             addon="sec"
                                             step="10"
-                                            min="30"
+                                            min="10"
                                             max="600"
                                         />
                                         <Field
                                             type="number"
                                             label="Max Flame Duration"
                                             value={configs[mac]?.max_flame_duration ? Math.round(configs[mac].max_flame_duration / 3600) : ""}
-                                            configName="sensor_temperature_offset"
+                                            configName="max_flame_duration"
                                             mac={mac}
                                             addon="hours"
                                             step="1"
@@ -148,7 +149,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type="range"
                                             label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
-                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
+                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : 0}
                                             configName="led_brightness"
                                             mac={mac}
                                             min="0"
@@ -169,7 +170,7 @@ const SettingsPanel = () => {
                                             step="0.1"
                                             min="-10"
                                             max="10"
-                                            disabled={!online || !ip}
+                                            disabled={!online || !ip || noConfig}
                                         />
                                         <Field
                                             type="number"
@@ -181,18 +182,18 @@ const SettingsPanel = () => {
                                             step="0.1"
                                             min="-10"
                                             max="10"
-                                            disabled={!online || !ip}
+                                            disabled={!online || !ip || noConfig}
                                         />
                                         <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
                                         <Field
                                             type="range"
                                             label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
-                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : ""}
+                                            value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : 0}
                                             configName="led_brightness"
                                             mac={mac}
                                             min="0"
                                             max="100"
-                                            disabled={!online || !ip}
+                                            disabled={!online || !ip || noConfig}
                                         />
                                     </>}
                             </div>
