@@ -11,6 +11,12 @@ const RESULT_DISPLAY_MS = 5000;
 const validateConfigs = (key: keyof Config, value: Config[keyof Config]) => {
     const errors: DeviceError = {} as DeviceError;
 
+    if (key === "mode") {
+        if(!["host", "satellite"].includes(value as string)){
+            errors["mode"] = "Invalid role";
+        }
+    }
+
     if (key === "operating_mode") {
         if(!["off", "manual", "schedule"].includes(value as string)){
             errors["operating_mode"] = "Invalid operating mode";

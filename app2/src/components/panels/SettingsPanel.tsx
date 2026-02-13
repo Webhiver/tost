@@ -56,6 +56,14 @@ const SettingsPanel = () => {
                                             configName="name"
                                             mac={mac}
                                         />
+                                        {/*<Field*/}
+                                        {/*    type="select"*/}
+                                        {/*    label="Role"*/}
+                                        {/*    value={configs[mac]?.mode ?? ""}*/}
+                                        {/*    configName="mode"*/}
+                                        {/*    mac={mac}*/}
+                                        {/*    options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}*/}
+                                        {/*/>*/}
                                         <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
                                         <Field
                                             type="select"
@@ -159,6 +167,14 @@ const SettingsPanel = () => {
                                 }
                                 {satellite &&
                                     <>
+                                        {/*<Field*/}
+                                        {/*    type="select"*/}
+                                        {/*    label="Role"*/}
+                                        {/*    value={configs[mac]?.mode ?? ""}*/}
+                                        {/*    configName="mode"*/}
+                                        {/*    mac={mac}*/}
+                                        {/*    options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}, {value: "schedule", label: "Schedule"}]}*/}
+                                        {/*/>*/}
                                         <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
                                         <Field
                                             type="number"

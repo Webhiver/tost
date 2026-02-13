@@ -7,6 +7,7 @@ import { TbSettings, TbCalendarClock, TbChartHistogram, TbHeartRateMonitor, TbCl
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { CgDarkMode } from "react-icons/cg";
 import { GrSatellite } from "react-icons/gr";
+import {TostLogo} from "../Icons.jsx"
 
 
 const MainPanel = () => {
@@ -27,12 +28,9 @@ const MainPanel = () => {
     return (
         <WrapperPanel type="main">
             <div className="h-full flex flex-col justify-center items-stretch px-20 -mt-6">
-                <div className="flex flex-col justify-center items-center gap-2 px-4 pb-8 text-center text-xl text-slate-500 dark:text-slate-400">
-                    <div className="text-md font-extralight">Operating mode</div>
-                    <div className="flex justify-center items-center gap-2">
-                        <button data-active={type === "host" ? "true" : undefined} className="cursor-pointer border border-slate-400 rounded-md py-1 px-3 data-active:border-sky-400 data-active:text-sky-600 data-active:bg-sky-200 dark:data-active:border-sky-500 dark:data-active:text-sky-400 dark:data-active:bg-sky-800 scale-100 hover:scale-110 transition-transform">HOST</button>
-                        <button data-active={type === "satellite" ? "true" : undefined} className="cursor-pointer border border-slate-400 rounded-md py-1 px-3 data-active:border-sky-400 data-active:text-sky-600 data-active:bg-sky-200 dark:data-active:border-sky-500 dark:data-active:text-sky-400 dark:data-active:bg-sky-800 scale-100 hover:scale-110 transition-transform">SENSOR</button>
-                    </div>
+                <div className="flex flex-col justify-center items-center gap-2 px-4 pb-8 text-center">
+                    <TostLogo width={90} height={24} className="fill-slate-500 dark:fill-slate-200"/>
+                    <div className="text-sm text-slate-500">Version: 2.16.5</div>
                 </div>
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("settings")}>
                     <TbSettings className="size-6"/>
