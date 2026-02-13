@@ -19,7 +19,7 @@ const Satellites = () => {
 
     return (
         <div className="w-full pb-8">
-            <div className="border-y border-slate-300 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100 dark:border-slate-950 dark:from-slate-800 dark:to-slate-900">
+            <div className="border-y border-slate-300 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100 dark:border-slate-950 dark:from-slate-900 dark:to-slate-950">
                 <Swiper
                     ref={swiperRef}
                     initialSlide={0}
@@ -93,7 +93,7 @@ const Satellites = () => {
                 </Swiper>
             </div>
             <div className="flex justify-center items-center relative">
-                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-800 dark:border-slate-950" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
+                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
                 {devices.map((device: Device, index: number) => {
                     let deviceStatus = null;
                     if (device.active) {
