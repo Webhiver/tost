@@ -81,8 +81,9 @@ export const FieldAddonClasses = [
     "peer-disabled:border-slate-200",
     "peer-disabled:bg-slate-200",
     "peer-disabled:text-slate-300",
-    "dark:peer-disabled:bg-slate-800",
-    "dark:peer-disabled:text-slate-900",
+    "dark:peer-disabled:border-slate-800",
+    "dark:peer-disabled:bg-slate-900",
+    "dark:peer-disabled:text-slate-700",
     "peer-data-invalid:border-red-500",
     "peer-invalid:!border-red-500",
 ];
