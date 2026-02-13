@@ -113,6 +113,10 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         }, 1000);
     }, [cancelPendingGetStatus, getStatus, startGettingStatus, stopGettingStatus, cancelPendingSubmitConfig]);
 
+    const onConfigsUpdated = useCallback((configs: Partial<Config>) => {
+        setConfig(prev => prev ? { ...prev, ...configs } : null);
+    }, []);
+
     useEffect(() => {
         return () => {
             if (submitConfigDebounceRef.current) {
@@ -144,6 +148,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             resetAndStartGettingStatus,
             cancelPendingGetStatus,
             cancelPendingSubmitConfig,
+            onConfigsUpdated,
         }}>
             {children}
         </ApiContext.Provider>

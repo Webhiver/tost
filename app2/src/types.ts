@@ -181,6 +181,7 @@ export interface ApiProviderProps {
   resetAndStartGettingStatus: () => void
   cancelPendingGetStatus: () => void
   cancelPendingSubmitConfig: () => void
+  onConfigsUpdated: (configs: Partial<Config>) => void
 }
 
 export interface DeviceError {

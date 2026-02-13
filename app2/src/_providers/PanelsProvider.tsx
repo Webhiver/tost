@@ -104,6 +104,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     const hostMac = useContextSelector(LocalContext, c => c.hostMac);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const resetAndStartGettingStatus = useContextSelector(ApiContext, c => c.resetAndStartGettingStatus);
+    const onConfigsUpdated = useContextSelector(ApiContext, c => c.onConfigsUpdated);
     const devices = useContextSelector(LocalContext, c => c.devices);
 
     const getConfigs = useCallback(async (includeSatellites: boolean) => {
@@ -223,18 +224,15 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             if (typeof value === 'number' && Number.isNaN(value)) return
         }
 
-        // Notify parent for optimistic UI updates
-        // !!!MAYBE NOT REQUIRED ANYMORE
-        // if (!satellite) {
-        //     onConfigUpdate?.(updates)
-        // }
+        // Notify API provider for optimistic UI updates
+        onConfigsUpdated(updates);
 
         // Accumulate pending updates and schedule flush
         const pendingUpdates = pendingUpdatesRef.current;
         pendingUpdates[mac] = {...pendingUpdates[mac], ...updates};
         pendingUpdatesRef.current = pendingUpdates;
         scheduleFlush();
-    }, [configs]);
+    }, [configs, onConfigsUpdated]);
 
     const onConfigChange = useCallback((key: keyof Config, value: Config[keyof Config], mac: string) => {
         const updates = {[key]: value} as Partial<Config>;
