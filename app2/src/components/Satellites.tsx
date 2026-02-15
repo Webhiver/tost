@@ -2,6 +2,7 @@ import {useState, useRef} from "react";
 import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
+import { BiWifiOff } from "react-icons/bi";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel} from 'swiper/modules';
 import 'swiper/css';
@@ -45,6 +46,9 @@ const Satellites = () => {
                         } else if (device.wifiStrength === 1) {
                             WifiIcon = GrWifi;
                         }
+                        if(!device.online) {
+                            WifiIcon = BiWifiOff;
+                        }
 
                         let status = (
                             <div className="flex items-center gap-1 text-base font-light text-slate-400"><FaCircleCheck className="size-3.5"/>Operational</div>
@@ -64,7 +68,7 @@ const Satellites = () => {
                             <SwiperSlide className="w-full" key={`device-${device.id}-${index}`}>
                                 <div className="relative w-full flex flex-col items-stretch justify-start gap-3 py-4 px-12 cursor-grab active:cursor-grabbing">
                                     {/*<PiThermometerSimpleDuotone className="fill-slate-400 absolute top-6 right-14 size-5"/>*/}
-                                    <WifiIcon className="stroke-slate-400 absolute top-5 right-5 size-6"/>
+                                    <WifiIcon className="stroke-slate-400 fill-slate-400 absolute top-5 right-5 size-6"/>
 
                                     <div className="flex justify-center items-center gap-3">
                                         <div className="text-2xl text-slate-500 font-normal dark:text-slate-400">{device.name}</div>
