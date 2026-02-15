@@ -73,13 +73,13 @@ const Satellites = () => {
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Temperature</div>
                                             <div
-                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.temperature?.toFixed(1) ?? "--"}°C
+                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-center justify-center">
                                             <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Humidity</div>
                                             <div
-                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.humidity?.toFixed(1) ?? "--"}%
+                                                className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%
                                             </div>
                                         </div>
                                     </div>
@@ -122,8 +122,8 @@ const Satellites = () => {
                                 <GrHomeRounded className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/> :
                                <GrSatellite className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
                             }
-                            <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.temperature?.toFixed(1) ?? "--"}°C</span>
-                            <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.humidity?.toFixed(1) ?? "--"}%</span>
+                            <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C</span>
+                            <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%</span>
                             {deviceStatus}
                         </div>
                     );
