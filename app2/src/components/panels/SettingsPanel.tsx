@@ -186,7 +186,7 @@ const SettingsPanel = () => {
                                         <Field
                                             type={disabled ? "text" : "select"}
                                             label="Local Relay Enabled"
-                                            value={typeof configs[mac]?.relay_enabled === "boolean" ? (configs[mac]?.relay_enabled ? "yes" : "no") : "yes"}
+                                            value={typeof configs[mac]?.relay_enabled === "boolean" ? (configs[mac]?.relay_enabled ? "yes" : "no") : (disabled ? "" : "yes")}
                                             configName="relay_enabled"
                                             mac={mac}
                                             options={[{value: "yes", label: "YES"}, {value: "no", label: "NO"}]}
