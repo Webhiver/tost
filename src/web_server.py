@@ -105,6 +105,10 @@ def create_server(pairing, secrets_module):
     async def reboot(request):
         asyncio.create_task(delayed_reset())
         return {"status": "ok", "message": "Reboot scheduled"}
+
+    @app.route('/api/ping', methods=['GET'])
+    async def ping(request):
+        return {"status": "ok"}
     
     @app.route('/api/discover', methods=['GET'])
     async def api_discover(request):
