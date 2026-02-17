@@ -100,6 +100,11 @@ def create_server(pairing, secrets_module):
     async def get_mem_info(request):
         micropython.mem_info(1)
         return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
+
+    @app.route('/api/reboot', methods=['POST'])
+    async def reboot(request):
+        asyncio.create_task(delayed_reset())
+        return {"status": "ok", "message": "Reboot scheduled"}
     
     @app.route('/api/discover', methods=['GET'])
     async def api_discover(request):
