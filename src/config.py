@@ -14,7 +14,8 @@ DEFAULT_CONFIG = {
     "local_sensor": "included",
     "max_flame_duration": 14400,
     "sensor_temperature_offset": 0.0,
-    "sensor_humidity_offset": 0.0
+    "sensor_humidity_offset": 0.0,
+    "relay_enabled": True
 }
 
 
