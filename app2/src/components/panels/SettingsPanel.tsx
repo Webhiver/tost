@@ -19,6 +19,7 @@ const SettingsPanel = () => {
 
     const devices = useContextSelector(LocalContext, c => c.devices);
     const configs = useContextSelector(PanelsContext, c => c.configs);
+    const onReboot = useContextSelector(PanelsContext, c => c.onReboot);
 
     const singleSensors: Option[] = [];
     devices.forEach(device => {
@@ -164,6 +165,10 @@ const SettingsPanel = () => {
                                             min="0"
                                             max="100"
                                         />
+                                        <div className="grid grid-cols-10">
+                                            <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">Reboot Device</div>
+                                            <div onClick={() => onReboot()} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">Reboot Now</div>
+                                        </div>
                                     </>
                                 }
                                 {satellite &&
@@ -223,6 +228,10 @@ const SettingsPanel = () => {
                                             max="100"
                                             disabled={disabled}
                                         />
+                                        <div className="grid grid-cols-10">
+                                            <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">Reboot Device</div>
+                                            <div onClick={() => onReboot(ip)} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">Reboot Now</div>
+                                        </div>
                                     </>}
                             </div>
                         </Fragment>

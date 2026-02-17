@@ -2,7 +2,7 @@ import {ReactNode, useState, useRef, useCallback, useEffect} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, PanelsContext, LocalContext} from "../_context";
 import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig, PanelProviderErrors, DeviceError} from "../types.ts";
-import {fetchConfig, fetchSatelliteConfig, updateConfig, updateSatelliteConfig} from "../api.ts";
+import {fetchConfig, fetchSatelliteConfig, updateConfig, updateSatelliteConfig, reboot, ping} from "../api.ts";
 import {isValidMac, normalizeMac} from "../utils.ts";
 
 const DEBOUNCE_MS = 750;
@@ -104,7 +104,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     const hostMac = useContextSelector(LocalContext, c => c.hostMac);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const resetAndStartGettingStatus = useContextSelector(ApiContext, c => c.resetAndStartGettingStatus);
-    const onConfigsUpdated = useContextSelector(ApiContext, c => c.onConfigsUpdated);
+    //const onConfigsUpdated = useContextSelector(ApiContext, c => c.onConfigsUpdated);
     const devices = useContextSelector(LocalContext, c => c.devices);
 
     const getConfigs = useCallback(async (includeSatellites: boolean) => {
@@ -232,7 +232,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         pendingUpdates[mac] = {...pendingUpdates[mac], ...updates};
         pendingUpdatesRef.current = pendingUpdates;
         scheduleFlush();
-    }, [configs, onConfigsUpdated]);
+    }, [configs]);
 
     const onConfigChange = useCallback((key: keyof Config, value: Config[keyof Config], mac: string) => {
         const updates = {[key]: value} as Partial<Config>;
@@ -313,6 +313,30 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         queueUpdate(updates, hostMac);
     }, [hostMac, configs]);
 
+    const onReboot = useCallback(async (ip?: string) => {
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        setLoading(true);
+
+        try {
+            await reboot(ip);
+
+            while (true) {
+                try {
+                    const pingResponse = await ping(ip);
+                    if (pingResponse?.status === "ok") {
+                        break;
+                    }
+                } catch (err) {
+                    // Ignore ping errors while device is rebooting
+                }
+                await sleep(2000);
+            }
+        } finally {
+            setLoading(false);
+            //getConfigs(true);
+        }
+    }, []);
+
     const togglePanel = useCallback((panel: PanelType, isOpen: boolean) => {
         if (isOpen && panel === "main") {
             console.log(`stop getting status because ${panel} panel was opened`);
@@ -379,6 +403,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             onSatelliteConfigChange,
             onAddSatellite,
             onRemoveSatellite,
+            onReboot,
         }}>
             {children}
         </PanelsContext.Provider>

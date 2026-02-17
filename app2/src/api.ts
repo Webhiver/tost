@@ -53,6 +53,27 @@ export async function exitPairing(): Promise<{ status: string; message: string }
   })
 }
 
+export async function ping(ip?: string): Promise<{status: string}> {
+  let url = '/ping'
+  if (ip) {
+    url = `/satellite-proxy/${ip}/ping`
+  }
+
+  return api<{status: string}>(url)
+}
+
+export async function reboot(ip?: string): Promise<{ status: string; message: string }> {
+  let url = '/reboot'
+  if (ip) {
+    url = `/satellite-proxy/${ip}/reboot`
+  }
+
+  return api<{ status: string; message: string }>(url, {
+    method: 'POST',
+    body: JSON.stringify({}),
+  })
+}
+
 // Satellite proxy functions
 export async function fetchSatelliteConfig(ip: string): Promise<Config> {
   return api<Config>(`/satellite-proxy/${ip}/config`)

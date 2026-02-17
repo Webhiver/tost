@@ -214,4 +214,5 @@ export interface PanelsProviderProps {
   onSatelliteConfigChange: (index: number, key: keyof SatelliteConfig, value: SatelliteConfig[keyof SatelliteConfig]) => void
   onAddSatellite: () => void
   onRemoveSatellite: (index: number) => void
+  onReboot: (ip?: string) => void
 }
