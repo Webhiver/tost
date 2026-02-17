@@ -225,7 +225,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         }
 
         // Notify API provider for optimistic UI updates
-        onConfigsUpdated(updates);
+        //onConfigsUpdated(updates);
 
         // Accumulate pending updates and schedule flush
         const pendingUpdates = pendingUpdatesRef.current;

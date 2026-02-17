@@ -69,6 +69,12 @@ const Field = (props: FieldProps) => {
             onConfigChange(configName, parseInt(rawValue as string) / 100, mac);
             return;
         }
+
+        if(configName === "relay_enabled"){
+            onConfigChange(configName, rawValue === "yes", mac);
+            return;
+        }
+
         onConfigChange(configName, rawValue, mac);
     }, [configName, mac, onConfigChange]);
 

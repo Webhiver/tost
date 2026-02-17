@@ -35,6 +35,7 @@ const SettingsPanel = () => {
                     const name = device.name;
                     const online = device.online;
                     const noConfig = !configs[mac] || configs[mac] === undefined;
+                    const disabled = satellite && (!online || !ip || noConfig);
 
                     return (
                         <Fragment key={`deice-config-${mac}-${index}`}>
@@ -56,14 +57,14 @@ const SettingsPanel = () => {
                                             configName="name"
                                             mac={mac}
                                         />
-                                        {/*<Field*/}
-                                        {/*    type="select"*/}
-                                        {/*    label="Role"*/}
-                                        {/*    value={configs[mac]?.mode ?? ""}*/}
-                                        {/*    configName="mode"*/}
-                                        {/*    mac={mac}*/}
-                                        {/*    options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}*/}
-                                        {/*/>*/}
+                                        <Field
+                                            type="select"
+                                            label="Role"
+                                            value={configs[mac]?.mode ?? ""}
+                                            configName="mode"
+                                            mac={mac}
+                                            options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}
+                                        />
                                         <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
                                         <Field
                                             type="select"
@@ -167,14 +168,25 @@ const SettingsPanel = () => {
                                 }
                                 {satellite &&
                                     <>
-                                        {/*<Field*/}
-                                        {/*    type="select"*/}
-                                        {/*    label="Role"*/}
-                                        {/*    value={configs[mac]?.mode ?? ""}*/}
-                                        {/*    configName="mode"*/}
-                                        {/*    mac={mac}*/}
-                                        {/*    options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}, {value: "schedule", label: "Schedule"}]}*/}
-                                        {/*/>*/}
+                                        <div className="font-light text-slate-400 dark:text-slate-500">OPERATING OPTIONS</div>
+                                        <Field
+                                            type={disabled ? "text" : "select"}
+                                            label="Role"
+                                            value={configs[mac]?.mode ?? ""}
+                                            configName="mode"
+                                            mac={mac}
+                                            options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}
+                                            disabled={disabled}
+                                        />
+                                        <Field
+                                            type={disabled ? "text" : "select"}
+                                            label="Local Relay Enabled"
+                                            value={typeof configs[mac]?.relay_enabled === "boolean" ? (configs[mac]?.relay_enabled ? "yes" : "no") : "yes"}
+                                            configName="relay_enabled"
+                                            mac={mac}
+                                            options={[{value: "yes", label: "YES"}, {value: "no", label: "NO"}]}
+                                            disabled={disabled}
+                                        />
                                         <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
                                         <Field
                                             type="number"
@@ -186,7 +198,7 @@ const SettingsPanel = () => {
                                             step="0.1"
                                             min="-10"
                                             max="10"
-                                            disabled={!online || !ip || noConfig}
+                                            disabled={disabled}
                                         />
                                         <Field
                                             type="number"
@@ -198,7 +210,7 @@ const SettingsPanel = () => {
                                             step="0.1"
                                             min="-10"
                                             max="10"
-                                            disabled={!online || !ip || noConfig}
+                                            disabled={disabled}
                                         />
                                         <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
                                         <Field
@@ -209,7 +221,7 @@ const SettingsPanel = () => {
                                             mac={mac}
                                             min="0"
                                             max="100"
-                                            disabled={!online || !ip || noConfig}
+                                            disabled={disabled}
                                         />
                                     </>}
                             </div>

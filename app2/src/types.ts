@@ -28,6 +28,7 @@ export type OperatingMode = 'off' | 'manual' | "schedule"
 
 export interface Config {
   mode: 'host' | 'satellite'
+  relay_enabled: boolean
   mac: 'string'
   name: string
   operating_mode: OperatingMode
