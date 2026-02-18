@@ -41,6 +41,19 @@ The hardware pinout definitions will be stored in `hardware_config.py`.
 |**Relay**|15|Standard GPIO (do not use onboard LED)|
 |**Button**|1||
 
+### 2.3 Wiring
+
+Required wiring.
+
+| Component | Wire Color | Wire Length |
+|-----------|------------|-------------|
+| Button    | blue       | 40mm        |
+|           | black      | 40mm        |
+| Relay     | blue       | 80mm        |
+|           | black      | 80mm        |
+|           | red        | 110mm       |
+| SHT       | -          | -           |
+
 ## 3. System States & Feedback
 
 ### 3.1 RGB LED Status Codes
