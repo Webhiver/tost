@@ -126,6 +126,8 @@ def create_server(pairing, secrets_module):
             data = request.json
             if data and "flame" in data:
                 state.set("flame", data["flame"])
+            if data and "operating_mode" in data:
+                config.set("operating_mode", data["operating_mode"])
             return {"status": "ok"}
         except Exception as e:
             return {"error": str(e)}, 400

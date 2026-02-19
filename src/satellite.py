@@ -268,7 +268,8 @@ class SatelliteManager:
         # Sync state to online satellites
         if online_ips:
             sync_data = {
-                "flame": state.get("flame", False)
+                "flame": state.get("flame", False),
+                "operating_mode": config.get("operating_mode", "manual"),
             }
             sync_tasks = [self.sync_satellite_async(ip, sync_data) for ip in online_ips]
             await asyncio.gather(*sync_tasks, return_exceptions=True)
