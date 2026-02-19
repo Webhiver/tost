@@ -79,6 +79,7 @@ state = StateManager({
     "wifi_connected": False,
     "wifi_strength": None,
     "mac": None,
+    "ip": None,
     "sensor": {
         "temperature": None,
         "humidity": None,

@@ -19,6 +19,7 @@ class WifiManager:
                 if self.connect():
                     print("WiFi connected!")
                     state.set("wifi_connected", True)
+                    state.set("ip", self.ip_address)
                 else:
                     print("WiFi connection failed")
                     state.set("wifi_connected", False)
@@ -27,13 +28,14 @@ class WifiManager:
         """Initialize WiFi - connect or enter pairing mode."""
         # Set MAC address in state
         state.set("mac", self.get_mac())
-        
+
         if secrets.has_wifi_credentials():
             print("Attempting WiFi connection...")
             if self.connect():
                 print("WiFi connected!")
                 print("IP:", self.ip_address)
                 state.set("wifi_connected", True)
+                state.set("ip", self.ip_address)
             else:
                 print("WiFi connection failed")
                 state.set("wifi_connected", False)
@@ -114,7 +116,9 @@ class WifiManager:
             is_connected = self._sta is not None and self._sta.isconnected()
             if is_connected != state.get("wifi_connected", False):
                 state.set("wifi_connected", is_connected)
-            
+                if is_connected:
+                    state.set("ip", self.ip_address)
+
             rssi = self.get_rssi()
             strength = self.rssi_to_strength(rssi)
             state.set("wifi_strength", strength)
