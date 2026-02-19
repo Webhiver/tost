@@ -195,7 +195,9 @@ const SettingsPanel = () => {
                                 <GrHomeRounded/>
                                 <div className="text-lg">{name}</div>
                                 <div className="flex-1"/>
-                                <div className="text-sm text-slate-400 dark:text-slate-800">this device</div>
+                                <div className="text-sm text-slate-400 dark:text-slate-800">{ip}</div>
+                                {online && <IoShieldCheckmarkSharp className="text-green-700 dark:text-green-500"/>}
+                                {!online && <FaExclamationTriangle className="text-red-700 dark:text-red-400"/>}
                             </div>
                             <div className="py-3 flex flex-col items-stretch justify-start gap-3">
                                 {/*<Field*/}

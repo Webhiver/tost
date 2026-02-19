@@ -22,6 +22,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [effectiveTemp, setEffectiveTemp] = useState<number>(0);
     const [satellites, setSatellites] = useState<Satellite[]>([]);
     const [hostMac, setHostMac] = useState<string>('');
+    const [hostIp, setHostIp] = useState<string>('');
     const [hostName, setHostName] = useState<string>('Host');
     const [hostHealthy, setHostHealthy] = useState<boolean>(true);
     const [hostHumidity, setHostHumidity] = useState<number | null>(null);
@@ -82,6 +83,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setHostTemperature(state?.sensor?.temperature ?? null);
         setIsPairing(state?.is_pairing ?? false);
         setHostMac(state?.mac ?? '');
+        setHostIp(state?.ip ?? '');
     }, [state]);
 
 
@@ -107,7 +109,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         const devices: Device[] = [];
         devices.push({
             id: state?.mac ?? `satellite-0`,
-            ip: undefined,
+            ip: state?.ip ?? undefined,
             satellite: false,
             name: config?.name ?? 'Host',
             online: true,
@@ -125,7 +127,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
 
             devices.push({
                 id: satellite?.mac ?? `satellite-${index + 1}`,
-                ip:satelliteState?.ip ?? undefined,
+                ip: satelliteState?.ip ?? undefined,
                 satellite: true,
                 name: satellite?.name ?? 'Host',
                 online: satelliteState?.online ?? false,
@@ -146,6 +148,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             theme,
             type,
             hostMac,
+            hostIp,
             hostName,
             hostHealthy,
             hostHumidity,

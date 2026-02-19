@@ -53,7 +53,7 @@ const SatellitesPanel = () => {
                         disabled={true}
                     />
                     <div className="grid grid-cols-10">
-                        <div className="col-span-6 text-slate-400 text-sm flex items-center gap-1">Satellite IP: to be added</div>
+                        <div className="col-span-6 text-slate-400 text-sm flex items-center gap-1">Host IP: {getSatelliteIpByMac(hostMac)}</div>
                     </div>
                 </div>
 

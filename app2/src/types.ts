@@ -56,6 +56,7 @@ export interface PendingConfigs {
 export interface State {
   is_pairing: boolean
   mac: string,
+  ip: string,
   wifi_connected: boolean
   wifi_strength: number | null
   sensor: SensorData
@@ -146,6 +147,7 @@ export interface LocalProviderProps {
   flameDuration: number
   isPairing: boolean
   hostMac: string
+  hostIp: string
   hostName: string
   hostHealthy: boolean
   hostTemperature: number | null
