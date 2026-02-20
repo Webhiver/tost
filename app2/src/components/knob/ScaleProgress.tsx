@@ -10,6 +10,7 @@ export const ScaleProgress = () => {
     const knobTickWidth = useContextSelector(LocalContext, c => c.knobTickWidth);
     const knobTickHeight = useContextSelector(LocalContext, c => c.knobTickHeight);
     const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
+    const knobScalePrecision = useContextSelector(LocalContext, c => c.knobScalePrecision);
     const knobPercentage = useContextSelector(LocalContext, c => c.knobPercentage);
     const knobRadius = knobSize / 2;
     const knobCenter = knobSize / 2;
@@ -27,6 +28,8 @@ export const ScaleProgress = () => {
     return (
         <g>
             {Array.from({length}).map((_, index) => {
+                const tickIsHalf = knobScalePrecision !== 0.1 && knobScalePrecision !== 0.5 ? false : index % 2;
+
                 return (
                     <rect
                         data-active={active === index && mode === "manual" ? 'true' : undefined}
@@ -35,8 +38,8 @@ export const ScaleProgress = () => {
                         key={`scale-${index}`}
                         stroke={'none'}
                         width={knobTickWidth}
-                        height={index % 2 ? knobTickHeight / 2 : knobTickHeight}
-                        transform={`rotate(${knobAngleOffset + stepSize * index} ${knobCenter} ${knobCenter}) translate( ${translateX} ${index % 2 ? translateY + knobTickHeight/4 : translateY})`}
+                        height={tickIsHalf ? knobTickHeight / 2 : knobTickHeight}
+                        transform={`rotate(${knobAngleOffset + stepSize * index} ${knobCenter} ${knobCenter}) translate( ${translateX} ${tickIsHalf ? translateY + knobTickHeight/4 : translateY})`}
                         style={active === index ? {
                             transition: "0ms ease-in-out"
                         } : {

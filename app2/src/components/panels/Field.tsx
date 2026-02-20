@@ -47,10 +47,10 @@ const Field = (props: FieldProps) => {
     const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         let rawValue: string | number = e.target.value;
 
-        if(["hysteresis", "sensor_temperature_offset"].includes(configName)){
+        if(["hysteresis", "sensor_temperature_offset", "scale_precision"].includes(configName)){
             rawValue = Number(parseFloat(rawValue).toFixed(1));
         }
-        if(["sensor_humidity_offset", "satellite_grace_period", "max_flame_duration", "led_brightness"].includes(configName)){
+        if(["sensor_humidity_offset", "satellite_grace_period", "max_flame_duration", "led_brightness", "min_temp", "max_temp"].includes(configName)){
             rawValue = Number(parseInt(rawValue as string).toFixed(0));
         }
 

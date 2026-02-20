@@ -89,6 +89,8 @@ const Controller = () => {
                     <ArcButtons/>
                 </svg>
                 <InfoHtml/>
+                <div className="bg-slate-200 text-slate-400 text-xs font-medium px-2 py-1 rounded-full absolute bottom-2 -left-1">Min: {knobMinTemp}°C</div>
+                <div className="bg-slate-200 text-slate-400 text-xs font-medium px-2 py-1 rounded-full absolute bottom-2 -right-1">Max: {knobMaxTemp}°C</div>
             </div>
         </div>
     )

@@ -165,6 +165,40 @@ const SettingsPanel = () => {
                                     mac={mac}
                                     options={[{value: "included", label: "Always Included"}, {value: "fallback", label: "Fallback Only"}]}
                                 />
+                                <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
+                                <Field
+                                    type="number"
+                                    label="Min Temperature"
+                                    value={configs[mac]?.min_temp ?? ""}
+                                    configName="min_temp"
+                                    mac={mac}
+                                    addon="°C"
+                                    step="1"
+                                    min="10"
+                                    max={configs[mac]?.max_temp ?? 30}
+                                />
+                                <Field
+                                    type="number"
+                                    label="Max Temperature"
+                                    value={configs[mac]?.max_temp ?? ""}
+                                    configName="max_temp"
+                                    mac={mac}
+                                    addon="°C"
+                                    step="1"
+                                    min={configs[mac]?.min_temp ?? 10}
+                                    max="30"
+                                />
+                                <Field
+                                    type="number"
+                                    label="Scale Precision"
+                                    value={configs[mac]?.scale_precision ?? ""}
+                                    configName="scale_precision"
+                                    mac={mac}
+                                    addon="°C"
+                                    step="0.1"
+                                    min="0.1"
+                                    max="1"
+                                />
                                 <div className="font-light text-slate-400 dark:text-slate-500">TIMING</div>
                                 <Field
                                     type="number"

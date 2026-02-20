@@ -34,6 +34,9 @@ export interface Config {
   operating_mode: OperatingMode
   target_temperature: number
   hysteresis: number
+  min_temp: number
+  max_temp: number
+  scale_precision: number
   satellites: SatelliteConfig[]
   satellite_grace_period: number
   led_brightness: number
@@ -160,6 +163,7 @@ export interface LocalProviderProps {
   knobAngleOffset: number
   knobMinTemp: number
   knobMaxTemp: number
+  knobScalePrecision: number
   knobTickWidth: number
   knobTickHeight: number
   knobSteps: number

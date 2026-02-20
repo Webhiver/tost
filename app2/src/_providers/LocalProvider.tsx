@@ -29,15 +29,16 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [hostTemperature, setHostTemperature] = useState<number | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
 
-    const [knobSize] = useState(340);
-    const [knobWidth] = useState(50);
-    const [knobAngleRange] = useState(290);
-    const [knobAngleOffset] = useState(215);
-    const [knobMinTemp] = useState(5);
-    const [knobMaxTemp] = useState(30);
-    const [knobTickWidth] = useState(2);
-    const [knobTickHeight] = useState(30);
-    const [knobSteps] = useState((knobMaxTemp - knobMinTemp) * 2);
+    const [knobSize] = useState<number>(340);
+    const [knobWidth] = useState<number>(50);
+    const [knobAngleRange] = useState<number>(290);
+    const [knobAngleOffset] = useState<number>(215);
+    const [knobMinTemp, setKnobMinTemp] = useState<number>(10);
+    const [knobMaxTemp, setKnobMaxTemp] = useState<number>(30);
+    const [knobScalePrecision, setKnobScalePrecision] = useState<number>(0.5);
+    const [knobTickWidth] = useState<number>(2);
+    const [knobTickHeight] = useState<number>(30);
+    const [knobSteps, setKnobSteps] = useState<number>((knobMaxTemp - knobMinTemp) / knobScalePrecision); // (30 - 10) * 2 = 40
     const [knobPercentage, setKnobPercentage] = useState<number>(0);
 
     const toggleTheme = useCallback((theme: Theme) => {
@@ -94,6 +95,14 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setFlameModeSensor(config?.flame_mode === 'one' ? config?.flame_mode_sensor : null);
         setTargetTemp(config?.target_temperature ?? 0);
         setHostName(config?.name ?? 'Host');
+
+        const knobMinTemp = config?.min_temp ?? 10;
+        const knobMaxTemp = config?.max_temp ?? 30;
+        const knobScalePrecision = config?.scale_precision ?? 0.5;
+        setKnobMinTemp(knobMinTemp);
+        setKnobMaxTemp(knobMaxTemp);
+        setKnobScalePrecision(knobScalePrecision);
+        setKnobSteps((knobMaxTemp - knobMinTemp) / knobScalePrecision);
     }, [config]);
 
     useEffect(() => {
@@ -169,6 +178,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             knobAngleOffset,
             knobMinTemp,
             knobMaxTemp,
+            knobScalePrecision,
             knobTickWidth,
             knobTickHeight,
             knobSteps,

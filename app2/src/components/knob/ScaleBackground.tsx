@@ -9,6 +9,7 @@ export const ScaleBackground = () => {
     const knobTickWidth = useContextSelector(LocalContext, c => c.knobTickWidth);
     const knobTickHeight = useContextSelector(LocalContext, c => c.knobTickHeight);
     const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
+    const knobScalePrecision = useContextSelector(LocalContext, c => c.knobScalePrecision);
     const knobRadius = knobSize / 2;
     const knobCenter = knobSize / 2;
 
@@ -20,14 +21,16 @@ export const ScaleBackground = () => {
     return (
         <g>
             {Array.from({length}).map((_, index) => {
+                const tickIsHalf = knobScalePrecision !== 0.1 && knobScalePrecision !== 0.5 ? false : index % 2;
+
                 return (
                     <rect
                         className="fill-black/20 dark:fill-slate-500"
                         key={`scale-${index}`}
                         stroke={'none'}
                         width={knobTickWidth}
-                        height={index % 2 ? knobTickHeight / 2 : knobTickHeight}
-                        transform={`rotate(${knobAngleOffset + stepSize * index} ${knobCenter} ${knobCenter}) translate( ${translateX} ${index % 2 ? translateY + knobTickHeight/4 : translateY})`}
+                        height={tickIsHalf ? knobTickHeight / 2 : knobTickHeight}
+                        transform={`rotate(${knobAngleOffset + stepSize * index} ${knobCenter} ${knobCenter}) translate( ${translateX} ${tickIsHalf ? translateY + knobTickHeight/4 : translateY})`}
                     />
                 );
             })}
