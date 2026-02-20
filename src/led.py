@@ -13,7 +13,7 @@ class LEDManager:
     COLOR_GREEN = (0, 1, 0)
     COLOR_BLUE = (0, 0, 1)
     COLOR_YELLOW = (1, 1, 0)
-    COLOR_VIOLET = (1, 0, 1)
+    COLOR_WHITE = (1, 1, 1)
 
     BLINK_ON_TIME = 500
     BLINK_OFF_TIME = 500
@@ -113,7 +113,7 @@ class LEDManager:
             if self._fade_state <= self.FADE_STEPS:
                 # Calculate fade-off brightness
                 fade_brightness = 1.0 - (self._fade_state / self.FADE_STEPS)
-                faded_color = tuple(c * fade_brightness * self._brightness for c in self.COLOR_VIOLET)
+                faded_color = tuple(c * fade_brightness * self._brightness for c in self.COLOR_WHITE)
                 self._led.value = faded_color
         # Fading in: steps FADE_STEPS+1 to 2*FADE_STEPS
         else:
@@ -130,7 +130,7 @@ class LEDManager:
                 # Calculate fade-in brightness
                 fade_in_step = self._fade_state - self.FADE_STEPS
                 fade_brightness = fade_in_step / self.FADE_STEPS
-                faded_color = tuple(c * fade_brightness * self._brightness for c in self.COLOR_VIOLET)
+                faded_color = tuple(c * fade_brightness * self._brightness for c in self.COLOR_WHITE)
                 self._led.value = faded_color
 
     def tick(self):
