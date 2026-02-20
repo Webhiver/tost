@@ -1,0 +1,45 @@
+import {GrSatellite} from "react-icons/gr";
+import {useContextSelector} from "@fluentui/react-context-selector";
+import {LocalContext} from "../_context";
+
+const SatelliteMode = () => {
+
+    const healthy = useContextSelector(LocalContext, c => c.hostHealthy)
+    const targetTemp = useContextSelector(LocalContext, c => c.targetTemp)
+    const temperature = useContextSelector(LocalContext, c => c.hostTemperature)
+    const humidity = useContextSelector(LocalContext, c => c.hostHumidity)
+
+    return (
+        <div className="p-6 flex-1 flex flex-col items-center gap-6 justify-start overflow-hidden bg-linear-to-b from-white to-slate-100 rounded-t-3xl shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:from-slate-950 dark:to-slate-800 dark:shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+            <div className="bg-linear-to-r from-blue-100 to-transparent border border-blue-300 rounded-full text-blue-400 px-3 py-1 text-sm font-medium flex justify-start items-center gap-2">
+                <GrSatellite/>
+                SATELLITE MODE
+            </div>
+            <div className="flex flex-col items-center justify-center">
+                <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Target Temperature</div>
+                <div className="text-4xl font-mono text-slate-400 dark:text-slate-300">{targetTemp?.toFixed(1) ?? "--"}°C
+                </div>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+                <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Local Temperature</div>
+                <div className="text-4xl font-mono text-slate-400 dark:text-slate-300">{temperature?.toFixed(1) ?? "--"}°C
+                </div>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+                <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Local Humidity</div>
+                <div className="text-4xl font-mono text-slate-400 dark:text-slate-300">{humidity?.toFixed(1) ?? "--"}%
+                </div>
+            </div>
+            <div className="flex flex-col items-center justify-center">
+                {healthy && <div className="bg-linear-to-r from-emerald-100 to-transparent border border-emerald-300 rounded-full text-emerald-400 px-3 py-1 text-sm font-medium">Sensor is healthy</div>}
+                {!healthy && <div className="bg-linear-to-r from-amber-100 to-transparent border border-amber-300 rounded-full text-amber-400 px-3 py-1 text-sm font-medium">Sensor is broken</div>}
+            </div>
+            <div className="bg-slate-200 p-4 rounded-lg text-slate-600">
+                This device is operating as a satellite sensor. Temperature and humidity values are being reported to the host thermostat.<br/><br/>
+                All configurations can be made on the host thermostat.
+            </div>
+        </div>
+    );
+}
+
+export default SatelliteMode;

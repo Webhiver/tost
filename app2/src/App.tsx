@@ -3,17 +3,34 @@ import Header from "./components/Header";
 import Modes from "./components/Modes";
 import Controller from "./components/Controller";
 import Satellites from "./components/Satellites";
-import {ApiContext} from "./_context";
+import SatelliteMode from "./components/SatelliteMode";
+import {ApiContext, LocalContext} from "./_context";
 import {Fragment} from "react";
+import MainPanel from "./components/panels/MainPanel";
+import SettingsPanel from "./components/panels/SettingsPanel";
+import SatellitesPanel from "./components/panels/SatellitesPanel";
+import UpdatesPanel from "./components/panels/UpdatesPanel";
 
 const App = () => {
     const isLoading = useContextSelector(ApiContext, c => c.isLoading)
+    const type = useContextSelector(LocalContext, c => c.type)
 
     if(isLoading) {
         return (
             <div className="flex-1 inset-0 bg-linear-to-b from-white to-slate-100 flex justify-center items-center">
                 LOADING
             </div>
+        );
+    }
+
+    if(type === "satellite") {
+        return (
+            <Fragment>
+                <Header/>
+                <Modes/>
+                <SatelliteMode/>
+                <UpdatesPanel/>
+            </Fragment>
         );
     }
 
@@ -25,6 +42,10 @@ const App = () => {
                 <Controller/>
                 <Satellites/>
             </div>
+            <MainPanel/>
+            <SettingsPanel/>
+            <SatellitesPanel/>
+            <UpdatesPanel/>
         </Fragment>
     );
 }
