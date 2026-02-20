@@ -163,7 +163,8 @@ const WrapperPanel = (props: Props) => {
                     </div>
                 }
                 <div className="flex-1"/>
-                <MdOutlineKeyboardArrowLeft className="fill-slate-500 dark:fill-slate-200 size-10 cursor-pointer" onClick={onClose}/>
+                {mainPanelOpen && <MdOutlineKeyboardArrowLeft className="fill-slate-500 dark:fill-slate-200 size-10 cursor-pointer" onClick={onClose}/>}
+                {!mainPanelOpen && <MdClose className="fill-slate-500 dark:fill-slate-200 size-8 cursor-pointer" onClick={onClose}/>}
             </div>
         );
     }
@@ -189,11 +190,11 @@ const WrapperPanel = (props: Props) => {
             </div>
             {touchAvailable &&
                 <Fragment>
-                    {type === "main" && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                    {type === "main" && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
                     {type !== "main" && (
                         <Fragment>
-                            {mainPanelOpen && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
-                            {!mainPanelOpen && <div className="pb-2 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                            {mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
+                            {!mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
                         </Fragment>
                     )}
                 </Fragment>
