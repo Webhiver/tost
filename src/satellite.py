@@ -269,6 +269,7 @@ class SatelliteManager:
         if online_ips:
             sync_data = {
                 "flame": state.get("flame", False),
+                "target_temperature": config.get("target_temperature", 22.0),
                 "operating_mode": config.get("operating_mode", "manual"),
             }
             sync_tasks = [self.sync_satellite_async(ip, sync_data) for ip in online_ips]
