@@ -11,7 +11,7 @@ import Field from "./Field.tsx";
 
 const SatellitesPanel = () => {
 
-    const hostMac = useContextSelector(LocalContext, c => c.hostMac);
+    const hostMac = useContextSelector(LocalContext, c => c.mac);
     const devices = useContextSelector(LocalContext, c => c.devices);
     const configs = useContextSelector(PanelsContext, c => c.configs);
 

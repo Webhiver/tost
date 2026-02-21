@@ -150,12 +150,12 @@ export interface LocalProviderProps {
   flameModeSensor: string | null
   flameDuration: number
   isPairing: boolean
-  hostMac: string
-  hostIp: string
-  hostName: string
-  hostHealthy: boolean
-  hostTemperature: number | null
-  hostHumidity: number | null
+  mac: string
+  ip: string
+  name: string
+  healthy: boolean
+  temperature: number | null
+  humidity: number | null
   wifiConnected: boolean
   wifiStrength: number | null
   knobSize: number

@@ -4,10 +4,10 @@ import {LocalContext} from "../_context";
 
 const SatelliteMode = () => {
 
-    const healthy = useContextSelector(LocalContext, c => c.hostHealthy)
+    const healthy = useContextSelector(LocalContext, c => c.healthy)
     const targetTemp = useContextSelector(LocalContext, c => c.targetTemp)
-    const temperature = useContextSelector(LocalContext, c => c.hostTemperature)
-    const humidity = useContextSelector(LocalContext, c => c.hostHumidity)
+    const temperature = useContextSelector(LocalContext, c => c.temperature)
+    const humidity = useContextSelector(LocalContext, c => c.humidity)
 
     return (
         <div className="p-6 flex-1 flex flex-col items-center gap-6 justify-start overflow-hidden bg-linear-to-b from-white to-slate-100 rounded-t-3xl shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:from-slate-950 dark:to-slate-800 dark:shadow-[0_0_10px_rgba(0,0,0,0.8)]">

@@ -21,12 +21,12 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [targetTemp, setTargetTemp] = useState<number>(0);
     const [effectiveTemp, setEffectiveTemp] = useState<number>(0);
     const [satellites, setSatellites] = useState<Satellite[]>([]);
-    const [hostMac, setHostMac] = useState<string>('');
-    const [hostIp, setHostIp] = useState<string>('');
-    const [hostName, setHostName] = useState<string>('Host');
-    const [hostHealthy, setHostHealthy] = useState<boolean>(true);
-    const [hostHumidity, setHostHumidity] = useState<number | null>(null);
-    const [hostTemperature, setHostTemperature] = useState<number | null>(null);
+    const [mac, setMac] = useState<string>('');
+    const [ip, setIp] = useState<string>('');
+    const [name, setName] = useState<string>('Host');
+    const [healthy, setHealthy] = useState<boolean>(true);
+    const [humidity, setHumidity] = useState<number | null>(null);
+    const [temperature, setTemperature] = useState<number | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
 
     const [knobSize] = useState<number>(340);
@@ -79,12 +79,12 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setWifiConnected(state?.wifi_connected ?? false);
         setWifiStrength(state?.wifi_strength ?? 0);
         setSatellites(state?.satellites ?? []);
-        setHostHealthy(state?.sensor?.healthy ?? true);
-        setHostHumidity(state?.sensor?.humidity ?? null);
-        setHostTemperature(state?.sensor?.temperature ?? null);
+        setHealthy(state?.sensor?.healthy ?? true);
+        setHumidity(state?.sensor?.humidity ?? null);
+        setTemperature(state?.sensor?.temperature ?? null);
         setIsPairing(state?.is_pairing ?? false);
-        setHostMac(state?.mac ?? '');
-        setHostIp(state?.ip ?? '');
+        setMac(state?.mac ?? '');
+        setIp(state?.ip ?? '');
     }, [state]);
 
 
@@ -94,7 +94,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setFlameMode(config?.flame_mode ?? 'average');
         setFlameModeSensor(config?.flame_mode === 'one' ? config?.flame_mode_sensor : null);
         setTargetTemp(config?.target_temperature ?? 0);
-        setHostName(config?.name ?? 'Host');
+        setName(config?.name ?? 'Host');
 
         const knobMinTemp = config?.min_temp ?? 10;
         const knobMaxTemp = config?.max_temp ?? 30;
@@ -156,12 +156,12 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         <LocalContext.Provider value={{
             theme,
             type,
-            hostMac,
-            hostIp,
-            hostName,
-            hostHealthy,
-            hostHumidity,
-            hostTemperature,
+            mac,
+            ip,
+            name,
+            healthy,
+            humidity,
+            temperature,
             mode,
             flame,
             flameMode,

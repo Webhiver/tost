@@ -101,7 +101,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     const scheduleSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const responseSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-    const hostMac = useContextSelector(LocalContext, c => c.hostMac);
+    const hostMac = useContextSelector(LocalContext, c => c.mac);
     const stopGettingStatus = useContextSelector(ApiContext, c => c.stopGettingStatus);
     const resetAndStartGettingStatus = useContextSelector(ApiContext, c => c.resetAndStartGettingStatus);
     //const onConfigsUpdated = useContextSelector(ApiContext, c => c.onConfigsUpdated);

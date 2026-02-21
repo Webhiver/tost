@@ -2,7 +2,6 @@ import {Fragment} from "react";
 import WrapperPanel from "./WrapperPanel";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext, PanelsContext} from "../../_context";
-import {} from "../../types.ts";
 import {GrSatellite, GrHomeRounded} from "react-icons/gr";
 import Field from "./Field";
 import { FaExclamationTriangle } from "react-icons/fa";
