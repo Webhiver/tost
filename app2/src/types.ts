@@ -78,6 +78,7 @@ export interface Status {
 export interface Network {
   ssid: string
   rssi: number
+  strength: number
 }
 
 export interface DebugInfo {

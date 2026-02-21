@@ -4,6 +4,7 @@ import Modes from "./components/Modes";
 import Controller from "./components/Controller";
 import Satellites from "./components/Satellites";
 import SatelliteMode from "./components/SatelliteMode";
+import PairingMode from "./components/PairingMode";
 import {ApiContext, LocalContext} from "./_context";
 import {Fragment} from "react";
 import MainPanel from "./components/panels/MainPanel";
@@ -14,6 +15,7 @@ import UpdatesPanel from "./components/panels/UpdatesPanel";
 const App = () => {
     const isLoading = useContextSelector(ApiContext, c => c.isLoading)
     const type = useContextSelector(LocalContext, c => c.type)
+    const isPairing = useContextSelector(LocalContext, c => c.isPairing)
 
     if(isLoading) {
         return (
@@ -21,6 +23,15 @@ const App = () => {
                 LOADING
             </div>
         );
+    }
+
+    if (isPairing) {
+        return (
+            <Fragment>
+                <Header/>
+                <PairingMode/>
+            </Fragment>
+        )
     }
 
     if(type === "satellite") {

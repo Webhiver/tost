@@ -119,7 +119,7 @@ const WrapperPanel = (props: Props) => {
     );
     if(type !== "main") {
         title = (
-            <div className="flex justify-start items-center gap-2 px-4 py-4 text-slate-500 text-xl border-b border-slate-300 dark:text-slate-300 dark:border-slate-700">
+                <div className="flex justify-start items-center gap-2 px-4 py-4 text-slate-500 text-xl border-b border-slate-300 dark:text-slate-300 dark:border-slate-700">
                 {type === "settings" && <TbSettings className="size-6"/>}
                 {type === "schedule" && <TbCalendarClock className="size-6"/>}
                 {type === "satellites" && <GrSatellite className="size-5"/>}
