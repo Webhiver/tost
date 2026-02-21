@@ -22,6 +22,18 @@ async def delayed_reset():
     await asyncio.sleep(1)
     machine.reset()
 
+def rssi_to_strength(rssi):
+    """Convert RSSI to 0-4 strength level."""
+    if rssi is None:
+        return 0
+    if rssi >= -50:
+        return 4
+    if rssi >= -60:
+        return 3
+    if rssi >= -70:
+        return 2
+    return 1
+
 
 def create_server(pairing, secrets_module):
     
@@ -67,6 +79,11 @@ def create_server(pairing, secrets_module):
     @app.route('/api/wifi/scan', methods=['GET'])
     async def scan_wifi(request):
         networks = pairing.scan_networks()
+
+        for network in networks:
+            rssi = network.get('rssi')
+            network['strength'] = rssi_to_strength(rssi)
+
         return {"networks": networks}
     
     @app.route('/api/wifi/connect', methods=['POST'])
