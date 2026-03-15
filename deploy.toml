@@ -1,0 +1,20 @@
+[src]
+source = "src"
+target = "/"
+exclude = ["hw_revision.py"]
+include = []
+preserve = [".env", "app", "hw_revision.py"]
+
+[app]
+source = "dist/app"
+target = "/app"
+exclude = []
+include = []
+preserve = []
+
+[all]
+source = "dist"
+target = "/"
+exclude = []
+include = []
+preserve = [".env"]
