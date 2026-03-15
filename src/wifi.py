@@ -1,13 +1,30 @@
 import asyncio
+import time
 import network
 import secrets
 from state import state
+
+RECONNECT_INTERVAL = 20
+
+
+def rssi_to_strength(rssi):
+    """Convert RSSI to 0-4 strength level."""
+    if rssi is None:
+        return 0
+    if rssi >= -50:
+        return 4
+    if rssi >= -60:
+        return 3
+    if rssi >= -70:
+        return 2
+    return 1
 
 
 class WifiManager:
     
     def __init__(self):
         self._sta = None
+        self._connect_tick = None
         
         state.subscribe("is_pairing", self._on_pairing_change)
     
@@ -41,8 +58,11 @@ class WifiManager:
             return
         
         self._sta = network.WLAN(network.STA_IF)
+        self._sta.active(False)
+        time.sleep(0.5)
         self._sta.active(True)
         self._sta.connect(ssid, password)
+        self._connect_tick = time.ticks_ms()
     
     @property
     def ip_address(self):
@@ -71,23 +91,14 @@ class WifiManager:
         except Exception:
             return None
     
-    def rssi_to_strength(self, rssi):
-        """Convert RSSI to 0-4 strength level."""
-        if rssi is None:
-            return 0
-        if rssi >= -50:
-            return 4
-        if rssi >= -60:
-            return 3
-        if rssi >= -70:
-            return 2
-        return 1
-    
     async def loop(self):
+        self.init()
+
         while True:
-            # Sync wifi_connected state with actual connection status
             is_connected = self._sta is not None and self._sta.isconnected()
-            if is_connected != state.get("wifi_connected", False):
+            was_connected = state.get("wifi_connected", False)
+
+            if is_connected != was_connected:
                 if is_connected:
                     print("WiFi connected, IP:", self.ip_address)
                     state.set("ip", self.ip_address)
@@ -95,8 +106,17 @@ class WifiManager:
                     print("WiFi disconnected")
                 state.set("wifi_connected", is_connected)
 
+            if (
+                not is_connected
+                and not state.get("is_pairing")
+                and self._connect_tick is not None
+                and time.ticks_diff(time.ticks_ms(), self._connect_tick) > RECONNECT_INTERVAL * 1000
+            ):
+                print("WiFi: reconnecting...")
+                self.connect()
+
             rssi = self.get_rssi()
-            strength = self.rssi_to_strength(rssi)
+            strength = rssi_to_strength(rssi)
             state.set("wifi_strength", strength)
             await asyncio.sleep(4)
 

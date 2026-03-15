@@ -5,15 +5,12 @@ import os
 from lib.microdot import Microdot, Response, redirect, Request
 import urequests
 import debug
+import secrets
 from state import state
 from config import config
 from discovery import discovery
+from pairing import pairing
 
-app = Microdot()
-
-# Allow firmware updates up to 256KB
-# max_body_length = 16KB: requests smaller than this are buffered in memory
-# Larger requests (like firmware updates) are streamed via request.stream
 Request.max_content_length = 256 * 1024
 Request.max_body_length = 16 * 1024
 
@@ -22,291 +19,268 @@ async def delayed_reset():
     await asyncio.sleep(1)
     machine.reset()
 
-def rssi_to_strength(rssi):
-    """Convert RSSI to 0-4 strength level."""
-    if rssi is None:
-        return 0
-    if rssi >= -50:
-        return 4
-    if rssi >= -60:
-        return 3
-    if rssi >= -70:
-        return 2
-    return 1
 
-
-def create_server(pairing, secrets_module):
+class WebServer:
     
-    @app.route('/api/status', methods=['GET'])
-    async def get_status(request):
-        return {
-            "state": state.get_all(),
-            "config": config.get_all()
-        }
+    def __init__(self):
+        self._app = Microdot()
+        self._register_routes()
     
-    @app.route('/api/state', methods=['GET'])
-    async def get_state(request):
-        if config.get("mode") == "satellite":
-            return state.get_satellite_state()
-        return state.get_all()
-    
-    @app.route('/api/config', methods=['GET'])
-    async def get_config(request):
-        return config.get_all()
-    
-    @app.route('/api/config', methods=['POST'])
-    async def set_config(request):
-        try:
-            new_config = request.json
-            if new_config:
-                config.set_all(new_config)
-                return {"status": "ok", "config": config.get_all()}
-            return {"error": "No config provided"}, 400
-        except Exception as e:
-            return {"error": str(e)}, 400
-    
-    @app.route('/api/config', methods=['PATCH'])
-    async def update_config(request):
-        try:
-            updates = request.json
-            if updates:
-                config.update_all(updates)
-                return {"status": "ok", "config": config.get_all()}
-            return {"error": "No updates provided"}, 400
-        except Exception as e:
-            return {"error": str(e)}, 400
-    
-    @app.route('/api/wifi/scan', methods=['GET'])
-    async def scan_wifi(request):
-        networks = pairing.scan_networks()
-
-        for network in networks:
-            rssi = network.get('rssi')
-            network['strength'] = rssi_to_strength(rssi)
-
-        return {"networks": networks}
-    
-    @app.route('/api/wifi/connect', methods=['POST'])
-    async def connect_wifi(request):
-        try:
-            data = request.json
-            ssid = data.get("ssid")
-            password = data.get("password", "")
-            
-            if not ssid:
-                return {"error": "SSID required"}, 400
-            
-            secrets_module.save(ssid, password)
-            
-            asyncio.create_task(delayed_reset())
-            
-            return {"status": "ok", "message": "Credentials saved. Device will restart."}
-        except Exception as e:
-            return {"error": str(e)}, 400
-    
-    @app.route('/api/pairing/exit', methods=['POST'])
-    async def exit_pairing(request):
-        state.set("is_pairing", False)
-        return {"status": "ok", "message": "Exiting pairing mode"}
-    
-    @app.route('/api/debug', methods=['GET'])
-    async def get_debug(request):
-        return debug.get_debug_info()
-    
-    @app.route('/api/mem-info', methods=['GET'])
-    async def get_mem_info(request):
-        micropython.mem_info(1)
-        return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
-
-    @app.route('/api/reboot', methods=['POST'])
-    async def reboot(request):
-        asyncio.create_task(delayed_reset())
-        return {"status": "ok", "message": "Reboot scheduled"}
-
-    @app.route('/api/ping', methods=['GET'])
-    async def ping(request):
-        return {"status": "ok"}
-    
-    @app.route('/api/discover', methods=['GET'])
-    async def api_discover(request):
-        discovery.send_discover_message()
-        return {"status": "ok"}
-    
-    @app.route('/api/sync', methods=['POST'])
-    async def sync(request):
-        if config.get("mode") != "satellite":
-            return {"error": "Sync only available in satellite mode"}, 403
+    async def loop(self):
+        """Wait for a network interface to be available, then start serving."""
+        while not state.get("wifi_connected") and not state.get("is_pairing"):
+            await asyncio.sleep_ms(100)
         
-        try:
-            data = request.json
-            if data and "flame" in data:
-                state.set("flame", data["flame"])
-            if data and "target_temperature" in data:
-                config.set("target_temperature", data["target_temperature"])
-            if data and "operating_mode" in data:
-                config.set("operating_mode", data["operating_mode"])
-            return {"status": "ok"}
-        except Exception as e:
-            return {"error": str(e)}, 400
+        print("Starting web server on port 80...")
+        await self._app.start_server(host='0.0.0.0', port=80)
     
-    @app.route('/api/update', methods=['POST'])
-    async def firmware_update(request):
-        """
-        Handle firmware update upload.
-        Streams the upload directly to flash to avoid memory issues.
-        The actual update is applied on next boot via boot.py.
-        """
-        upload_path = '/update.tar.gz'
+    def _register_routes(self):
+        app = self._app
         
-        try:
-            # Validate content type
-            content_type = request.content_type or ''
-            if 'application/gzip' not in content_type and 'application/octet-stream' not in content_type:
-                return {"error": "Invalid content type: {}".format(content_type)}, 400
-            
-            # Check content length
-            content_length = request.content_length
-            if content_length == 0:
-                return {"error": "No data received (content_length=0)"}, 400
-            
-            print("Update: receiving {} bytes".format(content_length))
-            
-            # Check if body was buffered (small file) or needs streaming (large file)
-            # Large uploads (> max_body_length) are streamed to avoid memory issues
-            if request.body:
-                # Small file was buffered - just write it
-                print("Update: writing buffered body")
-                with open(upload_path, 'wb') as f:
-                    f.write(request.body)
-            else:
-                # Large file - stream directly to flash in chunks
-                print("Update: streaming to flash")
-                chunk_size = 4096
+        @app.route('/api/status', methods=['GET'])
+        async def get_status(request):
+            return {
+                "state": state.get_all(),
+                "config": config.get_all()
+            }
+        
+        @app.route('/api/state', methods=['GET'])
+        async def get_state(request):
+            if config.get("mode") == "satellite":
+                return state.get_satellite_state()
+            return state.get_all()
+        
+        @app.route('/api/config', methods=['GET'])
+        async def get_config(request):
+            return config.get_all()
+        
+        @app.route('/api/config', methods=['POST'])
+        async def set_config(request):
+            try:
+                new_config = request.json
+                if new_config:
+                    config.set_all(new_config)
+                    return {"status": "ok", "config": config.get_all()}
+                return {"error": "No config provided"}, 400
+            except Exception as e:
+                return {"error": str(e)}, 400
+        
+        @app.route('/api/config', methods=['PATCH'])
+        async def update_config(request):
+            try:
+                updates = request.json
+                if updates:
+                    config.update_all(updates)
+                    return {"status": "ok", "config": config.get_all()}
+                return {"error": "No updates provided"}, 400
+            except Exception as e:
+                return {"error": str(e)}, 400
+        
+        @app.route('/api/wifi/scan', methods=['GET'])
+        async def scan_wifi(request):
+            return {"networks": pairing.scan_networks()}
+        
+        @app.route('/api/wifi/connect', methods=['POST'])
+        async def connect_wifi(request):
+            try:
+                data = request.json
+                ssid = data.get("ssid")
+                password = data.get("password", "")
                 
-                with open(upload_path, 'wb') as f:
-                    remaining = content_length
-                    while remaining > 0:
-                        to_read = min(chunk_size, remaining)
-                        chunk = await request.stream.readexactly(to_read)
-                        if not chunk:
-                            break
-                        f.write(chunk)
-                        remaining -= len(chunk)
-            
-            # Verify file was written
-            try:
-                size = os.stat(upload_path)[6]
-                print("Update: wrote {} bytes to {}".format(size, upload_path))
-                if size == 0:
-                    return {"error": "Upload failed - empty file"}, 400
-                if size != content_length:
-                    return {"error": "Upload incomplete: {} of {} bytes".format(size, content_length)}, 400
-            except OSError as e:
-                return {"error": "Upload failed - stat error: {}".format(str(e))}, 400
-            
-            # Schedule a delayed reset to allow response to be sent
-            # The update will be applied by boot.py on restart
+                if not ssid:
+                    return {"error": "SSID required"}, 400
+                
+                secrets.save(ssid, password)
+                asyncio.create_task(delayed_reset())
+                
+                return {"status": "ok", "message": "Credentials saved. Device will restart."}
+            except Exception as e:
+                return {"error": str(e)}, 400
+        
+        @app.route('/api/pairing/exit', methods=['POST'])
+        async def exit_pairing(request):
+            state.set("is_pairing", False)
+            return {"status": "ok", "message": "Exiting pairing mode"}
+        
+        @app.route('/api/debug', methods=['GET'])
+        async def get_debug(request):
+            return debug.get_debug_info()
+        
+        @app.route('/api/mem-info', methods=['GET'])
+        async def get_mem_info(request):
+            micropython.mem_info(1)
+            return {"status": "ok", "message": "mem_info(1) output sent to REPL"}
+
+        @app.route('/api/reboot', methods=['POST'])
+        async def reboot(request):
             asyncio.create_task(delayed_reset())
+            return {"status": "ok", "message": "Reboot scheduled"}
+
+        @app.route('/api/ping', methods=['GET'])
+        async def ping(request):
+            return {"status": "ok"}
+        
+        @app.route('/api/discover', methods=['GET'])
+        async def api_discover(request):
+            discovery.send_discover_message()
+            return {"status": "ok"}
+        
+        @app.route('/api/sync', methods=['POST'])
+        async def sync(request):
+            if config.get("mode") != "satellite":
+                return {"error": "Sync only available in satellite mode"}, 403
             
-            return {"status": "ok", "message": "Update received. Device will restart and apply update."}
-            
-        except Exception as e:
-            # Clean up on error
             try:
-                os.remove(upload_path)
-            except OSError:
-                pass
-            return {"error": str(e)}, 500
-    
-    @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
-    async def satellite_proxy(request, ip, path):
-        # Check that IP is in state satellites (known satellites)
-        satellites = state.get("satellites", [])
-        satellite_ips = [sat.get("ip") for sat in satellites if sat.get("ip")]
+                data = request.json
+                if data and "flame" in data:
+                    state.set("flame", data["flame"])
+                if data and "target_temperature" in data:
+                    config.set("target_temperature", data["target_temperature"])
+                if data and "operating_mode" in data:
+                    config.set("operating_mode", data["operating_mode"])
+                return {"status": "ok"}
+            except Exception as e:
+                return {"error": str(e)}, 400
         
-        if ip not in satellite_ips:
-            return {"error": "Satellite not found"}, 404
+        @app.route('/api/update', methods=['POST'])
+        async def firmware_update(request):
+            """Stream firmware upload directly to flash. Applied on next boot by boot.py."""
+            upload_path = '/update.tar.gz'
+            
+            try:
+                content_type = request.content_type or ''
+                if 'application/gzip' not in content_type and 'application/octet-stream' not in content_type:
+                    return {"error": "Invalid content type: {}".format(content_type)}, 400
+                
+                content_length = request.content_length
+                if content_length == 0:
+                    return {"error": "No data received (content_length=0)"}, 400
+                
+                print("Update: receiving {} bytes".format(content_length))
+                
+                if request.body:
+                    print("Update: writing buffered body")
+                    with open(upload_path, 'wb') as f:
+                        f.write(request.body)
+                else:
+                    print("Update: streaming to flash")
+                    chunk_size = 4096
+                    
+                    with open(upload_path, 'wb') as f:
+                        remaining = content_length
+                        while remaining > 0:
+                            to_read = min(chunk_size, remaining)
+                            chunk = await request.stream.readexactly(to_read)
+                            if not chunk:
+                                break
+                            f.write(chunk)
+                            remaining -= len(chunk)
+                
+                try:
+                    size = os.stat(upload_path)[6]
+                    print("Update: wrote {} bytes to {}".format(size, upload_path))
+                    if size == 0:
+                        return {"error": "Upload failed - empty file"}, 400
+                    if size != content_length:
+                        return {"error": "Upload incomplete: {} of {} bytes".format(size, content_length)}, 400
+                except OSError as e:
+                    return {"error": "Upload failed - stat error: {}".format(str(e))}, 400
+                
+                asyncio.create_task(delayed_reset())
+                
+                return {"status": "ok", "message": "Update received. Device will restart and apply update."}
+                
+            except Exception as e:
+                try:
+                    os.remove(upload_path)
+                except OSError:
+                    pass
+                return {"error": str(e)}, 500
         
-        # Proxy the request to the satellite
-        url = "http://{}:80/api/{}".format(ip, path)
-        response = None
-        try:
-            # Forward request based on method
-            if request.method == 'GET':
-                response = urequests.get(url, timeout=5)
-            elif request.method == 'POST':
-                response = urequests.post(url, json=request.json, timeout=5)
-            elif request.method == 'PATCH':
-                response = urequests.patch(url, json=request.json, timeout=5)
-            elif request.method == 'PUT':
-                response = urequests.put(url, json=request.json, timeout=5)
-            elif request.method == 'DELETE':
-                response = urequests.delete(url, timeout=5)
-            else:
-                return {"error": "Method not supported"}, 405
+        @app.route('/api/satellite-proxy/<ip>/<path:path>', methods=['GET', 'POST', 'PATCH', 'PUT', 'DELETE'])
+        async def satellite_proxy(request, ip, path):
+            satellites = state.get("satellites", [])
+            satellite_ips = [sat.get("ip") for sat in satellites if sat.get("ip")]
             
-            # Return the satellite's response
-            status_code = response.status_code
-            data = response.json()
-            response.close()
+            if ip not in satellite_ips:
+                return {"error": "Satellite not found"}, 404
             
-            return data, status_code
-            
-        except Exception as e:
-            if response:
+            url = "http://{}:80/api/{}".format(ip, path)
+            response = None
+            try:
+                if request.method == 'GET':
+                    response = urequests.get(url, timeout=5)
+                elif request.method == 'POST':
+                    response = urequests.post(url, json=request.json, timeout=5)
+                elif request.method == 'PATCH':
+                    response = urequests.patch(url, json=request.json, timeout=5)
+                elif request.method == 'PUT':
+                    response = urequests.put(url, json=request.json, timeout=5)
+                elif request.method == 'DELETE':
+                    response = urequests.delete(url, timeout=5)
+                else:
+                    return {"error": "Method not supported"}, 405
+                
+                status_code = response.status_code
+                data = response.json()
                 response.close()
-            return {"error": "Failed to reach satellite: {}".format(str(e))}, 502
-    
-    @app.route('/')
-    async def serve_index(request):
-        try:
-            return Response.send_file('app/index.html', content_type='text/html')
-        except OSError:
-            return "App not found. Please upload the app/ folder.", 404
-    
-    # Captive portal routes - serve app when in pairing mode
-    @app.route('/generate_204')
-    @app.route('/hotspot-detect.html')
-    @app.route('/library/test/success.html')
-    @app.route('/connecttest.txt')
-    @app.route('/ncsi.txt')
-    @app.route('/success.txt')
-    @app.route('/canonical.html')
-    @app.route('/check_network_status.txt')
-    @app.route('/kindle-wifi/wifistub.html')
-    @app.route('/redirect')
-    async def serve_captive_portal(request):
-        if state.get("is_pairing", False):
-            return await serve_index(request)
-        return 'Not found', 404
-    
-    # Catch-all route for static files from the app folder
-    @app.route('/<path:path>')
-    async def serve_static(request, path):
-        try:
-            if path.endswith('.js'):
-                content_type = 'application/javascript'
-            elif path.endswith('.css'):
-                content_type = 'text/css'
-            elif path.endswith('.svg'):
-                content_type = 'image/svg+xml'
-            elif path.endswith('.png'):
-                content_type = 'image/png'
-            elif path.endswith('.ico'):
-                content_type = 'image/x-icon'
-            elif path.endswith('.woff2'):
-                content_type = 'font/woff2'
-            elif path.endswith('.woff'):
-                content_type = 'font/woff'
-            elif path.endswith('.webmanifest') or path.endswith('.json'):
-                content_type = 'application/json'
-            elif path.endswith('.html'):
-                content_type = 'text/html'
-            else:
-                content_type = 'application/octet-stream'
-            
-            return Response.send_file('app/' + path, content_type=content_type)
-        except OSError:
-            return "Not found", 404
-    
-    return app
+                
+                return data, status_code
+                
+            except Exception as e:
+                if response:
+                    response.close()
+                return {"error": "Failed to reach satellite: {}".format(str(e))}, 502
+        
+        @app.route('/')
+        async def serve_index(request):
+            try:
+                return Response.send_file('app/index.html', content_type='text/html')
+            except OSError:
+                return "App not found. Please upload the app/ folder.", 404
+        
+        @app.route('/generate_204')
+        @app.route('/hotspot-detect.html')
+        @app.route('/library/test/success.html')
+        @app.route('/connecttest.txt')
+        @app.route('/ncsi.txt')
+        @app.route('/success.txt')
+        @app.route('/canonical.html')
+        @app.route('/check_network_status.txt')
+        @app.route('/kindle-wifi/wifistub.html')
+        @app.route('/redirect')
+        async def serve_captive_portal(request):
+            if state.get("is_pairing", False):
+                return await serve_index(request)
+            return 'Not found', 404
+        
+        @app.route('/<path:path>')
+        async def serve_static(request, path):
+            try:
+                if path.endswith('.js'):
+                    content_type = 'application/javascript'
+                elif path.endswith('.css'):
+                    content_type = 'text/css'
+                elif path.endswith('.svg'):
+                    content_type = 'image/svg+xml'
+                elif path.endswith('.png'):
+                    content_type = 'image/png'
+                elif path.endswith('.ico'):
+                    content_type = 'image/x-icon'
+                elif path.endswith('.woff2'):
+                    content_type = 'font/woff2'
+                elif path.endswith('.woff'):
+                    content_type = 'font/woff'
+                elif path.endswith('.webmanifest') or path.endswith('.json'):
+                    content_type = 'application/json'
+                elif path.endswith('.html'):
+                    content_type = 'text/html'
+                else:
+                    content_type = 'application/octet-stream'
+                
+                return Response.send_file('app/' + path, content_type=content_type)
+            except OSError:
+                return "Not found", 404
+
+
+web_server = WebServer()

@@ -6,9 +6,10 @@ from state import state
 
 
 class DNSServer:
-    """
-    Captive portal DNS server that responds to all queries with a fixed IP.
-    This makes devices detect a captive portal and show the login page.
+    """Captive portal DNS server that responds to all queries with a fixed IP.
+    
+    Only runs while in pairing mode. Socket lifecycle is driven by
+    is_pairing state changes; the async loop only reads incoming queries.
     """
     
     def __init__(self, ip_address=None, port=53):
@@ -17,11 +18,33 @@ class DNSServer:
         self.ip_address = ip_address
         self.port = port
         self._socket = None
-        self._running = False
+        state.subscribe("is_pairing", self._on_pairing_changed)
     
-    def _is_pairing(self):
-        """Check if we're in pairing mode."""
-        return state.get("is_pairing", False)
+    def _on_pairing_changed(self, is_pairing, was_pairing):
+        if is_pairing:
+            self._open()
+        else:
+            self._close()
+    
+    def _open(self):
+        self._close()
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.bind(('0.0.0.0', self.port))
+            sock.setblocking(False)
+            self._socket = sock
+            print("DNS server started on port", self.port)
+        except Exception as e:
+            print("DNS server error:", e)
+    
+    def _close(self):
+        if self._socket:
+            try:
+                self._socket.close()
+            except Exception:
+                pass
+            self._socket = None
     
     def _parse_domain(self, request):
         """Extract the domain name from a DNS request."""
@@ -48,102 +71,56 @@ class DNSServer:
         if len(request) < 12:
             return None
         
-        # Extract transaction ID from request
         transaction_id = request[:2]
+        flags = b'\x85\x80'
         
-        # Parse flags - we just need to set response flag
-        # Request flags are at bytes 2-3
-        # Response: QR=1, OPCODE=0, AA=1, TC=0, RD=1, RA=1, RCODE=0
-        flags = b'\x85\x80'  # Standard response, authoritative
-        
-        # Question count (from request)
-        qdcount = struct.unpack('!H', request[4:6])[0]
-        
-        # We'll answer with 1 answer
         ancount = b'\x00\x01'
         nscount = b'\x00\x00'
         arcount = b'\x00\x00'
         
-        # Build header
         header = transaction_id + flags + request[4:6] + ancount + nscount + arcount
         
-        # Copy the question section from request
-        # Find end of question section (after QNAME, QTYPE, QCLASS)
+        # Find end of question section (QNAME + QTYPE + QCLASS)
         pos = 12
         while pos < len(request):
             length = request[pos]
             if length == 0:
-                pos += 1  # null terminator
+                pos += 1
                 break
             pos += length + 1
-        pos += 4  # QTYPE (2) + QCLASS (2)
+        pos += 4
         
         question = request[12:pos]
         
-        # Build answer section
-        # Name pointer to question (0xC00C points to offset 12)
+        # Answer: pointer to question name, Type A, Class IN, TTL 60s, 4-byte IPv4
         answer_name = b'\xc0\x0c'
-        # Type A (1), Class IN (1)
         answer_type = b'\x00\x01'
         answer_class = b'\x00\x01'
-        # TTL (60 seconds)
         answer_ttl = b'\x00\x00\x00\x3c'
-        # RDLENGTH (4 bytes for IPv4)
         answer_rdlength = b'\x00\x04'
-        # RDATA (IP address)
-        ip_parts = [int(x) for x in self.ip_address.split('.')]
-        answer_rdata = bytes(ip_parts)
+        answer_rdata = bytes(int(x) for x in self.ip_address.split('.'))
         
         answer = answer_name + answer_type + answer_class + answer_ttl + answer_rdlength + answer_rdata
         
         return header + question + answer
     
-    async def start(self):
-        """Start the DNS server."""
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._socket.bind(('0.0.0.0', self.port))
-        self._socket.setblocking(False)
-        
-        self._running = True
-        print(f"DNS server started on port {self.port}")
-    
-    def stop(self):
-        """Stop the DNS server."""
-        self._running = False
-        if self._socket:
-            self._socket.close()
-            self._socket = None
-        print("DNS server stopped")
-    
     async def loop(self):
-        """Main DNS server loop. Only responds when in pairing mode."""
-        await self.start()
-        
-        while self._running:
-            try:
-                # Only process DNS when in pairing mode
-                if not self._is_pairing():
-                    await asyncio.sleep_ms(100)
-                    continue
-                
-                # Non-blocking receive
+        while True:
+            if self._socket:
                 try:
                     data, addr = self._socket.recvfrom(512)
                     if data:
                         domain = self._parse_domain(data)
-                        print(f"DNS: {addr[0]} -> {domain}")
+                        print("DNS: {} -> {}".format(addr[0], domain))
                         response = self._build_response(data)
                         if response:
                             self._socket.sendto(response, addr)
                 except OSError:
-                    # No data available (EAGAIN/EWOULDBLOCK)
                     pass
-                
+                except Exception as e:
+                    print("DNS error:", e)
                 await asyncio.sleep_ms(10)
-                
-            except Exception as e:
-                print(f"DNS error: {e}")
+            else:
                 await asyncio.sleep_ms(100)
 
 

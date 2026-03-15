@@ -3,6 +3,7 @@ import machine
 import constants
 import binascii
 from state import state
+from wifi import rssi_to_strength
 
 
 class PairingManager:
@@ -81,7 +82,7 @@ class PairingManager:
                 ssid = net[0].decode('utf-8') if isinstance(net[0], bytes) else net[0]
                 rssi = net[3]
                 if ssid:
-                    result.append({"ssid": ssid, "rssi": rssi})
+                    result.append({"ssid": ssid, "rssi": rssi, "strength": rssi_to_strength(rssi)})
             
             result.sort(key=lambda x: x["rssi"], reverse=True)
             return result
