@@ -20,24 +20,27 @@ class DiscoveryManager:
     def __init__(self):
         self._socket = None
         self._needs_open = False
+        self._needs_announce = False
         state.subscribe("wifi_connected", self._on_wifi_changed)
     
     def _on_wifi_changed(self, connected, was_connected):
         if connected and not was_connected:
             if self._open():
-                self._announce()
+                self._needs_announce = True
             else:
                 self._needs_open = True
         elif not connected and was_connected:
             self._close()
             self._needs_open = False
+            self._needs_announce = False
     
     def _open(self):
-        """Create the non-blocking UDP listening socket."""
+        """Create the non-blocking UDP socket for listening and broadcasting."""
         self._close()
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
             sock.bind(('0.0.0.0', DISCOVERY_PORT))
             sock.setblocking(False)
             self._socket = sock
@@ -64,22 +67,15 @@ class DiscoveryManager:
             self._broadcast_iam()
 
     def _broadcast(self, message):
-        """Send a one-shot UDP broadcast via a temporary socket."""
-        sock = None
+        """Send a UDP broadcast via the listening socket."""
+        if not self._socket:
+            return False
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            sock.sendto(message.encode(), ('255.255.255.255', DISCOVERY_PORT))
+            self._socket.sendto(message.encode(), ('255.255.255.255', DISCOVERY_PORT))
             return True
         except Exception as e:
             print("Discovery: broadcast failed:", e)
             return False
-        finally:
-            if sock:
-                try:
-                    sock.close()
-                except:
-                    pass
     
     def send_discover_message(self):
         """Broadcast a DISCOVER message on the network."""
@@ -155,11 +151,15 @@ class DiscoveryManager:
             if self._needs_open and not self._socket:
                 if self._open():
                     self._needs_open = False
-                    self._announce()
+                    self._needs_announce = True
                 else:
                     print("Discovery: retry in", SOCKET_RETRY_S, "s")
                     await asyncio.sleep(SOCKET_RETRY_S)
                     continue
+            
+            if self._needs_announce and self._socket:
+                self._announce()
+                self._needs_announce = False
             
             if self._socket:
                 try:
