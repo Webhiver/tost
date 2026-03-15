@@ -230,10 +230,44 @@ A remote temperature sensor that:
 - Verify resistors are present on each color
 - Adjust LED brightness in settings
 
-## License
+## Development Setup
 
-MIT License - Feel free to modify and use for personal projects.
+### Prerequisites
 
-## Contributing
+- [Python 3.11+](https://www.python.org/downloads/)
+- A Raspberry Pi Pico 2W connected via USB
 
-Pull requests welcome! Please test thoroughly on actual hardware before submitting.
+### 1. Create a Virtual Environment
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+- **Windows (PowerShell):** `.venv\Scripts\Activate.ps1`
+- **Windows (cmd):** `.venv\Scripts\activate.bat`
+- **Windows (Git Bash):** `source .venv/Scripts/activate`
+- **Linux / macOS:** `source .venv/bin/activate`
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+This installs `pyserial`, `textual`, and `mpremote`.
+
+### 3. Run the REPL Tool
+
+```bash
+python tools/repl.py
+```
+
+This launches a terminal UI (built with [Textual](https://textual.textualize.io/)) that lets you:
+
+- **Connect** to one or more Pico boards over serial (COM ports)
+- **Interact** with the MicroPython REPL on each board
+- **Deploy** files to the Pico using deploy profiles defined in `deploy.toml`
+
+On startup you'll be prompted to select which COM ports to monitor. Pick the ports corresponding to your connected Picos and the tool handles the rest.
