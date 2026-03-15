@@ -35,7 +35,7 @@ class SensorManager:
     
     def __init__(self):
         self._sensor_type = constants.SENSOR_TYPE
-        print(f"Sensor: Using {self._sensor_type} sensor")
+        # print(f"Sensor: Using {self._sensor_type} sensor")
         if self._sensor_type == "SHT":
             self._i2c = I2C(1,
                             scl=Pin(constants.PIN_SHT_SCL),

@@ -6,6 +6,7 @@ from led import led
 from relay import relay
 from button import button
 from satellite import satellite
+from hw_revision import HW_REVISION
 from thermostat import thermostat
 from temperature import temperature
 from web_server import web_server
@@ -17,7 +18,8 @@ import watchdog
 
 async def main():
     print("PicoThermostat starting...")
-    
+    print("HW Revision:", HW_REVISION)
+
     tasks = [
         asyncio.create_task(watchdog.loop()),
         asyncio.create_task(sensor.loop()),
@@ -29,10 +31,10 @@ async def main():
         asyncio.create_task(discovery.loop()),
         asyncio.create_task(web_server.loop()),
     ]
-    
-    print("PicoThermostat running!")
+
+    # print("PicoThermostat running!")
     print("Mode:", config.get("mode", "host"))
-    
+
     await asyncio.gather(*tasks)
 
 
