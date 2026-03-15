@@ -290,5 +290,3 @@ def execute_sync(
                 )
             _remove_empty_remote_dirs(port, change.remote_path, profile.target)
 
-    if on_progress and total > 0:
-        on_progress(total, total, actionable[-1])
