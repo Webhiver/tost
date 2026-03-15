@@ -1,14 +1,14 @@
 import asyncio
 import socket
 import random
-from time import ticks_ms, ticks_diff
 from constants import DISCOVERY_PORT
 from wifi import wifi
+from config import config
+from state import state
 
 
-# Discovery protocol constants
 DISCOVERY_MSG = "DISCOVER"
-DISCOVERY_TIMEOUT_MS = 2000
+IAM_PREFIX = "IAM|"
 DISCOVERY_JITTER_MS = 200
 
 
@@ -18,17 +18,92 @@ class DiscoveryManager:
     def __init__(self):
         self._socket = None
         self._socket_failed = False
+        state.subscribe("wifi_connected", self._on_wifi_connected)
     
     def _get_mac(self):
-        """Get the device's MAC address as a hex string."""
         return wifi.get_mac()
     
     def _get_ip(self):
-        """Get the device's current IP address."""
         return wifi.ip_address
     
+    def _on_wifi_connected(self, connected, was_connected):
+        if connected and not was_connected:
+            self._socket_failed = False
+            self._ensure_socket_and_announce()
+        elif not connected and was_connected:
+            self._close_socket()
+    
+    def _ensure_socket_and_announce(self):
+        """Create the listening socket if needed, then send the initial announcement."""
+        if not self._socket:
+            self._socket = self._create_socket()
+        if not self._socket:
+            return
+        mode = config.get("mode", "host")
+        if mode == "host":
+            self.send_discover_message()
+        elif mode == "satellite":
+            self.send_iam_message()
+    
+    def send_discover_message(self):
+        """Broadcast a DISCOVER message on the network."""
+        if not self._get_ip():
+            print("Discovery: no IP, cannot send DISCOVER")
+            return
+        
+        sock = None
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.sendto(DISCOVERY_MSG.encode(), ('255.255.255.255', DISCOVERY_PORT))
+            print("Discovery: sent DISCOVER broadcast")
+        except Exception as e:
+            print("Discovery: failed to send DISCOVER:", e)
+        finally:
+            if sock:
+                try:
+                    sock.close()
+                except:
+                    pass
+    
+    def send_iam_message(self, addr=None):
+        """Send an IAM message with this device's MAC.
+        
+        Args:
+            addr: Optional (ip, port) tuple to send to directly.
+                  If None, broadcasts.
+        """
+        mac = self._get_mac()
+        if not mac:
+            print("Discovery: no MAC, cannot send IAM")
+            return
+        
+        message = "IAM|{}".format(mac)
+        
+        if addr and self._socket:
+            try:
+                self._socket.sendto(message.encode(), addr)
+                print("Discovery: sent IAM to", addr[0])
+            except Exception as e:
+                print("Discovery: failed to send IAM to", addr[0], ":", e)
+            return
+        
+        sock = None
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.sendto(message.encode(), ('255.255.255.255', DISCOVERY_PORT))
+            print("Discovery: sent IAM broadcast")
+        except Exception as e:
+            print("Discovery: failed to broadcast IAM:", e)
+        finally:
+            if sock:
+                try:
+                    sock.close()
+                except:
+                    pass
+    
     def _create_socket(self):
-        """Create and bind the UDP socket for discovery."""
         sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -47,7 +122,6 @@ class DiscoveryManager:
             return None
     
     def _close_socket(self):
-        """Close the discovery socket."""
         if self._socket:
             try:
                 self._socket.close()
@@ -56,111 +130,53 @@ class DiscoveryManager:
                 pass
             self._socket = None
     
-    def discover(self, macs=None):
-        """Discover devices on the network.
-        
-        Sends a DISCOVER broadcast and collects IAM responses.
-        
-        Args:
-            macs: Optional list of MAC addresses to find. If provided,
-                  returns immediately when all are found.
-        
-        Returns:
-            Dict mapping MAC addresses to IP addresses
-        """
-        devices = {}
-        sock = None
-        
-        # Normalize target MACs to lowercase set for fast lookup
-        target_macs = None
-        if macs:
-            target_macs = set(mac.lower() for mac in macs)
-            print("Discovery: searching for", len(target_macs), "device(s)")
-        
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            sock.settimeout(0.1)  # Short timeout for polling
-            
-            # Send broadcast DISCOVER message
-            print("Discovery: broadcasting...")
-            sock.sendto(DISCOVERY_MSG.encode(), ('255.255.255.255', DISCOVERY_PORT))
-            
-            # Collect responses until timeout or all targets found
-            start_time = ticks_ms()
-            
-            while True:
-                elapsed = ticks_diff(ticks_ms(), start_time)
-                if elapsed > DISCOVERY_TIMEOUT_MS:
-                    break
-                
-                try:
-                    data, addr = sock.recvfrom(256)
-                    response = data.decode().strip()
-                    
-                    # Parse IAM|{ip}|{mac} response
-                    if response.startswith("IAM|"):
-                        parts = response.split('|')
-                        if len(parts) >= 3:
-                            resp_ip = parts[1]
-                            resp_mac = parts[2].lower()
-                            devices[resp_mac] = resp_ip
-                            print("Discovery: found", resp_mac, "at", resp_ip)
-                            
-                            # Check if all targets found
-                            if target_macs and target_macs.issubset(devices.keys()):
-                                print("Discovery: all targets found")
-                                break
-                            
-                except OSError:
-                    # No data available, continue polling
-                    pass
-            
-            sock.close()
-            print("Discovery: found {} device(s)".format(len(devices)))
-            
-        except Exception as e:
-            print("Discovery: failed:", e)
-            if sock:
-                try:
-                    sock.close()
-                except:
-                    pass
-        
-        return devices
-    
-    async def _handle_discovery(self, data, addr):
-        """Handle incoming discovery messages with jitter."""
+    async def _handle_message(self, data, addr):
+        """Handle incoming discovery messages."""
         try:
             message = data.decode().strip()
+            mode = config.get("mode", "host")
             
-            if message == DISCOVERY_MSG:
-                print("Discovery: request from", addr[0])
-                
-                # Add random jitter to avoid simultaneous responses
+            if message == DISCOVERY_MSG and mode == "satellite":
+                print("Discovery: received DISCOVER from", addr[0])
                 jitter = random.randint(0, DISCOVERY_JITTER_MS)
                 await asyncio.sleep_ms(jitter)
-                
-                ip = self._get_ip()
-                mac = self._get_mac()
-                
-                if ip and mac:
-                    response = "IAM|{}|{}".format(ip, mac)
-                    self._socket.sendto(response.encode(), addr)
-                    print("Discovery: responded with", response, "(jitter: {}ms)".format(jitter))
+                self.send_iam_message((addr[0], DISCOVERY_PORT))
+            
+            elif message.startswith(IAM_PREFIX) and mode == "host":
+                parts = message.split('|')
+                if len(parts) >= 2:
+                    resp_mac = parts[1].lower()
+                    resp_ip = addr[0]
+                    print("Discovery: received IAM from", resp_mac, "at", resp_ip)
+                    self._update_satellite_ip(resp_mac, resp_ip)
         except Exception as e:
             print("Discovery: handle error:", e)
+    
+    def _update_satellite_ip(self, mac, ip):
+        """Update the IP for a satellite in state, matched by MAC."""
+        satellites = state.get("satellites", [])
+        updated_satellites = []
+        updated = False
+        
+        for sat in satellites:
+            if sat.get("mac", "").lower() == mac.lower():
+                if sat.get("ip") != ip:
+                    sat = sat.copy()
+                    sat["ip"] = ip
+                    updated = True
+            updated_satellites.append(sat)
+        
+        if updated:
+            state.set("satellites", updated_satellites)
+            print("Discovery: updated", mac, "->", ip)
     
     async def loop(self):
         """Main discovery listener loop."""
         while True:
-            # Only run when WiFi is connected
             if wifi.ip_address:
                 if not self._socket and not self._socket_failed:
-                    self._socket = self._create_socket()
+                    self._ensure_socket_and_announce()
                     if not self._socket:
-                        # Socket creation failed, wait before retrying
                         print("Discovery: retry in 30s")
                         self._socket_failed = True
                         await asyncio.sleep(30)
@@ -170,15 +186,13 @@ class DiscoveryManager:
                 if self._socket:
                     try:
                         data, addr = self._socket.recvfrom(256)
-                        await self._handle_discovery(data, addr)
+                        await self._handle_message(data, addr)
                     except OSError:
-                        # No data available (non-blocking socket)
                         pass
                     except Exception as e:
                         print("Discovery: loop error:", e)
                         self._close_socket()
             else:
-                # WiFi disconnected, close socket
                 self._close_socket()
                 self._socket_failed = False
             

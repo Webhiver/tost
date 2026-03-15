@@ -15,61 +15,34 @@ class WifiManager:
         if is_pairing:
             state.set("wifi_connected", False)
         else:
-            if secrets.has_wifi_credentials():
-                if self.connect():
-                    print("WiFi connected!")
-                    state.set("wifi_connected", True)
-                    state.set("ip", self.ip_address)
-                else:
-                    print("WiFi connection failed")
-                    state.set("wifi_connected", False)
+            self.connect()
     
     def init(self):
         """Initialize WiFi - connect or enter pairing mode."""
-        # Set MAC address in state
         state.set("mac", self.get_mac())
 
         if secrets.has_wifi_credentials():
-            print("Attempting WiFi connection...")
-            if self.connect():
-                print("WiFi connected!")
-                print("IP:", self.ip_address)
-                state.set("wifi_connected", True)
-                state.set("ip", self.ip_address)
-            else:
-                print("WiFi connection failed")
-                state.set("wifi_connected", False)
+            print("Connecting to WiFi...")
+            self.connect()
         else:
             print("No WiFi credentials, entering pairing mode...")
             state.set("is_pairing", True)
     
     def connect(self, ssid=None, password=None):
-        """Connect to WiFi network."""
+        """Initiate WiFi connection (non-blocking). The loop() handles state updates."""
         if ssid is None or password is None:
             creds = secrets.load()
             if creds is None:
-                return False
+                return
             ssid = creds.get("ssid")
             password = creds.get("password")
         
         if not ssid:
-            return False
+            return
         
         self._sta = network.WLAN(network.STA_IF)
         self._sta.active(True)
         self._sta.connect(ssid, password)
-        
-        import time
-        timeout = 10000
-        start = time.ticks_ms()
-        
-        while not self._sta.isconnected():
-            elapsed = time.ticks_ms() - start
-            if elapsed > timeout:
-                return False
-            time.sleep_ms(100)
-        
-        return True
     
     @property
     def ip_address(self):
@@ -115,14 +88,17 @@ class WifiManager:
             # Sync wifi_connected state with actual connection status
             is_connected = self._sta is not None and self._sta.isconnected()
             if is_connected != state.get("wifi_connected", False):
-                state.set("wifi_connected", is_connected)
                 if is_connected:
+                    print("WiFi connected, IP:", self.ip_address)
                     state.set("ip", self.ip_address)
+                else:
+                    print("WiFi disconnected")
+                state.set("wifi_connected", is_connected)
 
             rssi = self.get_rssi()
             strength = self.rssi_to_strength(rssi)
             state.set("wifi_strength", strength)
-            await asyncio.sleep(5)
+            await asyncio.sleep(4)
 
 
 wifi = WifiManager()
