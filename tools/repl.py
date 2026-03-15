@@ -66,6 +66,12 @@ class PortSelectionScreen(ModalScreen[list[str]]):
     def quit_no_ports(self) -> None:
         self.app.exit()
 
+    def on_mount(self) -> None:
+        try:
+            self.query_one("#confirm", Button).focus()
+        except Exception:
+            pass
+
     @on(SelectionList.SelectionToggled)
     def update_button(self) -> None:
         try:
