@@ -70,6 +70,19 @@ class WifiManager:
             return self._sta.ifconfig()[0]
         return None
     
+    @property
+    def broadcast_address(self):
+        """Subnet-directed broadcast address from STA interface config."""
+        if not self._sta or not self._sta.isconnected():
+            return None
+        try:
+            ifcfg = self._sta.ifconfig()
+            ip = ifcfg[0].split('.')
+            mask = ifcfg[1].split('.')
+            return '.'.join(str(int(ip[i]) | (255 ^ int(mask[i]))) for i in range(4))
+        except Exception:
+            return None
+    
     def get_mac(self):
         """Get the device's MAC address as a hex string."""
         try:

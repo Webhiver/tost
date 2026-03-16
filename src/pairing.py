@@ -55,7 +55,12 @@ class PairingManager:
     
     def stop_ap(self):
         if self._ap:
+            try:
+                self._ap.ifconfig(('0.0.0.0', '0.0.0.0', '0.0.0.0', '0.0.0.0'))
+            except Exception:
+                pass
             self._ap.active(False)
+            self._ap = None
     
     @property
     def ip_address(self):

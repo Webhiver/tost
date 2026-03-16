@@ -45,6 +45,7 @@ class DNSServer:
             except Exception:
                 pass
             self._socket = None
+            print("DNS server stopped")
     
     def _parse_domain(self, request):
         """Extract the domain name from a DNS request."""

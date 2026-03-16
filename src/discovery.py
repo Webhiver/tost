@@ -71,8 +71,9 @@ class DiscoveryManager:
         if not self._socket:
             return False
         try:
-            self._socket.sendto(message.encode(), ('255.255.255.255', DISCOVERY_PORT))
-            return True
+            dest = wifi.broadcast_address or '255.255.255.255'
+            self._socket.sendto(message.encode(), (dest, DISCOVERY_PORT))
+            return dest
         except Exception as e:
             print("Discovery: broadcast failed:", e)
             return False
@@ -81,15 +82,17 @@ class DiscoveryManager:
         """Broadcast a DISCOVER message on the network."""
         if not wifi.ip_address:
             return
-        if self._broadcast("DISCOVER"):
-            print("Discovery: sent DISCOVER broadcast")
+        dest = self._broadcast("DISCOVER")
+        if dest:
+            print("Discovery: sent DISCOVER broadcast to", dest)
     
     def _broadcast_iam(self):
         mac = wifi.get_mac()
         if not mac:
             return
-        if self._broadcast("IAM|{}".format(mac)):
-            print("Discovery: sent IAM broadcast")
+        dest = self._broadcast("IAM|{}".format(mac))
+        if dest:
+            print("Discovery: sent IAM broadcast to", dest)
     
     def _send_iam_to(self, addr):
         """Send IAM reply to a specific address via the listening socket."""
