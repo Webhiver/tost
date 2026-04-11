@@ -374,6 +374,8 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         }
     }, [stopGettingStatus, resetAndStartGettingStatus]);
 
+    const toggleLoading = useCallback((isLoading: boolean) => setLoading(isLoading), []);
+
     useEffect(() => {
         if (settingsPanelOpen) {
             getConfigs(true);
@@ -404,6 +406,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             onAddSatellite,
             onRemoveSatellite,
             onReboot,
+            toggleLoading,
         }}>
             {children}
         </PanelsContext.Provider>

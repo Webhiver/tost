@@ -123,6 +123,16 @@ export interface DebugInfo {
   } | null
 }
 
+export interface DebugInfoExtended {
+  device: Device
+  data: DebugInfo,
+  lastUpdates: Date | null
+}
+
+export interface AllDebugInfo {
+  [key: string]: DebugInfoExtended
+}
+
 // APP2 Types
 
 export interface Device {
@@ -222,4 +232,5 @@ export interface PanelsProviderProps {
   onAddSatellite: () => void
   onRemoveSatellite: (index: number) => void
   onReboot: (ip?: string) => void
+  toggleLoading: (isLoading: boolean) => void
 }

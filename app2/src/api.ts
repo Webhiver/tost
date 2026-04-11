@@ -86,6 +86,11 @@ export async function updateSatelliteConfig(ip: string, updates: Partial<Config>
   })
 }
 
-export async function fetchDebug(): Promise<DebugInfo> {
-  return api<DebugInfo>('/debug')
+export async function fetchDebug(ip?: string): Promise<DebugInfo> {
+  let url = '/debug'
+  if (ip) {
+    url = `/satellite-proxy/${ip}/debug`
+  }
+
+  return api<DebugInfo>(url)
 }

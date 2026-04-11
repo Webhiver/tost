@@ -56,7 +56,7 @@ const MainPanel = () => {
                     STATISTICS
                 </div>
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
-                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("monitoring")}>
+                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("monitoring")}>
                     <TbHeartRateMonitor className="size-6"/>
                     MONITORING
                 </div>

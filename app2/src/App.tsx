@@ -10,6 +10,7 @@ import {Fragment} from "react";
 import MainPanel from "./components/panels/MainPanel";
 import SettingsPanel from "./components/panels/SettingsPanel";
 import SatellitesPanel from "./components/panels/SatellitesPanel";
+import MonitoringPanel from "./components/panels/MonitoringPanel";
 import UpdatesPanel from "./components/panels/UpdatesPanel";
 
 const App = () => {
@@ -56,6 +57,7 @@ const App = () => {
             <MainPanel/>
             <SettingsPanel/>
             <SatellitesPanel/>
+            <MonitoringPanel/>
             <UpdatesPanel/>
         </Fragment>
     );
