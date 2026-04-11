@@ -12,6 +12,7 @@ class Thermostat:
         config.subscribe("target_temperature", self._on_config_change)
         config.subscribe("hysteresis", self._on_config_change)
         config.subscribe("max_flame_duration", self._on_config_change)
+        config.subscribe("flame_cooldown", self._on_config_change)
     
     def _is_active(self):
         return (config.get("mode") == "host" and 
@@ -31,9 +32,10 @@ class Thermostat:
     
     def _on_operating_mode_change(self, new_mode, old_mode):
         if new_mode == "off":
-            # Switching to off mode - turn off flame
+            # Switching to off mode - turn off flame and clear cooldown
             state.set("flame", False)
             state.set("flame_start_tick", None)
+            state.set("flame_cooldown_start_tick", None)
         elif new_mode == "manual" and config.get("mode") == "host":
             # Switching back to manual mode - update thermostat
             self.update(ignore_hysteresis=True)
@@ -55,10 +57,25 @@ class Thermostat:
         
         return elapsed / 1000
     
+    def is_in_cooldown(self):
+        cooldown_start = state.get("flame_cooldown_start_tick")
+        if cooldown_start is None:
+            return False
+        flame_cooldown = config.get("flame_cooldown", 0)
+        if flame_cooldown <= 0:
+            return False
+        elapsed = ticks_ms() - cooldown_start
+        if elapsed < 0:
+            elapsed = ticks_ms() + (0xFFFFFFFF - cooldown_start)
+        return elapsed / 1000 < flame_cooldown
+
     def should_turn_flame_on(self, effective_temp, ignore_hysteresis=False):
         if effective_temp is None:
             return False
-        
+
+        if self.is_in_cooldown():
+            return False
+
         target_temperature = config.get("target_temperature", 22.0)
         hysteresis = 0 if ignore_hysteresis else config.get("hysteresis", 1.0)
         threshold = target_temperature - hysteresis
@@ -86,6 +103,9 @@ class Thermostat:
         
         if current_flame:
             if self.should_turn_flame_off(effective_temp, ignore_hysteresis):
+                max_flame_duration = config.get("max_flame_duration", 14400)
+                if self.get_flame_duration() > max_flame_duration:
+                    state.set("flame_cooldown_start_tick", ticks_ms())
                 state.set("flame", False)
                 state.set("flame_start_tick", None)
         else:

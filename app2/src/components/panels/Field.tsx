@@ -50,7 +50,7 @@ const Field = (props: FieldProps) => {
         if(["hysteresis", "sensor_temperature_offset", "scale_precision"].includes(configName)){
             rawValue = Number(parseFloat(rawValue).toFixed(1));
         }
-        if(["sensor_humidity_offset", "satellite_grace_period", "max_flame_duration", "led_brightness", "min_temp", "max_temp"].includes(configName)){
+        if(["sensor_humidity_offset", "satellite_grace_period", "max_flame_duration", "flame_cooldown", "led_brightness", "min_temp", "max_temp"].includes(configName)){
             rawValue = Number(parseInt(rawValue as string).toFixed(0));
         }
 
@@ -63,6 +63,10 @@ const Field = (props: FieldProps) => {
         }
         if(configName === "max_flame_duration"){
             onConfigChange(configName, parseInt(rawValue as string) * 3600, mac);
+            return;
+        }
+        if(configName === "flame_cooldown"){
+            onConfigChange(configName, parseInt(rawValue as string) * 60, mac);
             return;
         }
         if(configName === "led_brightness"){

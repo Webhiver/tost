@@ -221,6 +221,17 @@ const SettingsPanel = () => {
                                     min="1"
                                     max="24"
                                 />
+                                <Field
+                                    type="number"
+                                    label="Flame Cooldown"
+                                    value={configs[mac]?.flame_cooldown ? Math.round(configs[mac].flame_cooldown / 60) : ""}
+                                    configName="flame_cooldown"
+                                    mac={mac}
+                                    addon="minues"
+                                    step="1"
+                                    min="5"
+                                    max="60"
+                                />
                             </div>
 
 

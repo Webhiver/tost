@@ -68,8 +68,15 @@ const validateConfigs = (key: keyof Config, value: Config[keyof Config]) => {
     }
 
     if (key === "max_flame_duration") {
-        if ((Number(value) < 1 || Number(value) > 24)) {
+        if ((Number(value) < (1*3600) || Number(value) > (24*3600))) {
             errors["max_flame_duration"] = "Value must be between 1 and 24";
+        }
+    }
+
+    if (key === "flame_cooldown") {
+        console.log(Number(value));
+        if ((Number(value) < (5*60) || Number(value) > (60*60))) {
+            errors["flame_cooldown"] = "Value must be between 5 and 60";
         }
     }
 

@@ -44,6 +44,7 @@ export interface Config {
   flame_mode_sensor: string  // 'local' or satellite MAC
   local_sensor: 'included' | 'fallback'
   max_flame_duration: number
+  flame_cooldown: number
   sensor_temperature_offset: number
   sensor_humidity_offset: number
 }

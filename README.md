@@ -159,25 +159,27 @@ A remote temperature sensor that:
     "flame_on_mode": "average",
     "flame_off_mode": "average",
     "local_sensor": "included",
-    "max_flame_duration": 14400
+    "max_flame_duration": 14400,
+    "flame_cooldown": 1800
 }
 ```
 
 ### Configuration Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `mode` | string | `"host"` or `"satellite"` |
-| `target_temperature` | float | Target temperature in °C |
-| `hysteresis` | float | Temperature buffer to prevent short-cycling |
-| `satellites` | array | List of satellite IP addresses |
-| `update_interval` | int | Seconds between satellite polls |
-| `satellite_grace_period` | int | Seconds before marking satellite offline |
-| `led_brightness` | float | LED brightness (0.0 - 1.0) |
-| `flame_on_mode` | string | `"average"` or `"all"` for turn-on logic |
-| `flame_off_mode` | string | `"average"` or `"all"` for turn-off logic |
-| `local_sensor` | string | `"included"` or `"fallback"` |
-| `max_flame_duration` | int | Safety cutoff in seconds (4 hours default) |
+| Option                   | Type | Description                                            |
+|--------------------------|------|--------------------------------------------------------|
+| `mode`                   | string | `"host"` or `"satellite"`                              |
+| `target_temperature`     | float | Target temperature in °C                               |
+| `hysteresis`             | float | Temperature buffer to prevent short-cycling            |
+| `satellites`             | array | List of satellite IP addresses                         |
+| `update_interval`        | int | Seconds between satellite polls                        |
+| `satellite_grace_period` | int | Seconds before marking satellite offline               |
+| `led_brightness`         | float | LED brightness (0.0 - 1.0)                             |
+| `flame_on_mode`          | string | `"average"` or `"all"` for turn-on logic               |
+| `flame_off_mode`         | string | `"average"` or `"all"` for turn-off logic              |
+| `local_sensor`           | string | `"included"` or `"fallback"`                           |
+| `max_flame_duration`     | int | Safety cutoff in seconds (4 hours default)             |
+| `flame_cooldown`         | int | Cooldown interval after flame off (30 minutes default) |
 
 ## Thermostat Algorithm
 

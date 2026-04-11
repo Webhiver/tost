@@ -16,6 +16,7 @@ DEFAULT_CONFIG = {
     "flame_mode_sensor": "local",
     "local_sensor": "included",
     "max_flame_duration": 14400,
+    "flame_cooldown": 1800,
     "sensor_temperature_offset": 0.0,
     "sensor_humidity_offset": 0.0,
     "relay_enabled": True
@@ -63,7 +64,7 @@ def _sanitize_satellites(satellites):
 # Keys that must be numeric (int or float) - None values will be replaced with defaults
 NUMERIC_KEYS = {
     "target_temperature", "hysteresis", "satellite_grace_period", "led_brightness",
-    "max_flame_duration", "sensor_temperature_offset", "sensor_humidity_offset",
+    "max_flame_duration", "flame_cooldown", "sensor_temperature_offset", "sensor_humidity_offset",
     "min_temp", "max_temp", "scale_precision"
 }
 
