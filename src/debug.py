@@ -60,11 +60,10 @@ def _get_uptime_info():
     return {
         "milliseconds": uptime_ms,
         "seconds": uptime_seconds,
-        "formatted": "{}d {}h {}m {}s".format(
+        "formatted": "{}d {}h {}m".format(
             uptime_days,
             uptime_hours % 24,
-            uptime_minutes % 60,
-            uptime_seconds % 60
+            uptime_minutes % 60
         )
     }
 
