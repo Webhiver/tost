@@ -177,6 +177,12 @@ const MonitoringPanel = () => {
     return (
         <WrapperPanel type="monitoring">
             <div className="py-4 grid grid-cols-[25%_repeat(3,1fr)] gap-y-1 gap-x-2 text-sm text-slate-500 dark:text-slate-500">
+                <div className="">&nbsp;</div>
+                {devices.map((device, _index) => {
+                    return (
+                        <div className="text-right text-base font-normal">{device.name}</div>
+                    );
+                })}
                 {structure.current.map((section, sectionIndex) => {
                     return (
                         <Fragment key={sectionIndex}>
