@@ -2,13 +2,14 @@ import {ReactNode, useEffect, useState, useCallback} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
 import {findClosest, getPercentageFromValue, stepsToSnapTo} from "../components/knob/utils.ts";
-import {Satellite, Device, SatelliteConfig, OperatingMode, Theme} from "../types.ts";
+import {Satellite, Device, SatelliteConfig, OperatingMode, Theme, Language} from "../types.ts";
 
 const LocalProvider = ({children}: { children: ReactNode }) => {
     const state = useContextSelector(ApiContext, c => c.state);
     const config = useContextSelector(ApiContext, c => c.config);
 
     const [theme, setTheme] = useState<Theme>(localStorage.getItem('theme') ? localStorage.getItem('theme') as Theme : undefined);
+    const [language, setLanguage] = useState<Language>(localStorage.getItem('language') ? localStorage.getItem('language') as Language : "en");
     const [type, setType] = useState<'host' | 'satellite'>('host');
     const [mode, setMode] = useState<OperatingMode>('off');
     const [flame, setFlame] = useState<boolean>(false);
@@ -53,6 +54,11 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
                 localStorage.removeItem('theme');
         }
         setTheme(theme);
+    }, []);
+
+    const changeLanguage = useCallback((language: Language) => {
+        setLanguage(language);
+        localStorage.setItem('language', language);
     }, []);
 
     useEffect(() => {
@@ -155,6 +161,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     return (
         <LocalContext.Provider value={{
             theme,
+            language,
             type,
             mac,
             ip,
@@ -189,6 +196,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             setTargetTemp,
             setKnobPercentage,
             toggleTheme,
+            changeLanguage,
         }}>
             {children}
         </LocalContext.Provider>

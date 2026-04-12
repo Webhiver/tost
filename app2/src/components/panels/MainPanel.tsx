@@ -2,12 +2,15 @@ import {useCallback} from "react";
 import WrapperPanel from "./WrapperPanel";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {PanelsContext, LocalContext} from "../../_context";
-import {PanelType, Theme} from "@/types.ts";
-import { TbSettings, TbCalendarClock, TbChartHistogram, TbHeartRateMonitor, TbCloudDownload } from "react-icons/tb";
+import {PanelType, Theme, Language} from "@/types.ts";
+import { TbSettings, TbHeartRateMonitor, TbCloudDownload } from "react-icons/tb";
+//import { TbCalendarClock, TbChartHistogram } from "react-icons/tb";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
 import { CgDarkMode } from "react-icons/cg";
 import { GrSatellite } from "react-icons/gr";
 import {TostLogo} from "../Icons.jsx"
+import clsx from "clsx";
+import {FieldClasses, FieldSelectClasses} from "../../styles.ts";
 
 
 const MainPanel = () => {
@@ -16,6 +19,8 @@ const MainPanel = () => {
     const type = useContextSelector(LocalContext, c => c.type);
     const theme = useContextSelector(LocalContext, c => c.theme);
     const toggleTheme = useContextSelector(LocalContext, c => c.toggleTheme);
+    const language = useContextSelector(LocalContext, c => c.language);
+    const changeLanguage = useContextSelector(LocalContext, c => c.changeLanguage);
 
     const onOpenPanel = useCallback((panel: PanelType) => () => {
         togglePanel(panel, true);
@@ -24,6 +29,10 @@ const MainPanel = () => {
     const onToggleTheme = useCallback((theme: Theme) => () => {
         toggleTheme(theme);
     }, [toggleTheme]);
+
+    const onChangeLanguage = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+        changeLanguage(event.target.value as Language);
+    }, [changeLanguage]);
 
     return (
         <WrapperPanel type="main">
@@ -39,11 +48,11 @@ const MainPanel = () => {
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
                 {type !== "satellite" &&
                     <>
-                        <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("schedule")}>
-                            <TbCalendarClock className="size-6"/>
-                            SCHEDULE
-                        </div>
-                        <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
+                        {/*<div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("schedule")}>*/}
+                        {/*    <TbCalendarClock className="size-6"/>*/}
+                        {/*    SCHEDULE*/}
+                        {/*</div>*/}
+                        {/*<div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>*/}
                         <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("satellites")}>
                             <GrSatellite className="size-5"/>
                             SATELLITES
@@ -51,11 +60,11 @@ const MainPanel = () => {
                         <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
                     </>
                 }
-                <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("statistics")}>
-                    <TbChartHistogram className="size-6"/>
-                    STATISTICS
-                </div>
-                <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
+                {/*<div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("statistics")}>*/}
+                {/*    <TbChartHistogram className="size-6"/>*/}
+                {/*    STATISTICS*/}
+                {/*</div>*/}
+                {/*<div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>*/}
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("monitoring")}>
                     <TbHeartRateMonitor className="size-6"/>
                     MONITORING
@@ -80,6 +89,18 @@ const MainPanel = () => {
                             <div className="text-sm">SYSTEM</div>
                         </div>
                     </div>
+                </div>
+                <div className="flex flex-col justify-center items-center gap-2 px-4 mt-8 text-center text-lg text-slate-500 dark:text-slate-400">
+                    <label htmlFor={`field-language`} className="text-slate-500 flex items-center dark:text-slate-400">Language</label>
+                    <select
+                        id={`field-language`}
+                        className={clsx(FieldClasses, FieldSelectClasses, "text-center")}
+                        value={language}
+                        onChange={onChangeLanguage}
+                    >
+                        <option value="en">English</option>
+                        <option value="ro">Română</option>
+                    </select>
                 </div>
             </div>
         </WrapperPanel>

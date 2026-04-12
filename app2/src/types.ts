@@ -152,8 +152,11 @@ export interface Device {
 
 export type Theme = 'light' | 'dark' | undefined
 
+export type Language = 'en' | 'ro'
+
 export interface LocalProviderProps {
   theme: 'light' | 'dark' | undefined
+  language: Language
   type: 'host' | 'satellite'
   mode: string
   flame: boolean
@@ -188,6 +191,7 @@ export interface LocalProviderProps {
   setTargetTemp: (temp: number) => void
   setKnobPercentage: (percentage: number) => void
   toggleTheme: (theme: Theme) => void
+  changeLanguage: (language: Language) => void
 }
 
 export interface ApiProviderProps {
