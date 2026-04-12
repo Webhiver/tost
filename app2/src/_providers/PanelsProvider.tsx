@@ -37,11 +37,11 @@ const validateConfigs = (key: keyof Config, value: Config[keyof Config]) => {
             errors["flame_mode"] = "Invalid flame mode";
         }
     }
-    if(key === "flame_mode_sensor") {
-        if(!value || value === "") {
-            errors["flame_mode"] = "Invalid flame mode";
-        }
-    }
+    // if(key === "flame_mode_sensor") {
+    //     if(!value || value === "") {
+    //         errors["flame_mode"] = "Invalid flame mode (2)";
+    //     }
+    // }
 
     if(key === "local_sensor") {
         if(!["include", "fallback"].includes(value as string)) {

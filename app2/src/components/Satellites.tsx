@@ -9,12 +9,14 @@ import 'swiper/css';
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext} from "../_context";
 import {Device} from "../types";
+import {useIntl} from "react-intl";
 
 const Satellites = () => {
 
     const swiperRef = useRef<SwiperRef>(null);
 
     const devices = useContextSelector(LocalContext, c => c.devices);
+    const intl = useIntl();
 
     const [slideIndex, setSlideIndex] = useState<number>(0);
 
@@ -51,7 +53,7 @@ const Satellites = () => {
                         }
 
                         let status = (
-                            <div className="flex items-center gap-1 text-base font-light text-slate-400"><FaCircleCheck className="size-3.5"/>Operational</div>
+                            <div className="flex items-center gap-1 text-base font-light text-slate-400"><FaCircleCheck className="size-3.5"/>{intl.formatMessage({id: "satellite.status.operational"})}</div>
                         );
                         if (!device.healthy) {
                             status = (
@@ -60,7 +62,7 @@ const Satellites = () => {
                         }
                         if (!device.online) {
                             status = (
-                                <div className="flex items-center gap-1 text-base font-light text-red-600"><FaTimesCircle className="size-3.5"/>Offline</div>
+                                <div className="flex items-center gap-1 text-base font-light text-red-600"><FaTimesCircle className="size-3.5"/>{intl.formatMessage({id: "satellite.status.offline"})}</div>
                             );
                         }
 
@@ -75,13 +77,13 @@ const Satellites = () => {
                                     </div>
                                     <div className="flex justify-around items-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Temperature</div>
+                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">{intl.formatMessage({id: "satellite.temperature"})}</div>
                                             <div
                                                 className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-center justify-center">
-                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">Humidity</div>
+                                            <div className="text-lg font-extralight text-slate-500 dark:text-slate-400">{intl.formatMessage({id: "satellite.humidity"})}</div>
                                             <div
                                                 className="text-4xl font-mono text-slate-400 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%
                                             </div>
@@ -101,19 +103,19 @@ const Satellites = () => {
                 {devices.map((device: Device, index: number) => {
                     let deviceStatus = null;
                     if (device.active) {
-                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">active</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.active"})}</span>
                     }
                     if(!device.active && !device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">fallback</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.fallback"})}</span>
                     }
                     if(!device.active && device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">ignored</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.ignored"})}</span>
                     }
                     if(!device.healthy){
-                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">broken</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.broken"})}</span>
                     }
                     if(!device.online){
-                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">offline</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.offline"})}</span>
                     }
 
                     return (

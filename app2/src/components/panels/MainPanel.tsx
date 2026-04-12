@@ -3,6 +3,7 @@ import WrapperPanel from "./WrapperPanel";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {PanelsContext, LocalContext} from "../../_context";
 import {PanelType, Theme, Language} from "@/types.ts";
+import {useIntl} from "react-intl";
 import { TbSettings, TbHeartRateMonitor, TbCloudDownload } from "react-icons/tb";
 //import { TbCalendarClock, TbChartHistogram } from "react-icons/tb";
 import { MdDarkMode, MdLightMode } from "react-icons/md";
@@ -34,72 +35,74 @@ const MainPanel = () => {
         changeLanguage(event.target.value as Language);
     }, [changeLanguage]);
 
+    const intl = useIntl();
+
     return (
         <WrapperPanel type="main">
             <div className="h-full flex flex-col justify-center items-stretch px-20 -mt-6">
                 <div className="flex flex-col justify-center items-center gap-2 px-4 pb-8 text-center">
                     <TostLogo width={90} height={24} className="fill-slate-500 dark:fill-slate-200"/>
-                    <div className="text-sm text-slate-500">Version: 2.16.5</div>
+                    <div className="text-sm text-slate-500">{intl.formatMessage({id: "mainPanel.version"}, {version: "2.16.5"})}</div>
                 </div>
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("settings")}>
                     <TbSettings className="size-6"/>
-                    SETTINGS
+                    {intl.formatMessage({id: "panel.settings"})}
                 </div>
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
                 {type !== "satellite" &&
                     <>
                         {/*<div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("schedule")}>*/}
                         {/*    <TbCalendarClock className="size-6"/>*/}
-                        {/*    SCHEDULE*/}
+                        {/*    {intl.formatMessage({id: "panel.schedule"})}*/}
                         {/*</div>*/}
                         {/*<div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>*/}
                         <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("satellites")}>
                             <GrSatellite className="size-5"/>
-                            SATELLITES
+                            {intl.formatMessage({id: "panel.satellites"})}
                         </div>
                         <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
                     </>
                 }
                 {/*<div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400 line-through" onClick={onOpenPanel("statistics")}>*/}
                 {/*    <TbChartHistogram className="size-6"/>*/}
-                {/*    STATISTICS*/}
+                {/*    {intl.formatMessage({id: "panel.statistics"})}*/}
                 {/*</div>*/}
                 {/*<div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>*/}
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("monitoring")}>
                     <TbHeartRateMonitor className="size-6"/>
-                    MONITORING
+                    {intl.formatMessage({id: "panel.monitoring"})}
                 </div>
                 <div className="h-px bg-linear-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"/>
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("updates")}>
                     <TbCloudDownload className="size-6"/>
-                    UPDATES
+                    {intl.formatMessage({id: "panel.updates"})}
                 </div>
                 <div className="flex flex-col justify-center items-center gap-2 px-4 mt-8 text-center text-xl text-slate-500 dark:text-slate-400">
                     <div className="flex justify-center items-center gap-6">
                         <div onClick={onToggleTheme("light")} data-active={theme === "light" ? "true" : undefined} className="cursor-pointer flex flex-col justify-center items-center gap-1 hover:scale-110 transition-transform data-active:text-sky-600">
                             <MdLightMode className="cursor-pointer size-8"/>
-                            <div className="text-sm">LIGHT</div>
+                            <div className="text-sm">{intl.formatMessage({id: "mainPanel.theme.light"})}</div>
                         </div>
                         <div onClick={onToggleTheme("dark")} data-active={theme === "dark" ? "true" : undefined} className="cursor-pointer flex flex-col justify-center items-center gap-1 hover:scale-110 transition-transform data-active:text-sky-600">
                             <MdDarkMode className="cursor-pointer size-8"/>
-                            <div className="text-sm">DARK</div>
+                            <div className="text-sm">{intl.formatMessage({id: "mainPanel.theme.dark"})}</div>
                         </div>
                         <div onClick={onToggleTheme(undefined)} data-active={theme === undefined ? "true" : undefined} className="cursor-pointer flex flex-col justify-center items-center gap-1 hover:scale-110 transition-transform data-active:text-sky-600">
                             <CgDarkMode className="cursor-pointer size-8"/>
-                            <div className="text-sm">SYSTEM</div>
+                            <div className="text-sm">{intl.formatMessage({id: "mainPanel.theme.system"})}</div>
                         </div>
                     </div>
                 </div>
                 <div className="flex flex-col justify-center items-center gap-2 px-4 mt-8 text-center text-lg text-slate-500 dark:text-slate-400">
-                    <label htmlFor={`field-language`} className="text-slate-500 flex items-center dark:text-slate-400">Language</label>
+                    <label htmlFor={`field-language`} className="text-slate-500 flex items-center dark:text-slate-400">{intl.formatMessage({id: "mainPanel.language"})}</label>
                     <select
                         id={`field-language`}
                         className={clsx(FieldClasses, FieldSelectClasses, "text-center")}
                         value={language}
                         onChange={onChangeLanguage}
                     >
-                        <option value="en">English</option>
-                        <option value="ro">Română</option>
+                        <option value="en">{intl.formatMessage({id: "mainPanel.language.english"})}</option>
+                        <option value="ro">{intl.formatMessage({id: "mainPanel.language.romanian"})}</option>
                     </select>
                 </div>
             </div>

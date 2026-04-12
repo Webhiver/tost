@@ -4,12 +4,14 @@ import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, LocalContext} from "../_context";
 import {useCallback} from "react";
 import {OperatingMode} from "../types.ts";
+import {useIntl} from "react-intl";
 
 const Modes = () => {
     const type = useContextSelector(LocalContext, c => c.type);
     const mode = useContextSelector(LocalContext, c => c.mode);
     const setMode = useContextSelector(LocalContext, c => c.setMode);
     const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
+    const intl = useIntl();
 
     const onChangeMode = useCallback((mode: OperatingMode) => () => {
         if(type === "satellite"){
@@ -27,7 +29,7 @@ const Modes = () => {
                 data-active={type === "host" ? "true" : undefined}
                 data-selected={mode === "off" ? "true" : undefined}
             >
-                OFF
+                {intl.formatMessage({id: "modes.off"})}
             </div>
             <div
                 onClick={type === "host" ? onChangeMode("manual") : undefined}
@@ -35,7 +37,7 @@ const Modes = () => {
                 data-active={type === "host" ? "true" : undefined}
                 data-selected={mode === "manual" ? "true" : undefined}
             >
-                MANUAL
+                {intl.formatMessage({id: "modes.manual"})}
             </div>
             <div
                 onClick={type === "host" ? onChangeMode("schedule") : undefined}
@@ -43,7 +45,7 @@ const Modes = () => {
                 data-active={type === "host" ? "true" : undefined}
                 data-selected={mode === "schedule" ? "true" : undefined}
             >
-                SCHEDULE
+                {intl.formatMessage({id: "modes.schedule"})}
             </div>
         </div>
     )

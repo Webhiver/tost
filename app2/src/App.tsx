@@ -12,8 +12,23 @@ import SettingsPanel from "./components/panels/SettingsPanel";
 import SatellitesPanel from "./components/panels/SatellitesPanel";
 import MonitoringPanel from "./components/panels/MonitoringPanel";
 import UpdatesPanel from "./components/panels/UpdatesPanel";
+import {IntlProvider, FormattedMessage} from "react-intl";
+import en from "../translations/en.json";
+import ro from "../translations/ro.json";
+
+const messages = {en, ro};
 
 const App = () => {
+    const language = useContextSelector(LocalContext, c => c.language)
+
+    return (
+        <IntlProvider locale={language} messages={messages[language]}>
+            <AppContent/>
+        </IntlProvider>
+    );
+}
+
+const AppContent = () => {
     const isLoading = useContextSelector(ApiContext, c => c.isLoading)
     const type = useContextSelector(LocalContext, c => c.type)
     const isPairing = useContextSelector(LocalContext, c => c.isPairing)
@@ -21,7 +36,7 @@ const App = () => {
     if(isLoading) {
         return (
             <div className="flex-1 inset-0 bg-linear-to-b from-white to-slate-100 flex justify-center items-center">
-                LOADING
+                <FormattedMessage id="app.loading"/>
             </div>
         );
     }

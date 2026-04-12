@@ -4,6 +4,7 @@ import {MdClose, MdOutlineKeyboardArrowLeft} from "react-icons/md";
 import {AiOutlineLoading} from "react-icons/ai";
 import {PanelsContext} from "../../_context";
 import {PanelType} from "@/types.ts";
+import {useIntl} from "react-intl";
 import { TbSettings, TbCalendarClock, TbChartHistogram, TbHeartRateMonitor, TbCloudDownload } from "react-icons/tb";
 import { GrSatellite } from "react-icons/gr";
 import {PiHandSwipeRight} from "react-icons/pi";
@@ -21,6 +22,7 @@ const WrapperPanel = (props: Props) => {
     } = props;
 
     const touchAvailable = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    const intl = useIntl();
 
     const loading = useContextSelector(PanelsContext, c => c.loading);
     const saving = useContextSelector(PanelsContext, c => c.saving);
@@ -127,12 +129,12 @@ const WrapperPanel = (props: Props) => {
                 {type === "monitoring" && <TbHeartRateMonitor className="size-6"/>}
                 {type === "updates" && <TbCloudDownload className="size-6"/>}
 
-                {type === "settings" && <h1 className="mr-2">SETTINGS</h1>}
-                {type === "schedule" && <h1 className="mr-2">SCHEDULE</h1>}
-                {type === "satellites" && <h1 className="mr-2">SATELLITES</h1>}
-                {type === "statistics" && <h1 className="mr-2">STATISTICS</h1>}
-                {type === "monitoring" && <h1 className="mr-2">MONITORING</h1>}
-                {type === "updates" && <h1 className="mr-2">UPDATES</h1>}
+                {type === "settings" && <h1 className="mr-2">{intl.formatMessage({id: "panel.settings"})}</h1>}
+                {type === "schedule" && <h1 className="mr-2">{intl.formatMessage({id: "panel.schedule"})}</h1>}
+                {type === "satellites" && <h1 className="mr-2">{intl.formatMessage({id: "panel.satellites"})}</h1>}
+                {type === "statistics" && <h1 className="mr-2">{intl.formatMessage({id: "panel.statistics"})}</h1>}
+                {type === "monitoring" && <h1 className="mr-2">{intl.formatMessage({id: "panel.monitoring"})}</h1>}
+                {type === "updates" && <h1 className="mr-2">{intl.formatMessage({id: "panel.updates"})}</h1>}
 
                 {saving &&
                     <div className="flex justify-start items-center gap-1 text-green-500">
@@ -140,7 +142,7 @@ const WrapperPanel = (props: Props) => {
                             <AiOutlineLoading
                                 className="text-green-600 animate-spin size-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
                         </div>
-                        <span className="text-xs">Saving</span>
+                        <span className="text-xs">{intl.formatMessage({id: "panel.saving"})}</span>
                     </div>
                 }
                 {!saving && saveResult === 'success' &&
@@ -149,7 +151,7 @@ const WrapperPanel = (props: Props) => {
                              strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <polyline points="20 6 9 17 4 12"/>
                         </svg>
-                        <span className="text-xs">Saved</span>
+                        <span className="text-xs">{intl.formatMessage({id: "panel.saved"})}</span>
                     </div>
                 }
                 {!saving && saveResult === 'error' &&
@@ -159,7 +161,7 @@ const WrapperPanel = (props: Props) => {
                             <line x1="18" y1="6" x2="6" y2="18"/>
                             <line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
-                        <span className="text-xs">Save failed</span>
+                        <span className="text-xs">{intl.formatMessage({id: "panel.saveFailed"})}</span>
                     </div>
                 }
                 <div className="flex-1"/>
@@ -190,11 +192,11 @@ const WrapperPanel = (props: Props) => {
             </div>
             {touchAvailable &&
                 <Fragment>
-                    {type === "main" && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                    {type === "main" && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>{intl.formatMessage({id: "panel.swipeToClose"})}</div>}
                     {type !== "main" && (
                         <Fragment>
-                            {mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to go back</div>}
-                            {!mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>Swipe right to close</div>}
+                            {mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>{intl.formatMessage({id: "panel.swipeToGoBack"})}</div>}
+                            {!mainPanelOpen && <div className="pb-3 text-sm text-slate-500 flex justify-center items-center gap-2 "><PiHandSwipeRight/>{intl.formatMessage({id: "panel.swipeToClose"})}</div>}
                         </Fragment>
                     )}
                 </Fragment>
@@ -207,10 +209,7 @@ const WrapperPanel = (props: Props) => {
                             className="text-sky-500 dark:text-sky-400 animate-spin size-10 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"/>
                     </div>
                     <div className="text-lg text-slate-500 dark:text-slate-400 animate-pulse">
-                        Loading
-                        <span className="text-3xl">.</span>
-                        <span className="text-3xl">.</span>
-                        <span className="text-3xl">.</span>
+                        {intl.formatMessage({id: "panel.loading"})}
                     </div>
                 </div>
             }
