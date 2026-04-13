@@ -4,16 +4,17 @@ import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext, PanelsContext} from "../../_context";
 import {Device, AllDebugInfo} from "../../types.ts";
 import {fetchDebug} from "../../api.ts";
+import {useIntl} from "react-intl";
 
 interface StructureProp {
-    title: string | null;
+    titleId: string | null;
     path: string;
     suffix: string | null;
     type: 'number' | 'text' | 'progress';
 }
 
 interface StructureSection {
-    title: string;
+    titleId: string;
     props: StructureProp[];
 }
 
@@ -29,96 +30,96 @@ const MonitoringPanel = () => {
 
     const structure = useRef<StructureSection[]>([
         {
-            title: 'MEMORY',
+            titleId: 'monitoring.section.memory',
             props: [{
-                title: 'Free',
+                titleId: 'monitoring.free',
                 path: 'memory.free_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
-                title: 'Used',
+                titleId: 'monitoring.used',
                 path: 'memory.percent_used',
                 suffix: '%',
                 type: 'number',
             }, {
-                title: null,
+                titleId: null,
                 path: 'memory.percent_used',
                 suffix: null,
                 type: 'progress',
             }],
         }, {
-            title: 'CPU',
+            titleId: 'monitoring.section.cpu',
             props: [{
-                title: 'Frequency',
+                titleId: 'monitoring.frequency',
                 path: 'cpu.frequency_mhz',
                 suffix: 'MHz',
                 type: 'number',
             }, {
-                title: 'Internal Temp',
+                titleId: 'monitoring.internalTemp',
                 path: 'internal_temp_c',
                 suffix: '°C',
                 type: 'number',
             }],
         }, {
-            title: 'Flash Storage',
+            titleId: 'monitoring.section.flash',
             props: [{
-                title: 'Total',
+                titleId: 'monitoring.total',
                 path: 'flash.total_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
-                title: 'Free',
+                titleId: 'monitoring.free',
                 path: 'flash.free_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
-                title: 'Used',
+                titleId: 'monitoring.used',
                 path: 'flash.percent_used',
                 suffix: '%',
                 type: 'number',
             }, {
-                title: null,
+                titleId: null,
                 path: 'flash.percent_used',
                 suffix: null,
                 type: 'progress',
             }],
         }, {
-            title: 'Network',
+            titleId: 'monitoring.section.network',
             props: [{
-                title: 'IP',
+                titleId: 'monitoring.ip',
                 path: 'network.ip',
                 suffix: null,
                 type: 'text',
             }, {
-                title: 'Gateway',
+                titleId: 'monitoring.gateway',
                 path: 'network.gateway',
                 suffix: null,
                 type: 'text',
             }, {
-                title: 'DNS',
+                titleId: 'monitoring.dns',
                 path: 'network.dns',
                 suffix: null,
                 type: 'text',
             }, {
-                title: 'RSSI',
+                titleId: 'monitoring.rssi',
                 path: 'network.rssi',
                 suffix: 'dBm',
                 type: 'number',
             }],
         }, {
-            title: 'System',
+            titleId: 'monitoring.section.system',
             props: [{
-                title: 'Machine',
+                titleId: 'monitoring.machine',
                 path: 'system.machine',
                 suffix: null,
                 type: 'text',
             }, {
-                title: 'Release',
+                titleId: 'monitoring.release',
                 path: 'system.release',
                 suffix: null,
                 type: 'text',
             }, {
-                title: 'Updatime',
+                titleId: 'monitoring.uptime',
                 path: 'uptime.formatted',
                 suffix: null,
                 type: 'text',
@@ -126,6 +127,7 @@ const MonitoringPanel = () => {
         }
     ]);
 
+    const intl = useIntl();
     const devices = useContextSelector(LocalContext, c => c.devices);
     const isOpen = useContextSelector(PanelsContext, c => c.monitoringPanelOpen);
     const toggleLoading = useContextSelector(PanelsContext, c => c.toggleLoading);
@@ -186,11 +188,11 @@ const MonitoringPanel = () => {
                 {structure.current.map((section, sectionIndex) => {
                     return (
                         <Fragment key={sectionIndex}>
-                            <div className="col-span-4 grid grid-cols-subgrid bg-black/5 py-1 px-2 whitespace-nowrap">{section.title}</div>
+                            <div className="col-span-4 grid grid-cols-subgrid bg-black/5 py-1 px-2 whitespace-nowrap">{intl.formatMessage({id: section.titleId})}</div>
                             {section.props.map((prop, propIndex) => {
                                 return (
                                     <Fragment key={`${sectionIndex}-${propIndex}`}>
-                                        <div className="">{prop.title}</div>
+                                        <div className="">{prop.titleId ? intl.formatMessage({id: prop.titleId}) : null}</div>
                                         {devices.map((device, deviceIndex) => {
                                             if(prop.type === 'progress') {
                                                 return (
