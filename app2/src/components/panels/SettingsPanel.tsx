@@ -7,6 +7,7 @@ import Field from "./Field";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { IoShieldCheckmarkSharp } from "react-icons/io5";
 import { FiSettings } from "react-icons/fi";
+import {useIntl} from "react-intl";
 
 interface SelectOption {
     value: string | number;
@@ -17,6 +18,7 @@ type Option = SelectOption | string | "-";
 
 const SettingsPanel = () => {
 
+    const intl = useIntl();
     const devices = useContextSelector(LocalContext, c => c.devices);
     const configs = useContextSelector(PanelsContext, c => c.configs);
     const onReboot = useContextSelector(PanelsContext, c => c.onReboot);
@@ -50,29 +52,29 @@ const SettingsPanel = () => {
                                     {!online && <FaExclamationTriangle className="text-red-700 dark:text-red-400"/>}
                                 </div>
                                 <div className="py-3 flex flex-col items-stretch justify-start gap-3">
-                                    <div className="font-light text-slate-400 dark:text-slate-500">OPERATING OPTIONS</div>
+                                    <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.operatingOptions"})}</div>
                                     <Field
                                         type={disabled ? "text" : "select"}
-                                        label="Role"
+                                        label={intl.formatMessage({id: "settings.role"})}
                                         value={configs[mac]?.mode ?? ""}
                                         configName="mode"
                                         mac={mac}
-                                        options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}
+                                        options={[{value: "host", label: intl.formatMessage({id: "settings.role.host"})}, {value: "satellite", label: intl.formatMessage({id: "settings.role.satellite"})}]}
                                         disabled={disabled}
                                     />
                                     <Field
                                         type={disabled ? "text" : "select"}
-                                        label="Local Relay Enabled"
+                                        label={intl.formatMessage({id: "settings.localRelayEnabled"})}
                                         value={typeof configs[mac]?.relay_enabled === "boolean" ? (configs[mac]?.relay_enabled ? "yes" : "no") : (disabled ? "" : "yes")}
                                         configName="relay_enabled"
                                         mac={mac}
-                                        options={[{value: "yes", label: "YES"}, {value: "no", label: "NO"}]}
+                                        options={[{value: "yes", label: intl.formatMessage({id: "settings.yes"})}, {value: "no", label: intl.formatMessage({id: "settings.no"})}]}
                                         disabled={disabled}
                                     />
-                                    <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
+                                    <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.sensorCalibration"})}</div>
                                     <Field
                                         type="number"
-                                        label="Temperature Offset"
+                                        label={intl.formatMessage({id: "settings.temperatureOffset"})}
                                         value={configs[mac]?.sensor_temperature_offset ?? ""}
                                         configName="sensor_temperature_offset"
                                         mac={mac}
@@ -84,7 +86,7 @@ const SettingsPanel = () => {
                                     />
                                     <Field
                                         type="number"
-                                        label="Humidity Offset"
+                                        label={intl.formatMessage({id: "settings.humidityOffset"})}
                                         value={configs[mac]?.sensor_humidity_offset ?? ""}
                                         configName="sensor_humidity_offset"
                                         mac={mac}
@@ -94,10 +96,10 @@ const SettingsPanel = () => {
                                         max="10"
                                         disabled={disabled}
                                     />
-                                    <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
+                                    <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.miscellaneous"})}</div>
                                     <Field
                                         type="range"
-                                        label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
+                                        label={`${intl.formatMessage({id: "settings.ledBrightness"})} (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
                                         value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : 0}
                                         configName="led_brightness"
                                         mac={mac}
@@ -106,8 +108,8 @@ const SettingsPanel = () => {
                                         disabled={disabled}
                                     />
                                     <div className="grid grid-cols-10">
-                                        <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">Reboot Device</div>
-                                        <div onClick={() => onReboot(ip)} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">Reboot Now</div>
+                                        <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">{intl.formatMessage({id: "settings.rebootDevice"})}</div>
+                                        <div onClick={() => onReboot(ip)} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">{intl.formatMessage({id: "settings.rebootNow"})}</div>
                                     </div>
                                 </div>
                             </Fragment>
@@ -117,22 +119,22 @@ const SettingsPanel = () => {
                         <Fragment key={`deice-config-${mac}-${index}`}>
                             <div className="text-slate-600 bg-slate-300 rounded-md px-2 py-1 flex justify-start items-center gap-2 dark:bg-slate-500 dark:text-slate-900">
                                 <FiSettings size={18}/>
-                                <div className="text-lg">Global Settings</div>
+                                <div className="text-lg">{intl.formatMessage({id: "settings.globalSettings"})}</div>
                                 <div className="flex-1"/>
                             </div>
                             <div className="py-3 flex flex-col items-stretch justify-start gap-3">
-                                <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.temperatureControl"})}</div>
                                 <Field
                                     type="select"
-                                    label="Operating Mode"
+                                    label={intl.formatMessage({id: "settings.operatingMode"})}
                                     value={configs[mac]?.operating_mode ?? ""}
                                     configName="operating_mode"
                                     mac={mac}
-                                    options={[{value: "off", label: "Off"}, {value: "manual", label: "Manual"}, {value: "schedule", label: "Schedule"}]}
+                                    options={[{value: "off", label: intl.formatMessage({id: "settings.operatingMode.off"})}, {value: "manual", label: intl.formatMessage({id: "settings.operatingMode.manual"})}, {value: "schedule", label: intl.formatMessage({id: "settings.operatingMode.schedule"})}]}
                                 />
                                 <Field
                                     type="number"
-                                    label="Hysteresis"
+                                    label={intl.formatMessage({id: "settings.hysteresis"})}
                                     value={configs[mac]?.hysteresis ?? ""}
                                     configName="hysteresis"
                                     mac={mac}
@@ -143,31 +145,31 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="select"
-                                    label="Flame Mode"
+                                    label={intl.formatMessage({id: "settings.flameMode"})}
                                     value={`${configs[mac]?.flame_mode}_${configs[mac]?.flame_mode === "one" ? configs[mac]?.flame_mode_sensor : ""}`}
                                     configName="flame_mode"
                                     mac={mac}
                                     options={[
-                                        "Combined Sensors",
-                                        {value: "average_", label: "Average"},
-                                        {value: "all_", label: "All Sensors"},
-                                        {value: "any_", label: "Any Sensor"},
-                                        "Single Sensors",
+                                        intl.formatMessage({id: "settings.combinedSensors"}),
+                                        {value: "average_", label: intl.formatMessage({id: "settings.combinedSensors.average"})},
+                                        {value: "all_", label: intl.formatMessage({id: "settings.combinedSensors.allSensors"})},
+                                        {value: "any_", label: intl.formatMessage({id: "settings.combinedSensors.anySensor"})},
+                                        intl.formatMessage({id: "settings.singleSensors"}),
                                         ...singleSensors
                                     ]}
                                 />
                                 <Field
                                     type="select"
-                                    label="Local Sensor"
+                                    label={intl.formatMessage({id: "settings.localSensor"})}
                                     value={configs[mac]?.local_sensor ?? ""}
                                     configName="local_sensor"
                                     mac={mac}
-                                    options={[{value: "included", label: "Always Included"}, {value: "fallback", label: "Fallback Only"}]}
+                                    options={[{value: "included", label: intl.formatMessage({id: "settings.localSensor.alwaysIncluded"})}, {value: "fallback", label: intl.formatMessage({id: "settings.localSensor.fallbackOnly"})}]}
                                 />
-                                <div className="font-light text-slate-400 dark:text-slate-500">TEMPERATURE CONTROL</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.temperatureControl"})}</div>
                                 <Field
                                     type="number"
-                                    label="Min Temperature"
+                                    label={intl.formatMessage({id: "settings.minTemperature"})}
                                     value={configs[mac]?.min_temp ?? ""}
                                     configName="min_temp"
                                     mac={mac}
@@ -178,7 +180,7 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="number"
-                                    label="Max Temperature"
+                                    label={intl.formatMessage({id: "settings.maxTemperature"})}
                                     value={configs[mac]?.max_temp ?? ""}
                                     configName="max_temp"
                                     mac={mac}
@@ -189,7 +191,7 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="number"
-                                    label="Scale Precision"
+                                    label={intl.formatMessage({id: "settings.scalePrecision"})}
                                     value={configs[mac]?.scale_precision ?? ""}
                                     configName="scale_precision"
                                     mac={mac}
@@ -198,10 +200,10 @@ const SettingsPanel = () => {
                                     min="0.1"
                                     max="1"
                                 />
-                                <div className="font-light text-slate-400 dark:text-slate-500">TIMING</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.timing"})}</div>
                                 <Field
                                     type="number"
-                                    label="Satellite Grace Period"
+                                    label={intl.formatMessage({id: "settings.satelliteGracePeriod"})}
                                     value={configs[mac]?.satellite_grace_period ?? ""}
                                     configName="satellite_grace_period"
                                     mac={mac}
@@ -212,7 +214,7 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="number"
-                                    label="Max Flame Duration"
+                                    label={intl.formatMessage({id: "settings.maxFlameDuration"})}
                                     value={configs[mac]?.max_flame_duration ? Math.round(configs[mac].max_flame_duration / 3600) : ""}
                                     configName="max_flame_duration"
                                     mac={mac}
@@ -223,11 +225,11 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="number"
-                                    label="Flame Cooldown"
+                                    label={intl.formatMessage({id: "settings.flameCooldown"})}
                                     value={configs[mac]?.flame_cooldown ? Math.round(configs[mac].flame_cooldown / 60) : ""}
                                     configName="flame_cooldown"
                                     mac={mac}
-                                    addon="minues"
+                                    addon={intl.formatMessage({id: "settings.minutes"})}
                                     step="1"
                                     min="5"
                                     max="60"
@@ -251,28 +253,28 @@ const SettingsPanel = () => {
                                 {/*    configName="name"*/}
                                 {/*    mac={mac}*/}
                                 {/*/>*/}
-                                <div className="font-light text-slate-400 dark:text-slate-500">OPERATING OPTIONS</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.operatingOptions"})}</div>
                                 <Field
                                     type="select"
-                                    label="Role"
+                                    label={intl.formatMessage({id: "settings.role"})}
                                     value={configs[mac]?.mode ?? ""}
                                     configName="mode"
                                     mac={mac}
-                                    options={[{value: "host", label: "Host"}, {value: "satellite", label: "Satellite"}]}
+                                    options={[{value: "host", label: intl.formatMessage({id: "settings.role.host"})}, {value: "satellite", label: intl.formatMessage({id: "settings.role.satellite"})}]}
                                 />
                                 <Field
                                     type="select"
-                                    label="Local Relay Enabled"
+                                    label={intl.formatMessage({id: "settings.localRelayEnabled"})}
                                     value={typeof configs[mac]?.relay_enabled === "boolean" ? (configs[mac]?.relay_enabled ? "yes" : "no") : (disabled ? "" : "yes")}
                                     configName="relay_enabled"
                                     mac={mac}
-                                    options={[{value: "yes", label: "YES"}, {value: "no", label: "NO"}]}
+                                    options={[{value: "yes", label: intl.formatMessage({id: "settings.yes"})}, {value: "no", label: intl.formatMessage({id: "settings.no"})}]}
                                     disabled={true}
                                 />
-                                <div className="font-light text-slate-400 dark:text-slate-500">SENSOR CALIBRATION</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.sensorCalibration"})}</div>
                                 <Field
                                     type="number"
-                                    label="Temperature Offset"
+                                    label={intl.formatMessage({id: "settings.temperatureOffset"})}
                                     value={configs[mac]?.sensor_temperature_offset ?? ""}
                                     configName="sensor_temperature_offset"
                                     mac={mac}
@@ -283,7 +285,7 @@ const SettingsPanel = () => {
                                 />
                                 <Field
                                     type="number"
-                                    label="Humidity Offset"
+                                    label={intl.formatMessage({id: "settings.humidityOffset"})}
                                     value={configs[mac]?.sensor_humidity_offset ?? ""}
                                     configName="sensor_humidity_offset"
                                     mac={mac}
@@ -292,10 +294,10 @@ const SettingsPanel = () => {
                                     min="-20"
                                     max="20"
                                 />
-                                <div className="font-light text-slate-400 dark:text-slate-500">MISCELLANEOUS</div>
+                                <div className="font-light text-slate-400 dark:text-slate-500">{intl.formatMessage({id: "settings.section.miscellaneous"})}</div>
                                 <Field
                                     type="range"
-                                    label={`LED Brightness (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
+                                    label={`${intl.formatMessage({id: "settings.ledBrightness"})} (${Math.round((configs[mac]?.led_brightness ? configs[mac].led_brightness : 0) * 100)}%)`}
                                     value={configs[mac]?.led_brightness ? configs[mac].led_brightness * 100 : 0}
                                     configName="led_brightness"
                                     mac={mac}
@@ -303,8 +305,8 @@ const SettingsPanel = () => {
                                     max="100"
                                 />
                                 <div className="grid grid-cols-10">
-                                    <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">Reboot Device</div>
-                                    <div onClick={() => onReboot()} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">Reboot Now</div>
+                                    <div className="col-span-6 text-slate-500 flex items-center dark:text-slate-400">{intl.formatMessage({id: "settings.rebootDevice"})}</div>
+                                    <div onClick={() => onReboot()} className="col-span-4 border border-red-600/50 dark:border-red-400/80 rounded-md py-1 flex justify-center text-sm text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-600/10 dark:hover:bg-red-400/20 transition-colors">{intl.formatMessage({id: "settings.rebootNow"})}</div>
                                 </div>
                             </div>
                         </Fragment>
