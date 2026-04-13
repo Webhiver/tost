@@ -1,3 +1,6 @@
+from version import VERSION
+
+
 class StateManager:
     
     def __init__(self, initial_state=None):
@@ -58,10 +61,11 @@ class StateManager:
                 self._notify(key, new_val, old_val)
     
     def get_satellite_state(self):
-        """Get trimmed state for satellites (only sensor and wifi_strength)."""
+        """Get trimmed state for satellites (only firmware_version, sensor and wifi_strength)."""
         return {
             "sensor": self._state.get("sensor"),
-            "wifi_strength": self._state.get("wifi_strength")
+            "wifi_strength": self._state.get("wifi_strength"),
+            "firmware_version": self._state.get("firmware_version")
         }
     
     def get_satellite_by_mac(self, mac):
@@ -80,6 +84,7 @@ state = StateManager({
     "wifi_strength": None,
     "mac": None,
     "ip": None,
+    "firmware_version": VERSION,
     "sensor": {
         "temperature": None,
         "humidity": None,

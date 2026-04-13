@@ -22,6 +22,7 @@ const MainPanel = () => {
     const toggleTheme = useContextSelector(LocalContext, c => c.toggleTheme);
     const language = useContextSelector(LocalContext, c => c.language);
     const changeLanguage = useContextSelector(LocalContext, c => c.changeLanguage);
+    const firmwareVersion = useContextSelector(LocalContext, c => c.firmwareVersion);
 
     const onOpenPanel = useCallback((panel: PanelType) => () => {
         togglePanel(panel, true);
@@ -42,7 +43,7 @@ const MainPanel = () => {
             <div className="h-full flex flex-col justify-center items-stretch px-20 -mt-6">
                 <div className="flex flex-col justify-center items-center gap-2 px-4 pb-8 text-center">
                     <TostLogo width={90} height={24} className="fill-slate-500 dark:fill-slate-200"/>
-                    <div className="text-sm text-slate-500">{intl.formatMessage({id: "mainPanel.version"}, {version: "2.16.5"})}</div>
+                    <div className="text-sm text-slate-500">{intl.formatMessage({id: "mainPanel.version"}, {version: firmwareVersion})}</div>
                 </div>
                 <div className="flex justify-center items-center gap-2 scale-100 hover:scale-120 transition-transform cursor-pointer px-4 py-4 text-center text-xl text-slate-500 dark:text-slate-400" onClick={onOpenPanel("settings")}>
                     <TbSettings className="size-6"/>

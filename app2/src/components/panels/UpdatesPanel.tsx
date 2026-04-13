@@ -1,12 +1,12 @@
 import WrapperPanel from "./WrapperPanel";
-// import {useContextSelector} from "@fluentui/react-context-selector";
-// import {LocalContext} from "../../_context";
+import {useContextSelector} from "@fluentui/react-context-selector";
+import {LocalContext} from "../../_context";
 import { PiUploadBold } from "react-icons/pi";
 import {useIntl} from "react-intl";
 
 const UpdatesPanel = () => {
 
-    //const hostMac = useContextSelector(LocalContext, c => c.hostMac);
+    const currentFirmwareVersion = useContextSelector(LocalContext, c => c.firmwareVersion);
 
     const intl = useIntl();
 
@@ -16,7 +16,7 @@ const UpdatesPanel = () => {
                 <div className="bg-amber-400/50 dark:bg-amber-400/60 border border-amber-400 text-amber-700 dark:text-amber-900 p-3 rounded-lg">{intl.formatMessage({id: "updates.warning"})}</div>
                 <div className="font-light text-slate-400">{intl.formatMessage({id: "updates.section.installed"})}</div>
                 <div className="flex flex-col items-stretch justify-start gap-2 border border-slate-300 dark:border-slate-600 bg-white/30 dark:bg-black/30 rounded-lg p-4">
-                    <div className="text-slate-400">{intl.formatMessage({id: "updates.currentFirmware"}, {version: "1.0.20 build 230916"})}</div>
+                    <div className="text-slate-400">{intl.formatMessage({id: "updates.currentFirmware"}, {version: currentFirmwareVersion})}</div>
                 </div>
                 <div className="font-light text-slate-400">{intl.formatMessage({id: "updates.section.available"})}</div>
                 <div className="flex flex-col items-stretch justify-start gap-2 border border-slate-300 dark:border-slate-600 bg-white/30 dark:bg-black/30 rounded-lg p-4">

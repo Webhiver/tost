@@ -24,6 +24,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [satellites, setSatellites] = useState<Satellite[]>([]);
     const [mac, setMac] = useState<string>('');
     const [ip, setIp] = useState<string>('');
+    const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
     const [name, setName] = useState<string>('Host');
     const [healthy, setHealthy] = useState<boolean>(true);
     const [humidity, setHumidity] = useState<number | null>(null);
@@ -91,6 +92,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setIsPairing(state?.is_pairing ?? false);
         setMac(state?.mac ?? '');
         setIp(state?.ip ?? '');
+        setFirmwareVersion(state?.firmware_version ?? null);
     }, [state]);
 
 
@@ -125,6 +127,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         devices.push({
             id: state?.mac ?? `satellite-0`,
             ip: state?.ip ?? undefined,
+            firmwareVersion: state?.firmware_version ?? null,
             satellite: false,
             name: config?.name ?? 'Host',
             online: true,
@@ -143,6 +146,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             devices.push({
                 id: satellite?.mac ?? `satellite-${index + 1}`,
                 ip: satelliteState?.ip ?? undefined,
+                firmwareVersion: satelliteState?.state?.firmware_version ?? null,
                 satellite: true,
                 name: satellite?.name ?? 'Host',
                 online: satelliteState?.online ?? false,
@@ -165,6 +169,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             type,
             mac,
             ip,
+            firmwareVersion,
             name,
             healthy,
             humidity,
