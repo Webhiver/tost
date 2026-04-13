@@ -152,5 +152,5 @@
   "satelliteMode.localHumidity": "Umiditate Locală",
   "satelliteMode.sensorHealthy": "Senzorul funcționează corect",
   "satelliteMode.sensorBroken": "Senzorul este defect",
-  "satelliteMode.description": "Acest dispozitiv funcționează ca senzor satelit. Valorile de temperatură și umiditate sunt raportate termostatului gazdă.\n\nToate configurațiile pot fi efectuate pe termostatul gazdă."
+  "satelliteMode.description": "Acest dispozitiv funcționează ca senzor satelit. Valorile de temperatură și umiditate sunt raportate termostatului gazdă.{br}{br}Toate configurațiile pot fi efectuate pe termostatul gazdă."
 }

@@ -152,5 +152,5 @@
   "satelliteMode.localHumidity": "Local Humidity",
   "satelliteMode.sensorHealthy": "Sensor is healthy",
   "satelliteMode.sensorBroken": "Sensor is broken",
-  "satelliteMode.description": "This device is operating as a satellite sensor. Temperature and humidity values are being reported to the host thermostat.\n\nAll configurations can be made on the host thermostat."
+  "satelliteMode.description": "This device is operating as a satellite sensor. Temperature and humidity values are being reported to the host thermostat.{br}{br}All configurations can be made on the host thermostat."
 }
