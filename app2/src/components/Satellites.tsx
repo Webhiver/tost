@@ -99,7 +99,7 @@ const Satellites = () => {
                 </Swiper>
             </div>
             <div className="flex justify-center items-center relative">
-                <div className="w-[20%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950" style={{left: `${20 * slideIndex + ((100 - devices.length * 20) / 2)}%`}}/>
+                <div className="w-[19%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950" style={{left: `${19 * slideIndex + ((100 - devices.length * 19) / 2)}%`}}/>
                 {devices.map((device: Device, index: number) => {
                     let deviceStatus = null;
                     if (device.active) {
@@ -121,7 +121,7 @@ const Satellites = () => {
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="w-[20%] rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
+                            className="w-[19%] rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
                             {!device.satellite ?
