@@ -21,7 +21,7 @@ export const ScaleBackground = () => {
     return (
         <g>
             {Array.from({length}).map((_, index) => {
-                const tickIsHalf = knobScalePrecision !== 0.1 && knobScalePrecision !== 0.5 ? false : index % 2;
+                const tickIsHalf = knobScalePrecision !== 0.5 ? false : index % 2;
 
                 return (
                     <rect
