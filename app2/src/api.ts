@@ -1,4 +1,4 @@
-import type { Status, Config, Network, DebugInfo } from './types'
+import type {Status, Config, Network, DebugInfo, Configs} from './types'
 
 const API_BASE = '/api'
 
@@ -15,6 +15,10 @@ async function api<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
 
 export async function fetchStatus(signal?: AbortSignal): Promise<Status> {
   return api<Status>('/status', { signal })
+}
+
+export async function fetchAllConfigs(): Promise<Configs> {
+  return api<Configs>('/all-configs')
 }
 
 export async function fetchConfig(): Promise<Config> {

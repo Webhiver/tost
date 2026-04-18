@@ -76,6 +76,30 @@ class WebServer:
             except Exception as e:
                 return {"error": str(e)}, 400
         
+        @app.route('/api/all-configs', methods=['GET'])
+        async def get_all_configs(request):
+            result = {}
+            local_mac = state.get("mac")
+            result[local_mac] = config.get_all()
+
+            satellites = state.get("satellites", [])
+            for sat in satellites:
+                ip = sat.get("ip")
+                mac = sat.get("mac")
+                if not mac:
+                    continue
+                response = None
+                try:
+                    response = urequests.get("http://{}:80/api/config".format(ip), timeout=5)
+                    result[mac] = response.json()
+                    response.close()
+                except Exception as e:
+                    if response:
+                        response.close()
+                    result[mac] = None
+
+            return result
+
         @app.route('/api/wifi/scan', methods=['GET'])
         async def scan_wifi(request):
             return {"networks": pairing.scan_networks()}

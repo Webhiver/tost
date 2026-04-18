@@ -2,7 +2,7 @@ import {ReactNode, useState, useRef, useCallback, useEffect} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, PanelsContext, LocalContext} from "../_context";
 import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig, PanelProviderErrors, DeviceError} from "../types.ts";
-import {fetchConfig, fetchSatelliteConfig, updateConfig, updateSatelliteConfig, reboot, ping} from "../api.ts";
+import {fetchAllConfigs, updateConfig, updateSatelliteConfig, reboot, ping} from "../api.ts";
 import {isValidMac, normalizeMac} from "../utils.ts";
 
 const DEBOUNCE_MS = 750;
@@ -114,54 +114,71 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     //const onConfigsUpdated = useContextSelector(ApiContext, c => c.onConfigsUpdated);
     const devices = useContextSelector(LocalContext, c => c.devices);
 
-    const getConfigs = useCallback(async (includeSatellites: boolean) => {
+    // const getConfigs = useCallback(async (includeSatellites: boolean) => {
+    //     setLoading(true);
+    //     setValidationErrors({});
+    //
+    //     try {
+    //         const configs = {} as Configs;
+    //
+    //         const requests = devices.map(device => {
+    //             const mac = device.id;
+    //             const ip = device.ip;
+    //             const online = device.online;
+    //             const satellite = device.satellite;
+    //
+    //             if (satellite && includeSatellites) {
+    //                 if (!online || !ip) {
+    //                     return Promise.resolve({mac, data: undefined});
+    //                 }
+    //                 return fetchSatelliteConfig(ip).then(data => ({mac, data}));
+    //             }
+    //
+    //             if (!satellite) {
+    //                 return fetchConfig().then(data => ({mac, data}));
+    //             }
+    //
+    //             return Promise.resolve({mac, data: undefined});
+    //         });
+    //
+    //         const results = await Promise.allSettled(requests);
+    //
+    //         for (const result of results) {
+    //             if (result.status === "fulfilled") {
+    //                 configs[result.value.mac] = result.value.data;
+    //             } else {
+    //
+    //             }
+    //         }
+    //
+    //         // Ensure every device key exists even if its request failed
+    //         for (const device of devices) {
+    //             const mac = device.id;
+    //             if (!(mac in configs)) {
+    //                 configs[mac] = undefined;
+    //             }
+    //         }
+    //
+    //         setConfigs(configs);
+    //     } catch (err) {
+    //
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }, [devices]);
+
+    const getConfigs = useCallback(async (_includeSatellites: boolean) => {
         setLoading(true);
         setValidationErrors({});
 
         try {
-            const configs = {} as Configs;
-
-            const requests = devices.map(device => {
-                const mac = device.id;
-                const ip = device.ip;
-                const online = device.online;
-                const satellite = device.satellite;
-
-                if (satellite && includeSatellites) {
-                    if (!online || !ip) {
-                        return Promise.resolve({mac, data: undefined});
-                    }
-                    return fetchSatelliteConfig(ip).then(data => ({mac, data}));
-                }
-
-                if (!satellite) {
-                    return fetchConfig().then(data => ({mac, data}));
-                }
-
-                return Promise.resolve({mac, data: undefined});
-            });
-
-            const results = await Promise.allSettled(requests);
-
-            for (const result of results) {
-                if (result.status === "fulfilled") {
-                    configs[result.value.mac] = result.value.data;
-                } else {
-
-                }
-            }
-
-            // Ensure every device key exists even if its request failed
-            for (const device of devices) {
-                const mac = device.id;
-                if (!(mac in configs)) {
-                    configs[mac] = undefined;
-                }
-            }
-
-            setConfigs(configs);
+            const data = await fetchAllConfigs();
+            setConfigs(data);
         } catch (err) {
-
+            if (err instanceof Error && err.name === 'AbortError') {
+                return;
+            }
+            console.error('Failed to fetch configs:', err);
         } finally {
             setLoading(false);
         }
