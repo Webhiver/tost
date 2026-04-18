@@ -200,6 +200,7 @@ export interface LocalProviderProps {
 
 export interface ApiProviderProps {
   isLoading: boolean
+  isFetching: boolean
   config: Config | null
   state: State | null
   submitConfig: (config: Partial<Config>) => void;

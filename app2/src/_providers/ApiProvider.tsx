@@ -3,7 +3,7 @@ import {ApiContext} from "../_context";
 import {fetchStatus, updateConfig} from "../api";
 import {State, Config} from "../types.ts";
 
-const refreshInterval = 4000;
+const refreshInterval = 5000;
 
 const ApiProvider = ({children}: { children: ReactNode }) => {
     const submitConfigDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -12,6 +12,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     const getStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
     const [config, setConfig] = useState<Config | null>(null);
     const [state, setState] = useState<State | null>(null);
     const [_error, setError] = useState<any>(null);
@@ -36,6 +37,8 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         const controller = new AbortController();
         getStatusAbortControllerRef.current = controller;
 
+        setIsFetching(true);
+
         try {
             const data = await fetchStatus(controller.signal);
 
@@ -52,6 +55,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         } finally {
             if (!controller.signal.aborted) {
                 setIsLoading(false);
+                setIsFetching(false);
             }
             if (getStatusAbortControllerRef.current === controller) {
                 getStatusAbortControllerRef.current = null;
@@ -140,6 +144,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     return (
         <ApiContext.Provider value={{
             isLoading,
+            isFetching,
             config,
             state,
             submitConfig,
