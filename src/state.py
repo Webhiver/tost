@@ -1,4 +1,7 @@
-from version import VERSION
+try:
+    from version import VERSION
+except ImportError:
+    VERSION = "0.0.0"
 
 
 class StateManager:
@@ -93,6 +96,7 @@ state = StateManager({
     },
     "flame": False,
     "flame_start_tick": None,
+    "flame_cooldown_start_tick": None,
     "flame_duration": 0,
     "satellites": [],
     "effective_temperature": None
