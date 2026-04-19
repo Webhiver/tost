@@ -30,6 +30,7 @@ async def main():
         asyncio.create_task(satellite.loop()),
         asyncio.create_task(discovery.loop()),
         asyncio.create_task(web_server.loop()),
+        asyncio.create_task(thermostat.loop()),
     ]
 
     # print("PicoThermostat running!")

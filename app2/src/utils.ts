@@ -9,7 +9,7 @@ export function formatHumidity(humidity: number | null | undefined): string {
 }
 
 export function formatDuration(seconds: number | null | undefined): string {
-  if (!seconds) return 'Not running'
+  if (!seconds) return `0m`
   
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)

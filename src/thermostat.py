@@ -1,3 +1,4 @@
+import asyncio
 from time import ticks_ms
 from state import state
 from config import config
@@ -116,6 +117,12 @@ class Thermostat:
         state.set("flame_duration", self.get_flame_duration())
         
         return state.get("flame", False)
+
+    async def loop(self):
+        while True:
+            if self._is_active() and state.get("flame"):
+                state.set("flame_duration", self.get_flame_duration())
+            await asyncio.sleep(1)
 
 
 # Singleton instance
