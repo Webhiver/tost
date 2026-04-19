@@ -1,13 +1,16 @@
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext} from "../../_context";
 import {Device} from "../../types.ts";
+import {formatDuration} from "../../utils.ts";
 import {useIntl} from "react-intl";
+import {Fragment} from "react";
 
 export const InfoHtml = () => {
     const mode = useContextSelector(LocalContext, c => c.mode);
     const flameMode = useContextSelector(LocalContext, c => c.flameMode);
     const flameModeSensor = useContextSelector(LocalContext, c => c.flameModeSensor);
     const flameOn = useContextSelector(LocalContext, c => c.flame);
+    const flameDuration = useContextSelector(LocalContext, c => c.flameDuration);
     const targetTemp = useContextSelector(LocalContext, c => c.targetTemp);
     const effectiveTemp = useContextSelector(LocalContext, c => c.effectiveTemp);
     const devices = useContextSelector(LocalContext, c => c.devices);
@@ -58,7 +61,9 @@ export const InfoHtml = () => {
             <div className="h-4"/>
             <div className="text-orange-600">{intl.formatMessage({id: "infoHtml.target"})}</div>
             <div className="font-mono text-5xl text-slate-500">{targetTemp.toFixed(1)}°C</div>
-            <div className="h-9"/>
+            <div className="h-4"/>
+            <div className="text-sm text-slate-500/70">{flameOn ? intl.formatMessage({id: "infoHtml.flameDuration"}, {duration: formatDuration(flameDuration)}) : <Fragment>&nbsp;</Fragment>}</div>
+            <div className="h-1"/>
             {statusIcon}
         </div>
     );

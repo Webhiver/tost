@@ -9,6 +9,7 @@
   "infoHtml.effectiveTemp.lowest": "LOWEST",
   "infoHtml.effectiveTemp.highest": "HIGHEST",
   "infoHtml.target": "TARGET",
+  "infoHtml.flameDuration": "Heating since {duration}",
 
   "header.menu": "Menu",
   "header.updates": "Updates",

@@ -9,6 +9,7 @@
   "infoHtml.effectiveTemp.lowest": "MINIM",
   "infoHtml.effectiveTemp.highest": "MAXIM",
   "infoHtml.target": "ȚINTĂ",
+  "infoHtml.flameDuration": "Încălzire de {duration}",
 
   "header.menu": "Meniu",
   "header.updates": "Actualizări",
