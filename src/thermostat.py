@@ -121,7 +121,7 @@ class Thermostat:
     async def loop(self):
         while True:
             if self._is_active() and state.get("flame"):
-                state.set("flame_duration", self.get_flame_duration())
+                self.update()
             await asyncio.sleep(1)
 
 
