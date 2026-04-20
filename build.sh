@@ -68,16 +68,17 @@ if [[ "$valid" != true ]]; then
 fi
 
 # --- Version bumping ---
-VERSION_FILE="$SCRIPT_DIR/version.json"
+VERSION_FILE="$SCRIPT_DIR/src/version.py"
 
 if [[ ! -f "$VERSION_FILE" ]]; then
-    echo '{"major": 0, "minor": 0, "patch": 0}' > "$VERSION_FILE"
+    echo 'VERSION = "0.0.0"' > "$VERSION_FILE"
 fi
 
 # Read current version
-MAJOR=$(grep -o '"major": *[0-9]*' "$VERSION_FILE" | grep -o '[0-9]*')
-MINOR=$(grep -o '"minor": *[0-9]*' "$VERSION_FILE" | grep -o '[0-9]*')
-PATCH=$(grep -o '"patch": *[0-9]*' "$VERSION_FILE" | grep -o '[0-9]*')
+CURRENT_VERSION=$(grep -o '"[^"]*"' "$VERSION_FILE" | tr -d '"')
+MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
+MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
+PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
 
 # Bump the requested part
 case "$BUMP" in
@@ -96,27 +97,13 @@ case "$BUMP" in
 esac
 
 # Write updated version back
-cat > "$VERSION_FILE" <<EOF
-{
-  "major": $MAJOR,
-  "minor": $MINOR,
-  "patch": $PATCH
-}
-EOF
+echo "VERSION = \"$MAJOR.$MINOR.$PATCH\"" > "$VERSION_FILE"
 
 VERSION="$MAJOR.$MINOR.$PATCH"
 echo "Version bumped to $VERSION"
 
 # --- Build ---
 echo "Building PicoThermostatCO (revision: $REVISION, app: $APP, version: $VERSION)..."
-
-# Write version.py in dist so firmware can read it
-cat > "$SCRIPT_DIR/src/version.py" <<EOF
-VERSION = "$VERSION"
-VERSION_MAJOR = $MAJOR
-VERSION_MINOR = $MINOR
-VERSION_PATCH = $PATCH
-EOF
 
 # Clean and create dist directory
 rm -rf "$SCRIPT_DIR/dist"
