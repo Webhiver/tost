@@ -31,7 +31,7 @@ const Satellites = () => {
     }, [flameMode]);
 
     useEffect(() => {
-        setSlideIndex(activeDeviceIndex);
+        swiperRef.current ? swiperRef.current.swiper.slideTo(activeDeviceIndex) : null;
     }, [activeDeviceIndex]);
 
     return (
@@ -39,7 +39,7 @@ const Satellites = () => {
             <div className="border-y border-slate-300 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100 dark:border-slate-950 dark:from-slate-900 dark:to-slate-950">
                 <Swiper
                     ref={swiperRef}
-                    initialSlide={activeDeviceIndex}
+                    initialSlide={0}
                     slidesPerView={1}
                     spaceBetween={0}
                     autoplay={{delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true}}

@@ -30,6 +30,7 @@ const Controller = () => {
     const knobSteps = useContextSelector(LocalContext, c => c.knobSteps);
     const setTargetTemp = useContextSelector(LocalContext, c => c.setTargetTemp);
     const submitConfig = useContextSelector(ApiContext, c => c.submitConfig);
+    const fetchState = useContextSelector(ApiContext, c => c.fetchState);
 
     const rootRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
@@ -72,7 +73,7 @@ const Controller = () => {
 
     return (
         <div
-            className="flex-1 flex justify-center items-center py-3 lg:min-h-100 px-6 outline-none"
+            className="flex-1 flex justify-center items-center py-3 lg:min-h-100 px-6 outline-none relative"
             data-active={flame ? "true" : undefined}
             tabIndex={0}
             onKeyDown={mode !== "off" ? handleKeyDown : undefined}
@@ -92,6 +93,10 @@ const Controller = () => {
                 <div className="bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 text-xs font-medium px-2 py-1 rounded-full absolute bottom-2 -left-1">Min: {knobMinTemp}°C</div>
                 <div className="bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 text-xs font-medium px-2 py-1 rounded-full absolute bottom-2 -right-1">Max: {knobMaxTemp}°C</div>
             </div>
+            <div
+                data-state={fetchState}
+                className="transition-colors duration-100 opacity-50 absolute top-4 right-4 size-2 rounded-full data-[state=failed]:bg-red-500 data-[state=success]:bg-green-500 data-[state=idle]:bg-gray-400 data-[state=fetching]:bg-amber-500"
+            />
         </div>
     )
 }

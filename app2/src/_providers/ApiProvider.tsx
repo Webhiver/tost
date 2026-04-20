@@ -1,7 +1,7 @@
 import {ReactNode, useCallback, useEffect, useRef, useState} from "react";
 import {ApiContext} from "../_context";
 import {fetchStatus, updateConfig} from "../api";
-import {State, Config} from "../types.ts";
+import {State, Config, FetchType} from "../types.ts";
 
 const refreshInterval = 5000;
 
@@ -12,7 +12,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     const getStatusIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [isFetching, setIsFetching] = useState<boolean>(false);
+    const [fetchState, setFetchState] = useState<FetchType>('idle');
     const [config, setConfig] = useState<Config | null>(null);
     const [state, setState] = useState<State | null>(null);
     const [_error, setError] = useState<any>(null);
@@ -37,7 +37,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
         const controller = new AbortController();
         getStatusAbortControllerRef.current = controller;
 
-        setIsFetching(true);
+        setFetchState('fetching');
 
         try {
             const data = await fetchStatus(controller.signal);
@@ -52,14 +52,21 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
             }
             setError('Connection failed');
             console.error('Failed to fetch status:', err);
+
+            setFetchState('failed');
         } finally {
             if (!controller.signal.aborted) {
                 setIsLoading(false);
-                setIsFetching(false);
+                setFetchState('idle');
             }
             if (getStatusAbortControllerRef.current === controller) {
                 getStatusAbortControllerRef.current = null;
+                setFetchState('success');
             }
+
+            setTimeout(() => {
+                setFetchState('idle');
+            }, 1000);
         }
     }, [cancelPendingGetStatus]);
 
@@ -144,7 +151,7 @@ const ApiProvider = ({children}: { children: ReactNode }) => {
     return (
         <ApiContext.Provider value={{
             isLoading,
-            isFetching,
+            fetchState,
             config,
             state,
             submitConfig,

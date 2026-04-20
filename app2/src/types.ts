@@ -199,9 +199,11 @@ export interface LocalProviderProps {
   changeLanguage: (language: Language) => void
 }
 
+export type FetchType = 'idle' | 'fetching' | 'success' | 'failed'
+
 export interface ApiProviderProps {
   isLoading: boolean
-  isFetching: boolean
+  fetchState: FetchType
   config: Config | null
   state: State | null
   submitConfig: (config: Partial<Config>) => void;
