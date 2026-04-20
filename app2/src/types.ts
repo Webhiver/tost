@@ -191,6 +191,7 @@ export interface LocalProviderProps {
   effectiveTemp: number
   satellites: Satellite[]
   devices: Device[]
+  activeDeviceIndex: number
   setMode: (mode: OperatingMode) => void
   setTargetTemp: (temp: number) => void
   setKnobPercentage: (percentage: number) => void

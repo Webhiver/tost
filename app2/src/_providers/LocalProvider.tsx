@@ -30,6 +30,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [humidity, setHumidity] = useState<number | null>(null);
     const [temperature, setTemperature] = useState<number | null>(null);
     const [devices, setDevices] = useState<Device[]>([]);
+    const [activeDeviceIndex, setActiveDeviceIndex] = useState<number>(0);
 
     const [knobSize] = useState<number>(340);
     const [knobWidth] = useState<number>(50);
@@ -159,6 +160,10 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             });
         });
 
+        const flameMode = config?.flame_mode ?? 'average';
+        const flameModeSensor = flameMode === 'one' ? config?.flame_mode_sensor : null;
+
+        setActiveDeviceIndex(flameMode === 'one' ? devices.findIndex(d => d.id === flameModeSensor) : 0);
         setDevices(devices);
     }, [state, config]);
 
@@ -197,6 +202,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             knobPercentage,
             satellites,
             devices,
+            activeDeviceIndex,
             setMode,
             setTargetTemp,
             setKnobPercentage,

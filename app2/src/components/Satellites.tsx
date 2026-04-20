@@ -1,10 +1,10 @@
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
 import { BiWifiOff } from "react-icons/bi";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
-import {Mousewheel} from 'swiper/modules';
+import {Mousewheel, Autoplay} from 'swiper/modules';
 import 'swiper/css';
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext} from "../_context";
@@ -15,24 +15,39 @@ const Satellites = () => {
 
     const swiperRef = useRef<SwiperRef>(null);
 
+    const flameMode = useContextSelector(LocalContext, c => c.flameMode);
     const devices = useContextSelector(LocalContext, c => c.devices);
+    const activeDeviceIndex = useContextSelector(LocalContext, c => c.activeDeviceIndex);
     const intl = useIntl();
 
     const [slideIndex, setSlideIndex] = useState<number>(0);
+
+    useEffect(() => {
+        if (flameMode === 'one') {
+            swiperRef.current ? swiperRef.current.swiper.autoplay.stop() : null;
+        } else {
+            swiperRef.current ? swiperRef.current.swiper.autoplay.start() : null;
+        }
+    }, [flameMode]);
+
+    useEffect(() => {
+        setSlideIndex(activeDeviceIndex);
+    }, [activeDeviceIndex]);
 
     return (
         <div className="w-full pb-8">
             <div className="border-y border-slate-300 -mx-3 px-3 bg-linear-to-t from-slate-50 to-slate-100 dark:border-slate-950 dark:from-slate-900 dark:to-slate-950">
                 <Swiper
                     ref={swiperRef}
-                    initialSlide={0}
+                    initialSlide={activeDeviceIndex}
                     slidesPerView={1}
                     spaceBetween={0}
+                    autoplay={{delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true}}
                     loop={devices.length > 10}
                     slideToClickedSlide={false}
                     touchEventsTarget={'container'}
                     mousewheel={true}
-                    modules={[Mousewheel]}
+                    modules={[Mousewheel, Autoplay]}
                     onActiveIndexChange={(swipper) => {
                         setSlideIndex(swipper.realIndex);
                     }}
