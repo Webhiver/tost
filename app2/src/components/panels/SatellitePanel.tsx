@@ -17,15 +17,22 @@ const SatellitePanel = () => {
     const [open, setOpen] = useState(false);
     const [dragOffset, setDragOffset] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
-    const [isLoading, _setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         setOpen(Boolean(viewSatellitePanel?.id));
+        if(Boolean(viewSatellitePanel?.id)){
+            setIsLoading(true);
+        }
     }, [viewSatellitePanel]);
 
     const onClose = useCallback((_event: MouseEvent) => {
         toggleViewSatellite(null);
     }, [toggleViewSatellite]);
+
+    const onIframeLoaded = useCallback(() => {
+        setTimeout(() => setIsLoading(false), 1000);
+    }, []);
 
     const onTouchStart = useCallback((event: TouchEvent<HTMLDivElement>) => {
         if (!open) {
@@ -71,7 +78,7 @@ const SatellitePanel = () => {
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
-            <iframe className="bg-white flex-1 relative" frameBorder={0} src={`http://${viewSatellitePanel?.ip}`}/>
+            <iframe className="bg-white flex-1 relative" frameBorder={0} src={`http://${viewSatellitePanel?.ip}`} onLoad={onIframeLoaded}/>
             <div className="cursor-pointer py-2 justify-center items-center text-center" onClick={onClose}>Close</div>
             {isLoading &&
                 <div
