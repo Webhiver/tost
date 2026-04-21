@@ -1,7 +1,7 @@
 import {ReactNode, useState, useRef, useCallback, useEffect} from "react";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {ApiContext, PanelsContext, LocalContext} from "../_context";
-import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig, PanelProviderErrors, DeviceError} from "../types.ts";
+import {PendingConfigs, Configs, Config, PanelType, SatelliteConfig, PanelProviderErrors, DeviceError, Device} from "../types.ts";
 import {fetchAllConfigs, updateConfig, updateSatelliteConfig, reboot, ping} from "../api.ts";
 import {isValidMac, normalizeMac} from "../utils.ts";
 
@@ -101,6 +101,7 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     const [statisticsPanelOpen, setStatisticsPanelOpen] = useState<boolean>(false);
     const [monitoringPanelOpen, setMonitoringPanelOpen] = useState<boolean>(false);
     const [updatesPanelOpen, setUpdatesPanelOpen] = useState<boolean>(false);
+    const [viewSatellitePanel, setViewSatellitePanel] = useState<Device|null>(null);
     const [configs, setConfigs] = useState<Configs>({} as Configs);
     const [validationErrors, setValidationErrors] = useState<PanelProviderErrors>({} as PanelProviderErrors);
 
@@ -361,6 +362,27 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
         }
     }, []);
 
+    const toggleViewSatellite = useCallback((device: Device|null) => {
+        if (device?.ip) {
+            console.log(`stop getting status because ${device?.name} satellite panel was opened`);
+            stopGettingStatus();
+        }
+        if (!device) {
+            console.log(`start getting status because satellite panel was closed`);
+            resetAndStartGettingStatus();
+        }
+
+        setMainPanelOpen(false);
+        setSettingsPanelOpen(false);
+        setSchedulePanelOpen(false);
+        setSatellitesPanelOpen(false);
+        setStatisticsPanelOpen(false);
+        setMonitoringPanelOpen(false);
+        setUpdatesPanelOpen(false);
+
+        setViewSatellitePanel(device);
+    }, [stopGettingStatus, resetAndStartGettingStatus]);
+
     const togglePanel = useCallback((panel: PanelType, isOpen: boolean) => {
         if (isOpen && panel === "main") {
             console.log(`stop getting status because ${panel} panel was opened`);
@@ -423,8 +445,10 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
             statisticsPanelOpen,
             monitoringPanelOpen,
             updatesPanelOpen,
+            viewSatellitePanel,
             configs,
             togglePanel,
+            toggleViewSatellite,
             onConfigChange,
             onSatelliteConfigChange,
             onAddSatellite,

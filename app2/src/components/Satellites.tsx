@@ -3,11 +3,12 @@ import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
 import { BiWifiOff } from "react-icons/bi";
+import { ImNewTab } from "react-icons/im";
 import {Swiper, SwiperSlide, SwiperRef} from 'swiper/react';
 import {Mousewheel, Autoplay} from 'swiper/modules';
 import 'swiper/css';
 import {useContextSelector} from "@fluentui/react-context-selector";
-import {LocalContext} from "../_context";
+import {LocalContext, PanelsContext} from "../_context";
 import {Device} from "../types";
 import {useIntl} from "react-intl";
 
@@ -18,6 +19,7 @@ const Satellites = () => {
     const flameMode = useContextSelector(LocalContext, c => c.flameMode);
     const devices = useContextSelector(LocalContext, c => c.devices);
     const activeDeviceIndex = useContextSelector(LocalContext, c => c.activeDeviceIndex);
+    const toggleViewSatellite = useContextSelector(PanelsContext, c => c.toggleViewSatellite);
     const intl = useIntl();
 
     const [slideIndex, setSlideIndex] = useState<number>(0);
@@ -85,6 +87,9 @@ const Satellites = () => {
                             <SwiperSlide className="w-full" key={`device-${device.id}-${index}`}>
                                 <div className="relative w-full flex flex-col items-stretch justify-start gap-3 py-4 px-12 cursor-grab active:cursor-grabbing">
                                     {/*<PiThermometerSimpleDuotone className="fill-slate-400 absolute top-6 right-14 size-5"/>*/}
+                                    {(device.satellite && device.online) &&
+                                        <ImNewTab onClick={() => toggleViewSatellite(device)} className="cursor-pointer size-5 fill-slate-400 absolute top-5 left-5 hover:fill-slate-600"/>
+                                    }
                                     <WifiIcon className="stroke-slate-400 fill-slate-400 absolute top-5 right-5 size-6"/>
 
                                     <div className="flex justify-center items-center gap-3">

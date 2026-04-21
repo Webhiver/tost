@@ -238,8 +238,10 @@ export interface PanelsProviderProps {
   statisticsPanelOpen: boolean
   monitoringPanelOpen: boolean
   updatesPanelOpen: boolean
+  viewSatellitePanel: Device | null
   configs: Configs
   togglePanel: (panel: PanelType, isOpen: boolean) => void
+  toggleViewSatellite: (device: Device|null) => void
   onConfigChange: (key: keyof Config, value: Config[keyof Config], mac: string) => void
   onSatelliteConfigChange: (index: number, key: keyof SatelliteConfig, value: SatelliteConfig[keyof SatelliteConfig]) => void
   onAddSatellite: () => void

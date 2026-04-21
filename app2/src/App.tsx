@@ -12,6 +12,7 @@ import SettingsPanel from "./components/panels/SettingsPanel";
 import SatellitesPanel from "./components/panels/SatellitesPanel";
 import MonitoringPanel from "./components/panels/MonitoringPanel";
 import UpdatesPanel from "./components/panels/UpdatesPanel";
+import SatellitePanel from "./components/panels/SatellitePanel";
 import {IntlProvider, FormattedMessage} from "react-intl";
 import en from "../translations/en.json";
 import ro from "../translations/ro.json";
@@ -76,6 +77,9 @@ const AppContent = () => {
             <SatellitesPanel/>
             <MonitoringPanel/>
             <UpdatesPanel/>
+            <SatellitePanel/>
+
+            {/*<iframe src="http://192.168.1.174/" frameBorder="0" className="absolute w-full h-full z-100"></iframe>*/}
         </Fragment>
     );
 }
