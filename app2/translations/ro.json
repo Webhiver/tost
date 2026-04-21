@@ -40,6 +40,8 @@
   "mainPanel.language": "Limbă",
   "mainPanel.language.english": "English",
   "mainPanel.language.romanian": "Română",
+  "mainPanel.language.german": "Germană",
+  "mainPanel.language.french": "Franceză",
 
   "settings.section.operatingOptions": "OPȚIUNI DE FUNCȚIONARE",
   "settings.role": "Rol",

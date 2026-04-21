@@ -15,8 +15,10 @@ import UpdatesPanel from "./components/panels/UpdatesPanel";
 import {IntlProvider, FormattedMessage} from "react-intl";
 import en from "../translations/en.json";
 import ro from "../translations/ro.json";
+import de from "../translations/de.json";
+import fr from "../translations/fr.json";
 
-const messages = {en, ro};
+const messages = {en, ro, de, fr};
 
 const App = () => {
     const language = useContextSelector(LocalContext, c => c.language)

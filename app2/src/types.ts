@@ -155,7 +155,7 @@ export interface Device {
 
 export type Theme = 'light' | 'dark' | undefined
 
-export type Language = 'en' | 'ro'
+export type Language = 'en' | 'ro' | 'fr' | 'de'
 
 export interface LocalProviderProps {
   theme: 'light' | 'dark' | undefined

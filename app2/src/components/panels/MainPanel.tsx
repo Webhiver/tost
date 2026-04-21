@@ -104,6 +104,8 @@ const MainPanel = () => {
                     >
                         <option value="en">{intl.formatMessage({id: "mainPanel.language.english"})}</option>
                         <option value="ro">{intl.formatMessage({id: "mainPanel.language.romanian"})}</option>
+                        <option value="de">{intl.formatMessage({id: "mainPanel.language.german"})}</option>
+                        <option value="fr">{intl.formatMessage({id: "mainPanel.language.french"})}</option>
                     </select>
                 </div>
             </div>
