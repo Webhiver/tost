@@ -120,9 +120,9 @@ cd "$SCRIPT_DIR/dist"
 tar -czf "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" .
 
 # Also create a 'latest' copy for convenience
-cp "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" "$SCRIPT_DIR/releases/firmware-${REVISION}-latest.tar.gz"
+# cp "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" "$SCRIPT_DIR/releases/firmware-${REVISION}-latest.tar.gz"
 
 echo ""
 echo "Build complete! (v$VERSION)"
 echo "Release archive: releases/firmware-${REVISION}-${VERSION}.tar.gz"
-echo "Latest archive:  releases/firmware-${REVISION}-latest.tar.gz"
+# echo "Latest archive:  releases/firmware-${REVISION}-latest.tar.gz"
