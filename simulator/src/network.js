@@ -12,7 +12,15 @@ const pickInterface = () => {
   return null;
 };
 
+const computeBroadcast = (address, netmask) => {
+  const a = address.split('.').map(Number);
+  const m = netmask.split('.').map(Number);
+  if (a.length !== 4 || m.length !== 4) return '255.255.255.255';
+  return a.map((oct, i) => (oct | (~m[i] & 0xff))).join('.');
+};
+
 const iface = pickInterface();
 
 export const LOCAL_IP = iface ? iface.address : '127.0.0.1';
 export const LOCAL_MAC = iface ? iface.mac.toLowerCase() : '00:00:00:00:00:00';
+export const LOCAL_BROADCAST = iface ? computeBroadcast(iface.address, iface.netmask) : '255.255.255.255';
