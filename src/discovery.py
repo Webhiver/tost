@@ -22,7 +22,16 @@ class DiscoveryManager:
         self._needs_open = False
         self._needs_announce = False
         state.subscribe("wifi_connected", self._on_wifi_changed)
+        config.subscribe("satellites", self._on_satellites_config_change)
     
+    def _on_satellites_config_change(self, new_sats, old_sats):
+        if config.get("mode") != "host":
+            return
+        new_macs = {s.get("mac", "").lower() for s in new_sats if isinstance(s, dict)}
+        old_macs = {s.get("mac", "").lower() for s in old_sats if isinstance(s, dict)}
+        if new_macs - old_macs:
+            self.send_discover_message()
+
     def _on_wifi_changed(self, connected, was_connected):
         if connected and not was_connected:
             if self._open():
