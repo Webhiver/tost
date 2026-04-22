@@ -14,14 +14,15 @@ VALID_APPS=("app" "app2")
 VALID_BUMPS=("major" "minor" "patch")
 
 # Usage
-if [[ -z "$REVISION" || -z "$APP" || -z "$BUMP" ]]; then
-    echo "Usage: $0 <revision> <app> <bump>"
+if [[ -z "$REVISION" || -z "$APP" ]]; then
+    echo "Usage: $0 <revision> <app> [bump]"
     echo ""
     echo "  revision: ${VALID_REVISIONS[*]}"
     echo "  app:      ${VALID_APPS[*]}"
-    echo "  bump:     ${VALID_BUMPS[*]}"
+    echo "  bump:     ${VALID_BUMPS[*]} (optional, omit to keep current version)"
     echo ""
-    echo "Example: $0 breadboard-dht app patch"
+    echo "Example: $0 breadboard-dht app"
+    echo "Example: $0 case-sht app2 minor"
     exit 1
 fi
 
@@ -53,18 +54,20 @@ if [[ "$valid" != true ]]; then
     exit 1
 fi
 
-# Validate bump
-valid=false
-for b in "${VALID_BUMPS[@]}"; do
-    if [[ "$b" == "$BUMP" ]]; then
-        valid=true
-        break
+# Validate bump (optional)
+if [[ -n "$BUMP" ]]; then
+    valid=false
+    for b in "${VALID_BUMPS[@]}"; do
+        if [[ "$b" == "$BUMP" ]]; then
+            valid=true
+            break
+        fi
+    done
+    if [[ "$valid" != true ]]; then
+        echo "Error: Invalid bump type '$BUMP'"
+        echo "Valid bump types: ${VALID_BUMPS[*]}"
+        exit 1
     fi
-done
-if [[ "$valid" != true ]]; then
-    echo "Error: Invalid bump type '$BUMP'"
-    echo "Valid bump types: ${VALID_BUMPS[*]}"
-    exit 1
 fi
 
 # --- Version bumping ---
@@ -96,11 +99,15 @@ case "$BUMP" in
         ;;
 esac
 
-# Write updated version back
-echo "VERSION = \"$MAJOR.$MINOR.$PATCH\"" > "$VERSION_FILE"
-
 VERSION="$MAJOR.$MINOR.$PATCH"
-echo "Version bumped to $VERSION"
+
+if [[ -n "$BUMP" ]]; then
+    # Write updated version back
+    echo "VERSION = \"$VERSION\"" > "$VERSION_FILE"
+    echo "Version bumped to $VERSION"
+else
+    echo "Version unchanged: $VERSION"
+fi
 
 # --- Build ---
 echo "Building PicoThermostatCO (revision: $REVISION, app: $APP, version: $VERSION)..."
