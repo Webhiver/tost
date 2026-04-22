@@ -118,7 +118,14 @@ mkdir -p "$SCRIPT_DIR/releases"
 # Create tar.gz archive of dist contents
 echo "Creating release archive..."
 cd "$SCRIPT_DIR/dist"
-tar -czf "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" .
+# On macOS, strip AppleDouble sidecars (._*) and pax extended headers (PaxHeader)
+# so they don't end up on the device. Flags are bsdtar-specific, so gate on Darwin.
+TAR_OPTS=()
+if [[ "$(uname)" == "Darwin" ]]; then
+    export COPYFILE_DISABLE=1
+    TAR_OPTS+=(--no-xattrs --no-fflags --no-acls)
+fi
+tar "${TAR_OPTS[@]}" -czf "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" .
 
 # Also create a 'latest' copy for convenience
 # cp "$SCRIPT_DIR/releases/firmware-${REVISION}-${VERSION}.tar.gz" "$SCRIPT_DIR/releases/firmware-${REVISION}-latest.tar.gz"
