@@ -7,22 +7,19 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Parameters
 REVISION="$1"
-APP="$2"
 BUMP="$3"
 VALID_REVISIONS=("breadboard-dht" "breadboard-sht" "case-dht" "case-sht")
-VALID_APPS=("app" "app2")
 VALID_BUMPS=("major" "minor" "patch")
 
 # Usage
-if [[ -z "$REVISION" || -z "$APP" ]]; then
-    echo "Usage: $0 <revision> <app> [bump]"
+if [[ -z "$REVISION" ]]; then
+    echo "Usage: $0 <revision> [bump]"
     echo ""
     echo "  revision: ${VALID_REVISIONS[*]}"
-    echo "  app:      ${VALID_APPS[*]}"
     echo "  bump:     ${VALID_BUMPS[*]} (optional, omit to keep current version)"
     echo ""
-    echo "Example: $0 breadboard-dht app"
-    echo "Example: $0 case-sht app2 minor"
+    echo "Example: $0 breadboard-dht"
+    echo "Example: $0 case-sht minor"
     exit 1
 fi
 
@@ -37,20 +34,6 @@ done
 if [[ "$valid" != true ]]; then
     echo "Error: Invalid revision '$REVISION'"
     echo "Valid revisions: ${VALID_REVISIONS[*]}"
-    exit 1
-fi
-
-# Validate app
-valid=false
-for a in "${VALID_APPS[@]}"; do
-    if [[ "$a" == "$APP" ]]; then
-        valid=true
-        break
-    fi
-done
-if [[ "$valid" != true ]]; then
-    echo "Error: Invalid app '$APP'"
-    echo "Valid apps: ${VALID_APPS[*]}"
     exit 1
 fi
 
@@ -110,7 +93,7 @@ else
 fi
 
 # --- Build ---
-echo "Building PicoThermostatCO (revision: $REVISION, app: $APP, version: $VERSION)..."
+echo "Building PicoThermostatCO (revision: $REVISION, version: $VERSION)..."
 
 # Clean and create dist directory
 rm -rf "$SCRIPT_DIR/dist"
@@ -124,8 +107,8 @@ cp -r "$SCRIPT_DIR/src/"* "$SCRIPT_DIR/dist/"
 echo "HW_REVISION = \"$REVISION\"" > "$SCRIPT_DIR/dist/hw_revision.py"
 
 # Build the web app
-echo "Building web app ($APP)..."
-cd "$SCRIPT_DIR/$APP"
+echo "Building web app..."
+cd "$SCRIPT_DIR/app"
 npm run build
 
 # Create releases directory
