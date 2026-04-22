@@ -2,9 +2,13 @@
 
 set -e
 
-GITHUB_TOKEN="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"
-
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ ! -f "$SCRIPT_DIR/.env" ]]; then
+    echo "Error: .env file not found"
+    exit 1
+fi
+source "$SCRIPT_DIR/.env"
 
 BUMP="$1"
 NOTES="$2"
