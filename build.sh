@@ -109,6 +109,7 @@ echo "HW_REVISION = \"$REVISION\"" > "$SCRIPT_DIR/dist/hw_revision.py"
 # Build the web app
 echo "Building web app..."
 cd "$SCRIPT_DIR/app"
+npm install
 npm run build
 
 # Create releases directory
