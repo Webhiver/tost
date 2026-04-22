@@ -20,7 +20,10 @@ detect_network() {
   GATEWAY=$(awk '{for(i=1;i<=NF;i++) if($i=="via") print $(i+1)}' <<<"$default_line")
   PARENT=$(awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' <<<"$default_line")
   [[ -z "$GATEWAY" || -z "$PARENT" ]] && return 1
-  SUBNET=$(ip -4 -o addr show dev "$PARENT" 2>/dev/null | awk '{print $4}' | head -n1)
+  # Use the kernel-added link route for the network CIDR (network address, not
+  # the host's address): e.g. "10.0.0.0/24 proto kernel scope link src 10.0.0.20".
+  SUBNET=$(ip -4 route show dev "$PARENT" scope link proto kernel 2>/dev/null \
+    | awk '{print $1; exit}')
   [[ -z "$SUBNET" ]] && return 1
   return 0
 }
