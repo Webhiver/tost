@@ -1,0 +1,44 @@
+# Expects an external macvlan network named "picolan" to exist.
+# Create it once on the host (adjust subnet/gateway/parent to your LAN):
+#
+#   docker network create -d macvlan \
+#     --subnet=192.168.1.0/24 \
+#     --gateway=192.168.1.1 \
+#     --ip-range=192.168.1.200/28 \
+#     -o parent=eth0 \
+#     picolan
+#
+# Then: docker compose up --build
+# Each sat-N gets its own MAC and an IP auto-assigned from the range.
+
+services:
+  sat-1:
+    build: .
+    container_name: pico-sat-1
+    hostname: pico-sat-1
+    mac_address: "2c:cf:67:00:00:01"
+    networks:
+      - picolan
+    restart: unless-stopped
+
+  sat-2:
+    build: .
+    container_name: pico-sat-2
+    hostname: pico-sat-2
+    mac_address: "2c:cf:67:00:00:02"
+    networks:
+      - picolan
+    restart: unless-stopped
+
+  sat-3:
+    build: .
+    container_name: pico-sat-3
+    hostname: pico-sat-3
+    mac_address: "2c:cf:67:00:00:03"
+    networks:
+      - picolan
+    restart: unless-stopped
+
+networks:
+  picolan:
+    external: true
