@@ -142,6 +142,20 @@ Because the MACs are pinned, Docker re-uses them across restarts.
 Containers are tagged with the label `picosim=true`; `down` and `clean` only
 touch labeled containers.
 
+#### Listing container IPs
+
+`docker ps` doesn't show macvlan IPs. Two ways to see them:
+
+```bash
+# From the network (one row per attached container)
+docker network inspect picolan \
+  --format '{{range .Containers}}{{.Name}}	{{.IPv4Address}}	{{.MacAddress}}{{println}}{{end}}'
+
+# From the containers (label-filtered, so only simulator containers)
+docker inspect -f '{{.Name}}	{{range .NetworkSettings.Networks}}{{.IPAddress}}	{{.MacAddress}}{{end}}' \
+  $(docker ps -q --filter label=picosim=true)
+```
+
 #### Script environment variables
 
 | Variable | Default | Purpose |
