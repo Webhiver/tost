@@ -6,12 +6,13 @@ persisted between restarts.
 
 Zero runtime dependencies (just Node's built-in `http`).
 
+All commands below are run from the **project root**.
+
 ## Run locally
 
 ```bash
-cd simulator
-npm start
-# or: PORT=9000 node src/index.js
+npm start --prefix simulator
+# or: PORT=9000 node simulator/src/index.js
 ```
 
 Defaults: `HOST=0.0.0.0`, `PORT=8080` (local), `PORT=80` (Docker image).
@@ -66,10 +67,10 @@ For the sensor endpoint there's a small helper that builds the JSON body for
 you and targets a local simulator or a running Docker container.
 
 ```bash
-./set-sensor.sh --temperature 18.5
-./set-sensor.sh --container pico-sat-2 --temperature 22 --humidity 50
-./set-sensor.sh --host 192.168.1.201 --port 80 --healthy false --message "Fault"
-./set-sensor.sh --replace --temperature 22 --humidity 45 --healthy true --message ""
+simulator/set-sensor.sh --temperature 18.5
+simulator/set-sensor.sh --container pico-sat-2 --temperature 22 --humidity 50
+simulator/set-sensor.sh --host 192.168.1.201 --port 80 --healthy false --message "Fault"
+simulator/set-sensor.sh --replace --temperature 22 --humidity 45 --healthy true --message ""
 ```
 
 Fields (at least one required):
@@ -115,23 +116,21 @@ the physical LAN.
 Use `spawn.sh`:
 
 ```bash
-cd simulator
-
 # One-time: create the macvlan network (auto-detects parent/subnet/gateway)
 export PICOSIM_IP_RANGE=192.168.1.200/28    # reserve a safe slice of your LAN
-./spawn.sh network
+simulator/spawn.sh network
 
 # Start 5 satellites
-./spawn.sh up 5
+simulator/spawn.sh up 5
 
 # Inspect
-./spawn.sh list
+simulator/spawn.sh list
 
 # Stop & remove containers (keeps the network)
-./spawn.sh down
+simulator/spawn.sh down
 
 # Remove containers and the network
-./spawn.sh clean
+simulator/spawn.sh clean
 ```
 
 MACs are assigned deterministically as `${PICOSIM_MAC_PREFIX}:NN` where `NN` is
@@ -176,8 +175,8 @@ pinned MACs, attached to the same external `picolan` network. Useful when you
 want the same devices to come up predictably:
 
 ```bash
-./spawn.sh network       # create picolan if it doesn't exist
-docker compose up --build
+simulator/spawn.sh network                         # create picolan if it doesn't exist
+docker compose -f simulator/docker-compose.yml up --build
 ```
 
 ## Caveats
