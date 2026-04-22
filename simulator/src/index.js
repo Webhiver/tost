@@ -9,3 +9,8 @@ createServer().listen(port, host, () => {
 });
 
 startDiscovery();
+
+// Exit promptly when running as PID 1 under Docker (no default SIGTERM action).
+for (const sig of ['SIGTERM', 'SIGINT']) {
+  process.on(sig, () => process.exit(0));
+}
