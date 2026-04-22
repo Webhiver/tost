@@ -51,6 +51,42 @@ curl -X PATCH http://localhost:8080/api/simulator/state/sensor \
   -d '{"temperature": 18.2}'
 ```
 
+### `set-sensor.sh` — convenience wrapper
+
+For the sensor endpoint there's a small helper that builds the JSON body for
+you and targets a local simulator or a running Docker container.
+
+```bash
+./set-sensor.sh --temperature 18.5
+./set-sensor.sh --container pico-sat-2 --temperature 22 --humidity 50
+./set-sensor.sh --host 192.168.1.201 --port 80 --healthy false --message "Fault"
+./set-sensor.sh --replace --temperature 22 --humidity 45 --healthy true --message ""
+```
+
+Fields (at least one required):
+
+| Flag | Value |
+| --- | --- |
+| `--temperature` | Number, °C |
+| `--humidity` | Number, % |
+| `--healthy` | `true` / `false` (also accepts `1`/`0`, `yes`/`no`) |
+| `--message` | String |
+
+Target:
+
+| Flag | Default | Notes |
+| --- | --- | --- |
+| `--host` | `127.0.0.1` | Target host/IP |
+| `--port` | `8080` | Target port |
+| `--container` | _(none)_ | Docker container name; resolves IP via `docker inspect` and sets port to 80 |
+
+Mode:
+
+| Flag | Effect |
+| --- | --- |
+| _(default)_ | `PATCH` — merge the given fields into the current sensor |
+| `--replace` | `POST` — replace the whole sensor object |
+
 ## Docker
 
 The image is `node:22-alpine` with no install step (zero deps). It listens on
