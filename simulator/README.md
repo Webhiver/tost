@@ -19,14 +19,23 @@ Defaults: `HOST=0.0.0.0`, `PORT=8080` (local), `PORT=80` (Docker image).
 The simulator auto-detects the host's primary IPv4 interface at startup and
 reports its real IP and MAC in `/api/status`.
 
+## Web UI
+
+A small control panel is served at [`/`](http://localhost:8080/). It shows the
+current sensor values plus the device's MAC / IP / firmware version, and has
+`+`/`−` buttons (0.1 step) for temperature and humidity, a healthy toggle, and
+a message field. It polls `/api/status` every 2s and writes changes via
+`PATCH /api/simulator/state/sensor`.
+
 ## API
 
-All responses are JSON.
+All API responses are JSON.
 
 ### Device endpoints (mirror the real firmware)
 
 | Method | Path | Notes |
 | --- | --- | --- |
+| `GET` | `/` | Web UI (HTML) |
 | `GET` | `/api/status` | `{ state, config }` — full device snapshot |
 | `GET` | `/api/state` | Trimmed `{ sensor, wifi_strength, firmware_version }` in satellite mode |
 | `GET` | `/api/config` | Full config |

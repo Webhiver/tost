@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pico Thermostat Simulator</title>
+<style>
+  :root {
+    --fg: #111;
+    --muted: #666;
+    --border: #ddd;
+    --accent: #2563eb;
+  }
+  body {
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+    color: var(--fg);
+    max-width: 420px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  h1 { font-size: 1.2rem; margin: 0 0 0.25rem; }
+  .info {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.6rem 0;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border);
+  }
+  .control label { flex: 0 0 6.5rem; color: var(--muted); }
+  .value {
+    font-variant-numeric: tabular-nums;
+    min-width: 3.5rem;
+    text-align: right;
+    font-weight: 600;
+  }
+  button {
+    cursor: pointer;
+    padding: 0.35rem 0.75rem;
+    font: inherit;
+    border: 1px solid var(--border);
+    background: #fafafa;
+    border-radius: 6px;
+    min-width: 2.4rem;
+  }
+  button:hover { background: #eee; }
+  button.primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  button.primary:hover { filter: brightness(1.1); }
+  input[type=text] {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    font: inherit;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    min-width: 0;
+  }
+  input[type=checkbox] { width: 1.1rem; height: 1.1rem; }
+  .unit { color: var(--muted); }
+</style>
+</head>
+<body>
+  <h1>Pico Thermostat Simulator</h1>
+  <div class="info" id="info">Loading…</div>
+
+  <div class="control">
+    <label>Temperature</label>
+    <button data-field="temperature" data-delta="-0.1">−</button>
+    <span class="value" id="temperature">—</span>
+    <span class="unit">°C</span>
+    <button data-field="temperature" data-delta="0.1">+</button>
+  </div>
+
+  <div class="control">
+    <label>Humidity</label>
+    <button data-field="humidity" data-delta="-0.1">−</button>
+    <span class="value" id="humidity">—</span>
+    <span class="unit">%</span>
+    <button data-field="humidity" data-delta="0.1">+</button>
+  </div>
+
+  <div class="control">
+    <label>Healthy</label>
+    <input type="checkbox" id="healthy">
+  </div>
+
+  <div class="control">
+    <label>Message</label>
+    <input type="text" id="message" placeholder="(empty)">
+    <button class="primary" id="set-message">Set</button>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const round1 = (n) => Math.round(n * 10) / 10;
+
+async function refresh() {
+  try {
+    const r = await fetch('/api/status');
+    if (!r.ok) throw new Error('status ' + r.status);
+    const data = await r.json();
+    const s = data.state.sensor || {};
+    $('temperature').textContent = s.temperature == null ? '—' : Number(s.temperature).toFixed(1);
+    $('humidity').textContent = s.humidity == null ? '—' : Number(s.humidity).toFixed(1);
+    $('healthy').checked = !!s.healthy;
+    if (document.activeElement !== $('message')) {
+      $('message').value = s.message || '';
+    }
+    $('info').textContent = `MAC ${data.state.mac} · IP ${data.state.ip} · fw ${data.state.firmware_version} · mode ${data.config.mode}`;
+  } catch (e) {
+    $('info').textContent = 'Error: ' + e.message;
+  }
+}
+
+async function patchSensor(body) {
+  await fetch('/api/simulator/state/sensor', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  refresh();
+}
+
+document.querySelectorAll('button[data-field]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const field = btn.dataset.field;
+    const delta = parseFloat(btn.dataset.delta);
+    const current = parseFloat($(field).textContent);
+    const start = Number.isFinite(current) ? current : 0;
+    patchSensor({ [field]: round1(start + delta) });
+  });
+});
+
+$('healthy').addEventListener('change', () => {
+  patchSensor({ healthy: $('healthy').checked });
+});
+
+$('set-message').addEventListener('click', () => {
+  patchSensor({ message: $('message').value });
+});
+$('message').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') $('set-message').click();
+});
+
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>
