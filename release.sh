@@ -159,6 +159,6 @@ done
 
 echo "All assets uploaded."
 
-echo "======================================="
-echo "= RELEASE $TAG COMPLETED SUCCESSFULLY ="
-echo "======================================="
+echo ""
+echo ""
+echo "RELEASE $TAG COMPLETED SUCCESSFULLY"
