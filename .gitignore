@@ -7,3 +7,5 @@ dist
 .env.local
 .env/
 releases/
+wokwi/firmware/*.uf2
+wokwi/firmware/*.elf
