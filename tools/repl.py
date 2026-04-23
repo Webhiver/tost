@@ -164,6 +164,8 @@ class SerialPane(Widget):
 
             except serial.SerialException as exc:
                 self.serial_conn = None
+                if worker.is_cancelled:
+                    return
                 self.app.call_from_thread(
                     setattr, self, "border_subtitle", "disconnected"
                 )
