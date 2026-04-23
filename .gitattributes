@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Explicit binaries (belt-and-braces; git auto-detection usually catches these)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mpy binary
+*.tar.gz binary
+*.zip binary
