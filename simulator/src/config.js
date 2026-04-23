@@ -18,6 +18,7 @@ const DEFAULT_CONFIG = {
   sensor_temperature_offset: 0.0,
   sensor_humidity_offset: 0.0,
   relay_enabled: false,
+  simulator: true,
 };
 
 let config = { ...DEFAULT_CONFIG };
