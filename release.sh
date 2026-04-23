@@ -77,14 +77,17 @@ echo ""
 echo "Starting release build (bump: $BUMP) for ${#VALID_REVISIONS[@]} revisions..."
 echo ""
 
+echo "Checking NPM dependencies..."
+cd "$SCRIPT_DIR/app"
+npm install
+
 first=true
 for revision in "${VALID_REVISIONS[@]}"; do
     if [[ "$first" == true ]]; then
-        # Bump version only on the first build (build.sh reads BUMP as $3)
-        "$SCRIPT_DIR/build.sh" "$revision" "" "$BUMP"
+        "$SCRIPT_DIR/build.sh" -q "$revision" "$BUMP"
         first=false
     else
-        "$SCRIPT_DIR/build.sh" "$revision"
+        "$SCRIPT_DIR/build.sh" -q "$revision"
     fi
     echo ""
 done
@@ -95,6 +98,7 @@ echo "Release complete! All revisions built."
 VERSION=$(grep -o '"[^"]*"' "$SCRIPT_DIR/src/version.py" | tr -d '"')
 TAG="v$VERSION"
 
+echo ""
 echo "Committing version bump..."
 git -C "$SCRIPT_DIR" add "$SCRIPT_DIR/src/version.py"
 git -C "$SCRIPT_DIR" commit -m "Bump version to $VERSION"
@@ -133,8 +137,8 @@ fi
 UPLOAD_URL=$(echo $RESPONSE | jq -r '.upload_url' | sed 's/{?name,label}//')
 
 echo "Release created: $TAG"
-echo "Upload URL: $UPLOAD_URL"
 
+echo ""
 echo "Uploading firmware assets..."
 for revision in "${VALID_REVISIONS[@]}"; do
     FILENAME="firmware-${revision}-${VERSION}.tar.gz"
@@ -154,3 +158,7 @@ for revision in "${VALID_REVISIONS[@]}"; do
 done
 
 echo "All assets uploaded."
+
+echo "======================================="
+echo "= RELEASE $TAG COMPLETED SUCCESSFULLY ="
+echo "======================================="
