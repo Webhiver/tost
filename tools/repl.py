@@ -175,7 +175,10 @@ class SerialPane(Widget):
                     log.write,
                     f"[dim]Retrying in {RECONNECT_DELAY}s…[/]",
                 )
-                time.sleep(RECONNECT_DELAY)
+                for _ in range(RECONNECT_DELAY * 10):
+                    if worker.is_cancelled:
+                        return
+                    time.sleep(0.1)
 
     @on(Input.Submitted)
     def send_command(self, event: Input.Submitted) -> None:
@@ -640,6 +643,7 @@ class SerialMonitorApp(App):
 
     def action_quit(self) -> None:
         for pane in self.query(SerialPane):
+            pane.workers.cancel_group(pane, "serial")
             pane.cleanup()
         self.exit()
 
