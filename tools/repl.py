@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import serial
 import serial.tools.list_ports
 from textual.app import App, ComposeResult
@@ -21,6 +24,25 @@ from sync import (
 
 BAUD_RATE = 115200
 RECONNECT_DELAY = 3
+
+CONFIG_DIR = Path.home() / ".config" / "pico-serial-monitor"
+CONFIG_FILE = CONFIG_DIR / "repl.json"
+
+
+def load_last_ports() -> list[str]:
+    try:
+        data = json.loads(CONFIG_FILE.read_text())
+        return list(data.get("last_ports", []))
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return []
+
+
+def save_last_ports(ports: list[str]) -> None:
+    try:
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        CONFIG_FILE.write_text(json.dumps({"last_ports": ports}, indent=2))
+    except OSError:
+        pass
 
 
 class PortSelectionScreen(ModalScreen[list[str]]):
@@ -51,12 +73,17 @@ class PortSelectionScreen(ModalScreen[list[str]]):
 
     def compose(self) -> ComposeResult:
         ports = sorted(serial.tools.list_ports.comports(), key=lambda p: p.device)
+        last_ports = load_last_ports()
         with Vertical(id="dialog"):
             if ports:
                 yield Label("Select COM ports to monitor:")
                 yield SelectionList[str](
                     *[
-                        (f"{p.device}  {p.description}", p.device, True)
+                        (
+                            f"{p.device}  {p.description}",
+                            p.device,
+                            p.device in last_ports if last_ports else True,
+                        )
                         for p in ports
                     ],
                     id="port-list",
@@ -70,6 +97,7 @@ class PortSelectionScreen(ModalScreen[list[str]]):
     def confirm(self) -> None:
         selected = list(self.query_one(SelectionList).selected)
         if selected:
+            save_last_ports(selected)
             self.dismiss(selected)
 
     @on(Button.Pressed, "#quit-btn")
