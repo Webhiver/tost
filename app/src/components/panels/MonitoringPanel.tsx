@@ -19,11 +19,11 @@ interface StructureSection {
 }
 
 const getNestedValue = (obj: any, props: StructureProp): any => {
-    let value = props.path.split('.').reduce((acc, key) => acc?.[key], obj);
-    if(props.type === 'progress' || props.type === 'number') {
-        return value ? Number(value) : 0;
+    const value = props.path.split('.').reduce((acc, key) => (acc != null ? acc[key] : undefined), obj);
+    if (props.type === 'progress' || props.type === 'number') {
+        return value != null ? Number(value) : 0;
     }
-    return value ? value : null;
+    return value ?? null;
 }
 
 const MonitoringPanel = () => {
@@ -33,17 +33,17 @@ const MonitoringPanel = () => {
             titleId: 'monitoring.section.memory',
             props: [{
                 titleId: 'monitoring.free',
-                path: 'memory.free_kb',
+                path: 'data.memory.free_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
                 titleId: 'monitoring.used',
-                path: 'memory.percent_used',
+                path: 'data.memory.percent_used',
                 suffix: '%',
                 type: 'number',
             }, {
                 titleId: null,
-                path: 'memory.percent_used',
+                path: 'data.memory.percent_used',
                 suffix: null,
                 type: 'progress',
             }],
@@ -51,12 +51,12 @@ const MonitoringPanel = () => {
             titleId: 'monitoring.section.cpu',
             props: [{
                 titleId: 'monitoring.frequency',
-                path: 'cpu.frequency_mhz',
+                path: 'data.cpu.frequency_mhz',
                 suffix: 'MHz',
                 type: 'number',
             }, {
                 titleId: 'monitoring.internalTemp',
-                path: 'internal_temp_c',
+                path: 'data.internal_temp_c',
                 suffix: '°C',
                 type: 'number',
             }],
@@ -64,22 +64,22 @@ const MonitoringPanel = () => {
             titleId: 'monitoring.section.flash',
             props: [{
                 titleId: 'monitoring.total',
-                path: 'flash.total_kb',
+                path: 'data.flash.total_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
                 titleId: 'monitoring.free',
-                path: 'flash.free_kb',
+                path: 'data.flash.free_kb',
                 suffix: 'KB',
                 type: 'number',
             }, {
                 titleId: 'monitoring.used',
-                path: 'flash.percent_used',
+                path: 'data.flash.percent_used',
                 suffix: '%',
                 type: 'number',
             }, {
                 titleId: null,
-                path: 'flash.percent_used',
+                path: 'data.flash.percent_used',
                 suffix: null,
                 type: 'progress',
             }],
@@ -87,22 +87,22 @@ const MonitoringPanel = () => {
             titleId: 'monitoring.section.network',
             props: [{
                 titleId: 'monitoring.ip',
-                path: 'network.ip',
+                path: 'data.network.ip',
                 suffix: null,
                 type: 'text',
             }, {
                 titleId: 'monitoring.gateway',
-                path: 'network.gateway',
+                path: 'data.network.gateway',
                 suffix: null,
                 type: 'text',
             }, {
                 titleId: 'monitoring.dns',
-                path: 'network.dns',
+                path: 'data.network.dns',
                 suffix: null,
                 type: 'text',
             }, {
                 titleId: 'monitoring.rssi',
-                path: 'network.rssi',
+                path: 'data.network.rssi',
                 suffix: 'dBm',
                 type: 'number',
             }],
@@ -110,17 +110,22 @@ const MonitoringPanel = () => {
             titleId: 'monitoring.section.system',
             props: [{
                 titleId: 'monitoring.machine',
-                path: 'system.machine',
+                path: 'data.system.machine',
                 suffix: null,
                 type: 'text',
             }, {
                 titleId: 'monitoring.release',
-                path: 'system.release',
+                path: 'data.system.release',
+                suffix: null,
+                type: 'text',
+            }, {
+                titleId: 'monitoring.firmware',
+                path: 'device.firmwareVersion',
                 suffix: null,
                 type: 'text',
             }, {
                 titleId: 'monitoring.uptime',
-                path: 'uptime.formatted',
+                path: 'data.uptime.formatted',
                 suffix: null,
                 type: 'text',
             }],
@@ -203,13 +208,13 @@ const MonitoringPanel = () => {
                                                     <div key={`${sectionIndex}-${propIndex}-${deviceIndex}`} className="bg-slate-300 h-2 rounded-full overflow-hidden">
                                                         <div
                                                             className="h-full bg-orange-400 rounded-full"
-                                                            style={{width: `${getNestedValue(debugData[device.id]?.data, prop)}%`}}
+                                                            style={{width: `${getNestedValue(debugData[device.id], prop)}%`}}
                                                         />
                                                     </div>
                                                 );
                                             }
                                             return (
-                                                <div key={`${sectionIndex}-${propIndex}-${deviceIndex}`} className="text-right">{getNestedValue(debugData[device.id]?.data, prop)}{prop.suffix}</div>
+                                                <div key={`${sectionIndex}-${propIndex}-${deviceIndex}`} className="text-right">{getNestedValue(debugData[device.id], prop)}{prop.suffix}</div>
                                             );
                                         })}
                                     </Fragment>

@@ -122,6 +122,7 @@
   "monitoring.section.system": "System",
   "monitoring.machine": "Gerät",
   "monitoring.release": "Release",
+  "monitoring.firmware": "Firmware",
   "monitoring.uptime": "Betriebszeit",
   "monitoring.unit.mhz": "MHz",
   "monitoring.unit.kb": "KB",

@@ -122,6 +122,7 @@
   "monitoring.section.system": "Sistem",
   "monitoring.machine": "Mașină",
   "monitoring.release": "Versiune",
+  "monitoring.firmware": "Firmware",
   "monitoring.uptime": "Timp de funcționare",
   "monitoring.unit.mhz": "MHz",
   "monitoring.unit.kb": "KB",
