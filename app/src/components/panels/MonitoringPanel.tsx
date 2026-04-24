@@ -2,8 +2,8 @@ import {useEffect, useState, useCallback, useRef, Fragment} from "react";
 import WrapperPanel from "./WrapperPanel";
 import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext, PanelsContext} from "../../_context";
-import {Device, AllDebugInfo} from "../../types.ts";
-import {fetchDebug} from "../../api.ts";
+import {AllDebugInfo} from "../../types.ts";
+import {fetchAllDebug} from "../../api.ts";
 import {useIntl} from "react-intl";
 
 interface StructureProp {
@@ -140,35 +140,36 @@ const MonitoringPanel = () => {
     const [debugData, setDebugData] = useState<AllDebugInfo>({} as AllDebugInfo);
     const [_error, setError] = useState<string | null>(null);
 
-    const loadDebug = useCallback(async (device: Device) => {
+    const loadDebug = useCallback(async () => {
         try {
-            const data = await fetchDebug(device.satellite ? device.ip : undefined);
-            setDebugData(current => {
-                const debugInfo = {device: device, data: data, lastUpdated: new Date()};
-                return {...current, [device.id]: debugInfo} as AllDebugInfo;
-            });
+            const data = await fetchAllDebug();
+            const debugData: AllDebugInfo = {};
+            for (const device of devices) {
+                debugData[device.id] = {
+                    device: device,
+                    data: data[device.id],
+                    lastUpdates: new Date(),
+                };
+            }
+            setDebugData(debugData as AllDebugInfo);
             setError(null);
         } catch (err) {
             console.error('Failed to load debug info:', err);
             setError('Failed to fetch debug info');
         }
-    }, []);
+    }, [devices]);
 
     useEffect(() => {
         if (!isOpen) return;
 
         try {
-            for(const device of devices) {
-                loadDebug(device);
-            }
+            loadDebug();
         } finally {
             toggleLoading(false);
         }
 
         const interval = setInterval(() => {
-            devices.forEach(device => {
-                loadDebug(device);
-            });
+            loadDebug();
         }, 5000);
 
         return () => clearInterval(interval)

@@ -1,4 +1,4 @@
-import type {Status, Config, Network, DebugInfo, Configs} from './types'
+import type {Status, Config, Network, DebugInfo, DeviceInfos, Configs} from './types'
 
 const API_BASE = '/api'
 
@@ -97,4 +97,8 @@ export async function fetchDebug(ip?: string): Promise<DebugInfo> {
   }
 
   return api<DebugInfo>(url)
+}
+
+export async function fetchAllDebug(): Promise<DeviceInfos> {
+  return api<DeviceInfos>('/all-debug')
 }

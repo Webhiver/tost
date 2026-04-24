@@ -126,6 +126,10 @@ export interface DebugInfo {
   } | null
 }
 
+export interface DeviceInfos {
+  [key: string]: DebugInfo
+}
+
 export interface DebugInfoExtended {
   device: Device
   data: DebugInfo,

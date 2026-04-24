@@ -129,6 +129,30 @@ class WebServer:
         @app.route('/api/debug', methods=['GET'])
         async def get_debug(request):
             return debug.get_debug_info()
+
+        @app.route('/api/all-debug', methods=['GET'])
+        async def get_all_debug(request):
+            result = {}
+            local_mac = state.get("mac")
+            result[local_mac] = debug.get_debug_info()
+
+            satellites = state.get("satellites", [])
+            for sat in satellites:
+                ip = sat.get("ip")
+                mac = sat.get("mac")
+                if not mac:
+                    continue
+                response = None
+                try:
+                    response = urequests.get("http://{}:80/api/debug".format(ip), timeout=5)
+                    result[mac] = response.json()
+                    response.close()
+                except Exception as e:
+                    if response:
+                        response.close()
+                    result[mac] = None
+
+            return result
         
         @app.route('/api/mem-info', methods=['GET'])
         async def get_mem_info(request):
