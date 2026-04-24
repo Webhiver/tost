@@ -66,7 +66,7 @@ const SatellitePanel = () => {
     return (
         <div
             data-open={open}
-            data-content-visible={'true'}
+            data-content-visible={open ? 'true' : undefined}
             style={{
                 transitionDuration: isDragging ? '0ms' : `${animationSpeed}ms`,
                 transform: open ? `translateX(${dragOffset}px)` : undefined,
