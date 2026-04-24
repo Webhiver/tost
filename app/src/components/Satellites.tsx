@@ -23,6 +23,7 @@ const Satellites = () => {
     const intl = useIntl();
 
     const [slideIndex, setSlideIndex] = useState<number>(0);
+    const [slideWidth, setSlideWidth] = useState<number>(19);
 
     useEffect(() => {
         if (flameMode === 'one') {
@@ -35,6 +36,10 @@ const Satellites = () => {
     useEffect(() => {
         swiperRef.current ? swiperRef.current.swiper.slideTo(activeDeviceIndex) : null;
     }, [activeDeviceIndex]);
+
+    useEffect(() => {
+      setSlideWidth(Math.min(19, Math.floor(98 / devices.length)));
+    }, [devices]);
 
     return (
         <div className="w-full pb-8">
@@ -119,29 +124,33 @@ const Satellites = () => {
                 </Swiper>
             </div>
             <div className="flex justify-center items-center relative">
-                <div className="w-[19%] absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950" style={{left: `${19 * slideIndex + ((100 - devices.length * 19) / 2)}%`}}/>
+                <div
+                  className="absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950"
+                  style={{width: `${slideWidth}%`, left: `${slideWidth * slideIndex + ((100 - devices.length * slideWidth) / 2)}%`}}
+                />
                 {devices.map((device: Device, index: number) => {
                     let deviceStatus = null;
                     if (device.active) {
-                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.active"})}</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.active"})}</span>
                     }
                     if(!device.active && !device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.fallback"})}</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.fallback"})}</span>
                     }
                     if(!device.active && device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.ignored"})}</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.ignored"})}</span>
                     }
                     if(!device.healthy){
-                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.broken"})}</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.broken"})}</span>
                     }
                     if(!device.online){
-                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3">{intl.formatMessage({id: "satellite.status.offline"})}</span>
+                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.offline"})}</span>
                     }
 
                     return (
                         <div
                             key={`device-icon-${device.id}-${index}`}
-                            className="w-[19%] rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
+                            className="rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
+                            style={{width: `${slideWidth}%`}}
                             onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
                         >
                             {!device.satellite ?
