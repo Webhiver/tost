@@ -1,4 +1,4 @@
-import {useState, useRef, useEffect} from "react";
+import React, {useState, useRef, useEffect, Fragment} from "react";
 import {FaTimesCircle} from "react-icons/fa";
 import {FaCircleCheck, FaTriangleExclamation} from "react-icons/fa6";
 import {GrWifi, GrWifiMedium, GrWifiLow, GrWifiNone, GrSatellite, GrHomeRounded} from "react-icons/gr";
@@ -11,6 +11,44 @@ import {useContextSelector} from "@fluentui/react-context-selector";
 import {LocalContext, PanelsContext} from "../_context";
 import {Device} from "../types";
 import {useIntl} from "react-intl";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+const ThumbnailItem = ({device, index, width, swiperRef, intl}: {
+    device: Device, index: number, width: number | string,
+    swiperRef: React.RefObject<SwiperRef | null>, intl: ReturnType<typeof useIntl>
+}) => {
+    let deviceStatus = null;
+    if (device.active) {
+        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.active"})}</span>;
+    }
+    if (!device.active && !device.satellite) {
+        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.fallback"})}</span>;
+    }
+    if (!device.active && device.satellite) {
+        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.ignored"})}</span>;
+    }
+    if (!device.healthy) {
+        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.broken"})}</span>;
+    }
+    if (!device.online) {
+        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.offline"})}</span>;
+    }
+    return (
+        <div
+            className="rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3 flex-shrink-0"
+            style={{width}}
+            onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
+        >
+            {!device.satellite
+                ? <GrHomeRounded className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
+                : <GrSatellite className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
+            }
+            <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C</span>
+            <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%</span>
+            {deviceStatus}
+        </div>
+    );
+};
 
 const Satellites = () => {
 
@@ -22,8 +60,16 @@ const Satellites = () => {
     const toggleViewSatellite = useContextSelector(PanelsContext, c => c.toggleViewSatellite);
     const intl = useIntl();
 
+    const thumbnailsRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     const [slideIndex, setSlideIndex] = useState<number>(0);
-    const [slideWidth, setSlideWidth] = useState<number>(19);
+    const [thumbPx, setThumbPx] = useState<number>(0);
+    const [highlightLeft, setHighlightLeft] = useState<number>(0);
+    const [hasScrollLeft, setHasScrollLeft] = useState<boolean>(false);
+    const [hasScrollRight, setHasScrollRight] = useState<boolean>(false);
+
+    const needsScroll = devices.length > 5;
 
     useEffect(() => {
         if (flameMode === 'one') {
@@ -38,8 +84,25 @@ const Satellites = () => {
     }, [activeDeviceIndex]);
 
     useEffect(() => {
-      setSlideWidth(Math.min(19, Math.floor(98 / devices.length)));
-    }, [devices]);
+        const el = thumbnailsRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(([entry]) => setThumbPx(entry.contentRect.width * 0.19));
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (!needsScroll || !scrollRef.current || thumbPx === 0) return;
+        const container = scrollRef.current;
+        const paddingLeft = parseFloat(getComputedStyle(container).paddingLeft) || 0;
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        const targetScrollLeft = paddingLeft + thumbPx * slideIndex - container.clientWidth / 2 + thumbPx / 2;
+        const actualScrollLeft = Math.max(0, Math.min(maxScroll, targetScrollLeft));
+        setHighlightLeft(paddingLeft + thumbPx * slideIndex - actualScrollLeft);
+        setHasScrollLeft(actualScrollLeft > 0);
+        setHasScrollRight(actualScrollLeft < maxScroll - 1);
+        container.scrollTo({left: actualScrollLeft, behavior: 'smooth'});
+    }, [slideIndex, thumbPx, needsScroll]);
 
     return (
         <div className="w-full pb-8">
@@ -49,7 +112,7 @@ const Satellites = () => {
                     initialSlide={0}
                     slidesPerView={1}
                     spaceBetween={0}
-                    autoplay={{delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true}}
+                    autoplay={{delay: 5000, disableOnInteraction: true, pauseOnMouseEnter: true}}
                     loop={devices.length > 10}
                     slideToClickedSlide={false}
                     touchEventsTarget={'container'}
@@ -123,46 +186,34 @@ const Satellites = () => {
                     })}
                 </Swiper>
             </div>
-            <div className="flex justify-center items-center relative">
+            <div
+                ref={thumbnailsRef}
+                className={`relative${needsScroll ? '' : ' flex justify-center items-center'}`}
+                id="slider-thumbnails"
+            >
                 <div
-                  className="absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950"
-                  style={{width: `${slideWidth}%`, left: `${slideWidth * slideIndex + ((100 - devices.length * slideWidth) / 2)}%`}}
+                    id="slider-thumbnails-highlight"
+                    className="absolute flex justify-center -top-px bottom-0 transition-all rounded-b-lg bg-slate-50 border border-t-0 border-slate-300 dark:bg-slate-900 dark:border-slate-950"
+                    style={needsScroll
+                        ? {width: thumbPx, left: highlightLeft}
+                        : {width: '19%', left: `${19 * slideIndex + (100 - devices.length * 19) / 2}%`}
+                    }
                 />
-                {devices.map((device: Device, index: number) => {
-                    let deviceStatus = null;
-                    if (device.active) {
-                        deviceStatus = <span className="font-sans tracking-wider bg-green-600/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.active"})}</span>
-                    }
-                    if(!device.active && !device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-indigo-400/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.fallback"})}</span>
-                    }
-                    if(!device.active && device.satellite){
-                        deviceStatus = <span className="font-sans tracking-wider bg-slate-300 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.ignored"})}</span>
-                    }
-                    if(!device.healthy){
-                        deviceStatus = <span className="font-sans tracking-wider bg-amber-500/50 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.broken"})}</span>
-                    }
-                    if(!device.online){
-                        deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.offline"})}</span>
-                    }
-
-                    return (
-                        <div
-                            key={`device-icon-${device.id}-${index}`}
-                            className="rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3"
-                            style={{width: `${slideWidth}%`}}
-                            onClick={() => swiperRef.current ? swiperRef.current.swiper.slideToLoop(index, 300) : null}
-                        >
-                            {!device.satellite ?
-                                <GrHomeRounded className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/> :
-                               <GrSatellite className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
-                            }
-                            <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C</span>
-                            <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%</span>
-                            {deviceStatus}
+                {needsScroll ? (
+                    <Fragment>
+                        <div data-visible={hasScrollLeft ? true : undefined} className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none z-10 flex justify-center items-center opacity-0 data-visible:opacity-100 transition-all">
+                            <FiChevronLeft/>
                         </div>
-                    );
-                })}
+                        <div data-visible={hasScrollRight ? true : undefined} className="absolute right-0 top-0 bottom-0 w-3 pointer-events-none z-10 flex justify-center items-center opacity-0 data-visible:opacity-100 transition-all">
+                            <FiChevronRight/>
+                        </div>
+                        <div ref={scrollRef} className="flex overflow-x-hidden px-3">
+                            {devices.map((device: Device, index: number) => <ThumbnailItem key={`device-icon-${device.id}-${index}`} device={device} index={index} width={thumbPx} swiperRef={swiperRef} intl={intl}/>)}
+                        </div>
+                    </Fragment>
+                ) : (
+                    devices.map((device: Device, index: number) => <ThumbnailItem key={`device-icon-${device.id}-${index}`} device={device} index={index} width="19%" swiperRef={swiperRef} intl={intl}/>)
+                )}
             </div>
         </div>
     );
