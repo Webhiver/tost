@@ -12,6 +12,7 @@ import {PiHandSwipeRight} from "react-icons/pi";
 interface Props {
     type: PanelType
     children?: React.ReactNode
+    contentClasses?: string
 }
 
 const WrapperPanel = (props: Props) => {
@@ -19,6 +20,7 @@ const WrapperPanel = (props: Props) => {
     const {
         type,
         children,
+        contentClasses = "",
     } = props;
 
     const touchAvailable = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
@@ -187,7 +189,7 @@ const WrapperPanel = (props: Props) => {
             onTouchEnd={onTouchEnd}
         >
             {title}
-            <div className="flex-1 overflow-y-auto px-4 relative">
+            <div className={`flex-1 overflow-y-auto px-4 relative ${contentClasses}`}>
                 {renderContent && children}
             </div>
             {touchAvailable &&

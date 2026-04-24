@@ -176,9 +176,13 @@ const MonitoringPanel = () => {
         }
     }, [isOpen]);
 
+    const gridStyle = {
+        gridTemplateColumns: `25% repeat(${devices.length}, minmax(80px, 1fr))`,
+    };
+
     return (
-        <WrapperPanel type="monitoring">
-            <div className="py-4 grid grid-cols-[25%_repeat(3,1fr)] gap-y-1 gap-x-2 text-sm text-slate-500 dark:text-slate-500">
+        <WrapperPanel type="monitoring" contentClasses="overflow-x-auto">
+            <div className="py-4 grid gap-y-1 gap-x-2 text-sm text-slate-500 dark:text-slate-500" style={gridStyle}>
                 <div className="">&nbsp;</div>
                 {devices.map((device, index) => {
                     return (
@@ -188,7 +192,7 @@ const MonitoringPanel = () => {
                 {structure.current.map((section, sectionIndex) => {
                     return (
                         <Fragment key={sectionIndex}>
-                            <div className="col-span-4 grid grid-cols-subgrid bg-black/5 py-1 px-2 whitespace-nowrap">{intl.formatMessage({id: section.titleId})}</div>
+                            <div className="col-span-full grid grid-cols-subgrid bg-black/5 py-1 px-2 whitespace-nowrap">{intl.formatMessage({id: section.titleId})}</div>
                             {section.props.map((prop, propIndex) => {
                                 return (
                                     <Fragment key={`${sectionIndex}-${propIndex}`}>
@@ -211,7 +215,7 @@ const MonitoringPanel = () => {
                                     </Fragment>
                                 );
                             })}
-                            <div key={`${sectionIndex}-blank`} className="col-span-4 h-3">&nbsp;</div>
+                            <div key={`${sectionIndex}-blank`} className="col-span-full h-3">&nbsp;</div>
                         </Fragment>
                     );
                 })}
