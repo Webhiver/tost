@@ -25,6 +25,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
     const [mac, setMac] = useState<string>('');
     const [ip, setIp] = useState<string>('');
     const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
+    const [firmwareUpdateAvailable, setFirmwareUpdateAvailable] = useState<boolean>(false);
     const [name, setName] = useState<string>('Host');
     const [healthy, setHealthy] = useState<boolean>(true);
     const [humidity, setHumidity] = useState<number | null>(null);
@@ -94,6 +95,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
         setMac(state?.mac ?? '');
         setIp(state?.ip ?? '');
         setFirmwareVersion(state?.firmware_version ?? null);
+        setFirmwareUpdateAvailable(state?.firmware_update_available ?? false);
     }, [state]);
 
 
@@ -175,6 +177,7 @@ const LocalProvider = ({children}: { children: ReactNode }) => {
             mac,
             ip,
             firmwareVersion,
+            firmwareUpdateAvailable,
             name,
             healthy,
             humidity,

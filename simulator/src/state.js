@@ -8,6 +8,7 @@ const initialState = () => ({
   mac: LOCAL_MAC,
   ip: LOCAL_IP,
   firmware_version: VERSION,
+  firmware_update_available: Math.random() < 0.5,
   sensor: {
     temperature: 22.5,
     humidity: 45.0,
@@ -46,4 +47,5 @@ export const getSatelliteState = () => ({
   sensor: { ...state.sensor },
   wifi_strength: state.wifi_strength,
   firmware_version: state.firmware_version,
+  firmware_update_available: state.firmware_update_available,
 });

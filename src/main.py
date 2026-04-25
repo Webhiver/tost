@@ -13,6 +13,7 @@ from web_server import web_server
 from dns_server import dns_server
 from wifi import wifi
 from discovery import discovery
+from updater import update_checker
 import watchdog
 
 
@@ -31,6 +32,7 @@ async def main():
         asyncio.create_task(discovery.loop()),
         asyncio.create_task(web_server.loop()),
         asyncio.create_task(thermostat.loop()),
+        asyncio.create_task(update_checker.loop()),
     ]
 
     # print("PicoThermostat running!")

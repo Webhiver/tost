@@ -14,6 +14,7 @@ export interface SatelliteState {
   sensor: SensorData
   wifi_strength: number | null
   firmware_version: string | null
+  firmware_update_available: boolean
 }
 
 export interface Satellite {
@@ -63,6 +64,7 @@ export interface State {
   mac: string,
   ip: string,
   firmware_version: string | null,
+  firmware_update_available: boolean,
   wifi_connected: boolean
   wifi_strength: number | null
   sensor: SensorData
@@ -174,6 +176,7 @@ export interface LocalProviderProps {
   mac: string
   ip: string
   firmwareVersion: string | null
+  firmwareUpdateAvailable: boolean
   name: string
   healthy: boolean
   temperature: number | null
