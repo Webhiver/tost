@@ -148,6 +148,7 @@ export interface Device {
   id: string
   ip: string | undefined
   firmwareVersion: string | null
+  firmwareUpdateAvailable: boolean
   satellite: boolean
   name: string
   online: boolean

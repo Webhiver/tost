@@ -12,6 +12,7 @@ import {LocalContext, PanelsContext} from "../_context";
 import {Device} from "../types";
 import {useIntl} from "react-intl";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { TbCloudDownload } from "react-icons/tb";
 
 const ThumbnailItem = ({device, index, width, swiperRef, intl}: {
     device: Device, index: number, width: number | string,
@@ -33,6 +34,7 @@ const ThumbnailItem = ({device, index, width, swiperRef, intl}: {
     if (!device.online) {
         deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.offline"})}</span>;
     }
+    console.log(device);
     return (
         <div
             className="rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3 flex-shrink-0"
@@ -42,6 +44,9 @@ const ThumbnailItem = ({device, index, width, swiperRef, intl}: {
             {!device.satellite
                 ? <GrHomeRounded className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
                 : <GrSatellite className="size-5 stroke-slate-500 mb-1 dark:stroke-slate-300"/>
+            }
+            {(device.satellite && device.firmwareUpdateAvailable) &&
+                <TbCloudDownload className="text-sky-600 dark:text-sky-400 animate-bounce absolute top-2 left-3 size-4"/>
             }
             <span className="font-mono text-slate-500 leading-3 dark:text-slate-400">{device.online ? device.temperature?.toFixed(1) ?? "--" : "--"}°C</span>
             <span className="font-mono text-slate-400 leading-3 dark:text-slate-300">{device.online ? device.humidity?.toFixed(1) ?? "--" : "--"}%</span>
