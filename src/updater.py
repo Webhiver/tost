@@ -353,9 +353,7 @@ def apply_pending_update():
         print("updater: Continuing with existing firmware...")
 
 
-# CHECK_INTERVAL_S = 3600
-CHECK_INTERVAL_S = 5
-
+CHECK_INTERVAL_S = 3600 #check every hour
 
 class UpdateChecker:
 
