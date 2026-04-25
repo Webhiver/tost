@@ -384,7 +384,15 @@ const PanelsProvider = ({children}: { children: ReactNode }) => {
     }, [stopGettingStatus, resetAndStartGettingStatus]);
 
     const togglePanel = useCallback((panel: PanelType, isOpen: boolean) => {
-        if (isOpen && panel === "main") {
+        if (isOpen && panel !== "updates") {
+            console.log(`stop getting status because ${panel} panel was opened`);
+            stopGettingStatus();
+        }
+        if (isOpen && panel === "updates") {
+            console.log(`start getting status because ${panel} panel was closed`);
+            resetAndStartGettingStatus();
+        }
+        if (!isOpen && panel === "updates") {
             console.log(`stop getting status because ${panel} panel was opened`);
             stopGettingStatus();
         }
