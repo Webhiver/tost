@@ -34,7 +34,7 @@ const ThumbnailItem = ({device, index, width, swiperRef, intl}: {
     if (!device.online) {
         deviceStatus = <span className="font-sans tracking-wider bg-red-600/40 text-xs text-black/60 px-1.5 py-0.5 rounded-full leading-3 lowercase">{intl.formatMessage({id: "satellite.status.offline"})}</span>;
     }
-    console.log(device);
+    
     return (
         <div
             className="rounded-b-md flex flex-col items-center justify-center gap-1 text-xs cursor-pointer relative pt-3 pb-3 flex-shrink-0"
