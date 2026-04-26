@@ -131,7 +131,7 @@
   "updates.warning": "Do NOT power off your thermostat device during the update. It will automatically restart to complete the update.",
   "updates.section.installed": "INSTALLED FIRMWARE",
   "updates.currentFirmware": "Current firmware is {version}",
-  "updates.section.available": "AVAILABLE FIRMWARES",
+  "updates.section.available": "AVAILABLE FIRMWARE",
   "updates.installFirmware": "Install",
   "updates.releaseNotes": "Firmware release notes are displayed here.",
   "updates.section.manual": "OR MANUALLY UPLOAD FIRMWARE",
