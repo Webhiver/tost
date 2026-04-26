@@ -2,7 +2,7 @@ import dgram from 'node:dgram';
 import { LOCAL_IP, LOCAL_MAC, LOCAL_BROADCAST } from './network.js';
 
 const DISCOVERY_PORT = Number(process.env.DISCOVERY_PORT) || 5005;
-const JITTER_MS = 200;
+const JITTER_MS = 1000;
 
 const iamMessage = () => Buffer.from(`IAM|${LOCAL_MAC}`);
 

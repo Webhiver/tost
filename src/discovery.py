@@ -6,7 +6,8 @@ from wifi import wifi
 from config import config
 from state import state
 
-DISCOVERY_JITTER_MS = 200
+DISCOVERY_JITTER_MS = 1000
+DISCOVERY_POLL_MS = 20
 SOCKET_RETRY_S = 30
 
 
@@ -174,17 +175,19 @@ class DiscoveryManager:
                 self._needs_announce = False
             
             if self._socket:
-                try:
-                    data, addr = self._socket.recvfrom(256)
+                while True:
+                    try:
+                        data, addr = self._socket.recvfrom(256)
+                    except OSError:
+                        break
+                    except Exception as e:
+                        print("Discovery: error:", e)
+                        self._close()
+                        self._needs_open = True
+                        break
                     await self._handle_message(data, addr)
-                except OSError:
-                    pass
-                except Exception as e:
-                    print("Discovery: error:", e)
-                    self._close()
-                    self._needs_open = True
-            
-            await asyncio.sleep_ms(100)
+
+            await asyncio.sleep_ms(DISCOVERY_POLL_MS)
 
 
 discovery = DiscoveryManager()
