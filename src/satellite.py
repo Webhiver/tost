@@ -7,10 +7,12 @@ from config import config
 
 
 class SatelliteManager:
-    
+
     TIMEOUT_S = 5
-    
+    MAX_CONCURRENT = 3
+
     def __init__(self):
+        self._polling = False
         self._sync_satellites_from_config()
         config.subscribe("satellites", self._on_satellites_config_change)
     
@@ -141,23 +143,40 @@ class SatelliteManager:
         """
         return await self._http_request_async(ip, "POST", "/api/sync", sync_data)
     
+    async def _gather_batched(self, coro_factory, items):
+        """Run coro_factory(item) for each item, capped at MAX_CONCURRENT in flight.
+
+        Avoids exhausting the lwIP TCP PCB pool when there are many satellites.
+        """
+        results = []
+        for i in range(0, len(items), self.MAX_CONCURRENT):
+            batch = items[i:i + self.MAX_CONCURRENT]
+            batch_results = await asyncio.gather(
+                *[coro_factory(item) for item in batch],
+                return_exceptions=True,
+            )
+            results.extend(batch_results)
+        return results
+
     async def poll_all_satellites_async(self):
-        """Poll all satellites concurrently without blocking."""
+        """Poll all satellites without exhausting the lwIP socket pool."""
         satellites = state.get("satellites", [])
         if not satellites:
             return
-        
+
         current_tick = ticks_ms()
         grace_period_ms = config.get("satellite_grace_period", 120) * 1000
-        
+
         # Only poll satellites that have IPs
         sats_with_ip = [sat for sat in satellites if sat.get("ip")]
-        
+
         if not sats_with_ip:
             return
-        
-        tasks = [self.poll_satellite_async(sat["ip"]) for sat in sats_with_ip]
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        results = await self._gather_batched(
+            lambda sat: self.poll_satellite_async(sat["ip"]),
+            sats_with_ip,
+        )
         
         # Create lookup for poll results by MAC
         poll_results = {}
@@ -227,13 +246,25 @@ class SatelliteManager:
                 "target_temperature": config.get("target_temperature", 22.0),
                 "operating_mode": config.get("operating_mode", "manual"),
             }
-            sync_tasks = [self.sync_satellite_async(ip, sync_data) for ip in online_ips]
-            await asyncio.gather(*sync_tasks, return_exceptions=True)
+            await self._gather_batched(
+                lambda ip: self.sync_satellite_async(ip, sync_data),
+                online_ips,
+            )
+
+    async def _run_poll(self):
+        try:
+            await self.poll_all_satellites_async()
+        finally:
+            self._polling = False
 
     async def loop(self):
         while True:
             if config.get("mode") == "host" and not state.get("is_pairing"):
-                await self.poll_all_satellites_async()
+                if self._polling:
+                    print("Satellite: previous poll still in progress, skipping")
+                else:
+                    self._polling = True
+                    asyncio.create_task(self._run_poll())
             await asyncio.sleep(SATELLITE_POLLING_INTERVAL)
 
 
