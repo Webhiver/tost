@@ -8,6 +8,20 @@ import {useIntl} from "react-intl";
 
 type UpdateStatus = 'idle' | 'uploading' | 'success' | 'error'
 
+const FirmwareCard = ({version, description}: {version: string, description: string}) => {
+    const intl = useIntl();
+
+    return (
+        <div className="flex flex-col items-stretch justify-start gap-2 border border-slate-300 dark:border-slate-600 bg-white/30 dark:bg-black/30 rounded-lg p-4">
+            <div className="flex-1 flex justify-between items-center">
+                <h1 className="text-lg text-slate-500">Firmware {version}</h1>
+                <button className="bg-sky-500 text-white px-3 py-1 rounded-full cursor-pointer hover:bg-sky-600 transition-colors">{intl.formatMessage({id: "updates.installFirmware"})}</button>
+            </div>
+            <div className="text-sm text-slate-400">{description}</div>
+        </div>
+    );
+}
+
 const UpdatesPanel = () => {
 
     const currentFirmwareVersion = useContextSelector(LocalContext, c => c.firmwareVersion);
@@ -130,13 +144,7 @@ const UpdatesPanel = () => {
                 </div>
 
                 <div className="font-light text-slate-400">{intl.formatMessage({id: "updates.section.available"})}</div>
-                <div className="flex flex-col items-stretch justify-start gap-2 border border-slate-300 dark:border-slate-600 bg-white/30 dark:bg-black/30 rounded-lg p-4">
-                    <div className="flex-1 flex justify-between items-center">
-                        <h1 className="text-lg text-slate-500">1.0.22 build 2400415</h1>
-                        <button className="bg-sky-500 text-white px-3 py-1 rounded-full cursor-pointer hover:bg-sky-600 transition-colors">{intl.formatMessage({id: "updates.installFirmware"})}</button>
-                    </div>
-                    <div className="text-sm text-slate-400">{intl.formatMessage({id: "updates.releaseNotes"})}</div>
-                </div>
+                <FirmwareCard version="v1.0.22" description="Release notes for v1.0.22" />
 
                 <div className="font-light text-slate-400">{intl.formatMessage({id: "updates.section.manual"})}</div>
                 <div className="h-40 relative border border-dashed border-slate-400 p-4 flex flex-col justify-center items-center gap-2 rounded-lg overflow-hidden cursor-pointer hover:border-slate-600 transition-colors">
