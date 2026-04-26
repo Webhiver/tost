@@ -1,5 +1,5 @@
 import dgram from 'node:dgram';
-import { LOCAL_MAC, LOCAL_BROADCAST } from './network.js';
+import { LOCAL_IP, LOCAL_MAC, LOCAL_BROADCAST } from './network.js';
 
 const DISCOVERY_PORT = Number(process.env.DISCOVERY_PORT) || 5005;
 const JITTER_MS = 200;
@@ -20,7 +20,7 @@ export const startDiscovery = () => {
       if (err) {
         console.error('Discovery: initial IAM broadcast failed', err);
       } else {
-        console.log(`Discovery: sent IAM broadcast to ${LOCAL_BROADCAST}:${DISCOVERY_PORT}`);
+        console.log(`Discovery: sent IAM broadcast from ${LOCAL_IP} to ${LOCAL_BROADCAST}:${DISCOVERY_PORT}`);
       }
     });
   });
@@ -35,7 +35,7 @@ export const startDiscovery = () => {
         if (err) {
           console.error(`Discovery: IAM reply to ${rinfo.address} failed`, err);
         } else {
-          console.log(`Discovery: sent IAM to ${rinfo.address}`);
+          console.log(`Discovery: sent IAM from ${LOCAL_IP} to ${rinfo.address}`);
         }
       });
     }, jitter);
